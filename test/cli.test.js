@@ -44,7 +44,8 @@ function fullArgs(dir = 'full') {
 test('full fixture renders complete brief with correct citations', () => {
   const out = run(fullArgs());
 
-  assert.match(out, /# Renewal Readiness Brief — Northwind Logistics Inc\./);
+  assert.match(out, /# Renewal Readiness Brief/);
+  assert.match(out, /\*\*Northwind Logistics Inc\.\*\* — `account\.yaml#L2`/);
   assert.match(out, /## Evidence completeness: 5\/5 \(100%\)/);
 
   // Renewal countdown cites the exact YAML line (L6 in fixture).
@@ -68,8 +69,11 @@ test('full fixture renders complete brief with correct citations', () => {
   assert.match(out, /\| Sam Ortiz \| Procurement Lead \| 2026-07-25 \(call\) \| 2 \| `crm\.csv#L6` \|/);
   assert.match(out, /\| Priya Natarajan \| Head of Support \| 2026-04-02 \(meeting\) \| 1 \| `crm\.csv#L3` \|/);
 
-  // All evidence present -> satisfied checklist.
-  assert.match(out, /- \[x\] All required evidence present and all recommended fields filled\./);
+  // All evidence present -> satisfied checklist cites what it checked.
+  assert.match(
+    out,
+    /- \[x\] All required evidence present and all recommended fields filled — `account\.yaml#L2`, `account\.yaml#L6`, `account\.yaml#L3`, `account\.yaml#L4`, `crm\.csv#L2-L9`, `tickets\.csv#L2-L6`, `usage\.csv#L2-L7`\./
+  );
 });
 
 test('every factual table row carries a source span', () => {
@@ -386,6 +390,37 @@ test('ticket load and risk flags evaluate open state as of the brief date', () =
   assert.match(out, /High-severity ticket open 21 days: "Connector down" — `tickets\.csv#L2`/);
 });
 
+test('unknown ticket severities are warned and counted explicitly', () => {
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'csmkit-ticket-severity-'));
+  const accountFile = path.join(tmp, 'account.yaml');
+  const ticketsFile = path.join(tmp, 'tickets.csv');
+  fs.writeFileSync(
+    accountFile,
+    ['name: Ticket Severity', 'renewal_date: 2026-12-01', 'owner: Rae', 'arr_usd: 1000', ''].join('\n')
+  );
+  fs.writeFileSync(
+    ticketsFile,
+    [
+      'opened,closed,severity,subject,status',
+      '2026-08-01,,p0,System down,open',
+      '2026-08-02,,urgent,Data loss,open',
+      '2026-08-03,,mystery,Ambiguous problem,open',
+      '',
+    ].join('\n')
+  );
+
+  const res = runSafe(['brief', '--account', accountFile, '--tickets', ticketsFile, ...AS_OF]);
+
+  assert.strictEqual(res.code, 0);
+  assert.match(res.stderr, /warning: tickets\.csv#L4: severity "mystery" is unrecognized; counted as unknown/);
+  assert.match(
+    res.stdout,
+    /\| Ticket load \| 3 open \(2 high · 0 medium · 0 low · 1 unknown\) \| `tickets\.csv#L2,L3,L4` \|/
+  );
+  assert.match(res.stdout, /High-severity ticket open 21 days: "System down" — `tickets\.csv#L2`/);
+  assert.match(res.stdout, /High-severity ticket open 20 days: "Data loss" — `tickets\.csv#L3`/);
+});
+
 test('documented optional CRM role and usage events columns are optional', () => {
   const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'csmkit-optional-cols-'));
   const accountFile = path.join(tmp, 'account.yaml');
@@ -496,6 +531,7 @@ test('--out writes the brief to a file', () => {
   const out = run([...fullArgs(), '--out', outFile]);
   assert.match(out, /wrote .*brief\.md \(5\/5 evidence, 100%\)/);
   const written = fs.readFileSync(outFile, 'utf8');
-  assert.match(written, /# Renewal Readiness Brief — Northwind Logistics Inc\./);
+  assert.match(written, /# Renewal Readiness Brief/);
+  assert.match(written, /\*\*Northwind Logistics Inc\.\*\* — `account\.yaml#L2`/);
   assert.match(written, /`account\.yaml#L6`/);
 });

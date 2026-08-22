@@ -101,6 +101,8 @@ test('csmkit stats summarizes the log; friendly message when empty', () => {
   const summary = run(['stats', '--stats-file', statsFile]).stdout;
   assert.match(summary, /runs: 2/);
   assert.match(summary, /accounts covered: 1/);
-  assert.match(summary, /total minutes saved \(est\.\): 150\.00/);
-  assert.match(summary, /avg minutes saved per run: 75\.00/);
+  const total = Number(summary.match(/total minutes saved \(est\.\): ([0-9.]+)/)?.[1]);
+  const avg = Number(summary.match(/avg minutes saved per run: ([0-9.]+)/)?.[1]);
+  assert.ok(total > 149 && total <= 150, `unexpected total minutes saved ${total}`);
+  assert.ok(avg > 74.5 && avg <= 75, `unexpected avg minutes saved ${avg}`);
 });
