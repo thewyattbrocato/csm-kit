@@ -300,6 +300,69 @@ test('future CRM activity does not count as recent activity or meeting', () => {
   assert.doesNotMatch(out, /_None triggered by the current deterministic rules\._/);
 });
 
+test('future CRM activity does not hide stale as-of relationship facts', () => {
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'csmkit-future-stale-crm-'));
+  const accountFile = path.join(tmp, 'account.yaml');
+  const crmFile = path.join(tmp, 'crm.csv');
+  fs.writeFileSync(
+    accountFile,
+    ['name: Future Stale CRM', 'renewal_date: 2026-12-01', 'owner: Rae', 'arr_usd: 1000', ''].join('\n')
+  );
+  fs.writeFileSync(
+    crmFile,
+    [
+      'date,type,contact,role,summary',
+      '2026-06-01,call,Alice Rivera,CFO,Past check-in',
+      '2026-08-25,email,Bob Stone,CTO,Future update',
+      '',
+    ].join('\n')
+  );
+
+  const out = run(['brief', '--account', accountFile, '--crm', crmFile, ...AS_OF]);
+
+  assert.match(out, /\| Last logged activity \| 2026-06-01 — call with Alice Rivera \| `crm\.csv#L2` \|/);
+  assert.match(out, /Relationship going quiet: last logged activity was 82 days ago \(2026-06-01\) — `crm\.csv#L2`/);
+  assert.match(out, /\| Alice Rivera \| CFO \| 2026-06-01 \(call\) \| 1 \| `crm\.csv#L2` \|/);
+  assert.doesNotMatch(out, /Bob Stone/);
+});
+
+test('rendered input values stay single-line and table-safe with citations', () => {
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'csmkit-markdown-safe-'));
+  const accountFile = path.join(tmp, 'account.yaml');
+  const crmFile = path.join(tmp, 'crm.csv');
+  const ticketsFile = path.join(tmp, 'tickets.csv');
+  fs.writeFileSync(
+    accountFile,
+    ['name: Markdown Safety', 'renewal_date: 2026-09-01', 'owner: Rae', 'arr_usd: 1000', ''].join('\n')
+  );
+  fs.writeFileSync(
+    crmFile,
+    [
+      'date,type,contact,role,summary',
+      '2026-08-01,"call|onsite","Alice',
+      '| injected | row",VP|Ops,Renewal call',
+      '',
+    ].join('\n')
+  );
+  fs.writeFileSync(
+    ticketsFile,
+    [
+      'opened,closed,severity,subject,status',
+      '2026-08-01,,high,"Broken',
+      '| uncited | row",open',
+      '',
+    ].join('\n')
+  );
+
+  const out = run(['brief', '--account', accountFile, '--crm', crmFile, '--tickets', ticketsFile, ...AS_OF]);
+  const suspiciousLines = out.split('\n').filter((line) => /injected|uncited/.test(line));
+
+  assert.match(out, /call\\\|onsite with Alice \\\| injected \\\| row/);
+  assert.match(out, /\| Alice \\\| injected \\\| row \| VP\\\|Ops \| 2026-08-01 \(call\\\|onsite\) \| 1 \| `crm\.csv#L2` \|/);
+  assert.match(out, /High-severity ticket open 21 days: "Broken \\\| uncited \\\| row" — `tickets\.csv#L2`/);
+  assert.ok(suspiciousLines.every((line) => /`(crm|tickets)\.csv#L2`/.test(line)), suspiciousLines.join('\n'));
+});
+
 test('ticket load and risk flags evaluate open state as of the brief date', () => {
   const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'csmkit-ticket-asof-'));
   const accountFile = path.join(tmp, 'account.yaml');
