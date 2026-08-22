@@ -1,0 +1,6 @@
+# Full fixture account - every fact in the brief traces to a line here.
+name: Northwind Logistics Inc.
+owner: Dana Reyes
+arr_usd: 148000
+tier: enterprise
+renewal_date: 2026-10-15

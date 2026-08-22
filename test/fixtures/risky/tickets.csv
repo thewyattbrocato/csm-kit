@@ -1,0 +1,3 @@
+opened,closed,severity,status,subject
+2026-06-01,,high,open,Billing connector sync broken
+2026-07-30,,low,new,Scheduled report timezone off by one

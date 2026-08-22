@@ -1,0 +1,6 @@
+opened,closed,severity,status,subject
+2026-05-12,2026-05-15,p2,resolved,Bulk export timeouts
+2026-06-03,2026-06-04,low,closed,SAML metadata refresh request
+2026-08-02,,medium,open,Dashboard filter save fails intermittently
+2026-07-19,2026-07-21,sev1,closed,Data sync outage
+2026-08-18,,low,open,Feature request: scheduled reports
