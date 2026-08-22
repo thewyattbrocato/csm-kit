@@ -465,12 +465,60 @@ test('usage periods sort numerically and unorderable periods are skipped', () =>
     ].join('\n')
   );
 
-  const res = runSafe(['brief', '--account', accountFile, '--usage', usageFile, ...AS_OF]);
+  const res = runSafe(['brief', '--account', accountFile, '--usage', usageFile, '--as-of', '2026-10-31']);
 
   assert.strictEqual(res.code, 0);
   assert.match(res.stderr, /warning: usage\.csv#L4: skipped — period "FY26-Q4" is not YYYY-M, YYYY-MM, or YYYY-MM-DD/);
   assert.match(res.stdout, /\| Latest usage period \(2026-10\) \| 12 active users · 240 events \| `usage\.csv#L2` \|/);
   assert.match(res.stdout, /\| Usage trend \(active users, 2026-9 → 2026-10\) \| \+20% \| `usage\.csv#L2,L3` \|/);
+});
+
+test('future usage periods do not affect as-of latest trend or risk', () => {
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'csmkit-usage-asof-'));
+  const accountFile = path.join(tmp, 'account.yaml');
+  const usageFile = path.join(tmp, 'usage.csv');
+  fs.writeFileSync(
+    accountFile,
+    ['name: Usage As Of', 'renewal_date: 2026-12-01', 'owner: Rae', 'arr_usd: 1000', ''].join('\n')
+  );
+  fs.writeFileSync(
+    usageFile,
+    [
+      'period,active_users,events',
+      '2026-06,100,1000',
+      '2026-07,100,1000',
+      '2026-09,50,500',
+      '',
+    ].join('\n')
+  );
+
+  const out = run(['brief', '--account', accountFile, '--usage', usageFile, ...AS_OF]);
+
+  assert.match(out, /\| Latest usage period \(2026-07\) \| 100 active users · 1,000 events \| `usage\.csv#L3` \|/);
+  assert.match(out, /\| Usage trend \(active users, 2026-06 → 2026-07\) \| \+0% \| `usage\.csv#L2,L3` \|/);
+  assert.doesNotMatch(out, /2026-09/);
+  assert.doesNotMatch(out, /Usage declining/);
+});
+
+test('large aggregate citations use contributor line ranges', () => {
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'csmkit-large-aggregate-'));
+  const accountFile = path.join(tmp, 'account.yaml');
+  const ticketsFile = path.join(tmp, 'tickets.csv');
+  const ticketRows = ['opened,closed,severity,subject,status'];
+  for (let i = 0; i < 9; i++) {
+    ticketRows.push(`2026-08-${String(i + 1).padStart(2, '0')},,low,Issue ${i + 1},open`);
+  }
+  ticketRows.push('');
+  fs.writeFileSync(
+    accountFile,
+    ['name: Large Aggregate', 'renewal_date: 2026-12-01', 'owner: Rae', 'arr_usd: 1000', ''].join('\n')
+  );
+  fs.writeFileSync(ticketsFile, ticketRows.join('\n'));
+
+  const out = run(['brief', '--account', accountFile, '--tickets', ticketsFile, ...AS_OF]);
+
+  assert.match(out, /\| Ticket load \| 9 open \(0 high · 0 medium · 9 low\) \| `tickets\.csv#L2-L10` \|/);
+  assert.doesNotMatch(out, /\+1 more/);
 });
 
 test('unusable CSV row is skipped with a warning and never becomes a fact', () => {

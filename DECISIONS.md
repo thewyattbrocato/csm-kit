@@ -118,7 +118,7 @@ One entry per significant build choice: what the alternatives were, what we chos
 
 **Alternatives:** cite only the "most important" row; omit citations for aggregates; invent per-row citations.
 
-**Choice:** Aggregates cite every contributing row (`tickets.csv#L4,L6`, capped display beyond 8), ranges cite min-max physical lines (`crm.csv#L2-L9`), and explicit absence claims cite the searched range so the reader can verify the search themselves.
+**Choice:** Small aggregates cite every contributing row (`tickets.csv#L4,L6`). When an aggregate has more than eight contributing rows, it cites the min-max physical line range of those contributors (`tickets.csv#L4-L18`) instead of emitting a partial list. Explicit absence claims cite the searched range (`crm.csv#L2-L9`) so the reader can verify the search themselves.
 
 **Why:** Partial citation is how trust erodes silently — a reader who checks one row and finds the other two unsourced stops trusting all of them. Verifiable absence ("we looked at these rows and found no meeting") is often the most decision-relevant fact in renewal prep; it deserves the same rigor as presence.
 
@@ -135,4 +135,3 @@ One entry per significant build choice: what the alternatives were, what we chos
 **Why:** A trust-first tool that secretly logs undermines its own thesis. Opt-in keeps the metric honest too: each record represents a deliberate claim of value by the person who ran it, not an inflated passive count. Adoption teams can still aggregate later because the format is plain JSONL.
 
 > **Pattern:** Instrumentation should be a feature the user opts into, never a side effect they discover.
-
