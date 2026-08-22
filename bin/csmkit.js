@@ -95,7 +95,7 @@ function cmdBrief(argv) {
     asOfDt = parseIsoDate(args.values['as-of']);
     if (!asOfDt) fail(`--as-of must be a valid YYYY-MM-DD date, got "${args.values['as-of']}"`);
   } else {
-    asOfDt = new Date(Date.UTC(...new Date().toISOString().slice(0, 10).split('-').map(Number)));
+    asOfDt = parseIsoDate(new Date().toISOString().slice(0, 10));
   }
 
   let account;

@@ -141,6 +141,109 @@ test('missing CSVs suppress their sections and appear in checklist', () => {
   assert.match(out, /- \[ \] Add `arr_usd:` in account\.yaml/);
 });
 
+test('default as-of uses today UTC without shifting the month', () => {
+  const out = run(['brief', '--account', path.join(FIXTURES, 'sparse', 'account.yaml')]);
+  const todayUtc = new Date().toISOString().slice(0, 10);
+
+  assert.match(out, new RegExp(`as-of ${todayUtc}`));
+});
+
+test('CRM absence facts cite searched ranges and stakeholder role source rows', () => {
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'csmkit-crm-absence-'));
+  const accountFile = path.join(tmp, 'account.yaml');
+  const crmFile = path.join(tmp, 'crm.csv');
+  fs.writeFileSync(
+    accountFile,
+    ['name: Citation Test', 'renewal_date: 2026-09-01', 'owner: Rae', 'arr_usd: 1000', ''].join('\n')
+  );
+  fs.writeFileSync(
+    crmFile,
+    [
+      'date,type,contact,role,summary',
+      '2026-01-01,email,Alice Rivera,CFO,Initial finance touch',
+      '2026-01-10,email,Alice Rivera,,Follow-up without role',
+      '',
+    ].join('\n')
+  );
+
+  const out = run(['brief', '--account', accountFile, '--crm', crmFile, ...AS_OF]);
+
+  assert.match(
+    out,
+    /\| Activity volume \(last 30d \/ prior 30d\) \| 0 \/ 0 \| `crm\.csv#L2-L3` \|/
+  );
+  assert.match(
+    out,
+    /no customer meeting\/call anywhere in the CRM export — renewal `account\.yaml#L2`, search covered `crm\.csv#L2-L3`/
+  );
+  assert.match(
+    out,
+    /\| Alice Rivera \| CFO \| 2026-01-10 \(email\) \| 2 \| `crm\.csv#L2,L3` \|/
+  );
+  assert.doesNotMatch(out, /crm\.csv#`/);
+  assert.doesNotMatch(out, /search covered null/);
+});
+
+test('all-invalid CRM export does not render uncited near-renewal absence risk', () => {
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'csmkit-invalid-crm-'));
+  const accountFile = path.join(tmp, 'account.yaml');
+  const crmFile = path.join(tmp, 'crm.csv');
+  fs.writeFileSync(
+    accountFile,
+    ['name: Invalid CRM', 'renewal_date: 2026-09-01', 'owner: Rae', 'arr_usd: 1000', ''].join('\n')
+  );
+  fs.writeFileSync(
+    crmFile,
+    ['date,type,contact,role,summary', 'not-a-date,email,Alice Rivera,CFO,Broken date', ''].join('\n')
+  );
+
+  const res = runSafe(['brief', '--account', accountFile, '--crm', crmFile, ...AS_OF]);
+
+  assert.strictEqual(res.code, 0);
+  assert.match(res.stderr, /warning: crm\.csv#L2: skipped — date "not-a-date" is not YYYY-MM-DD/);
+  assert.doesNotMatch(res.stdout, /no customer meeting\/call anywhere/);
+  assert.doesNotMatch(res.stdout, /search covered null/);
+});
+
+test('usage latest and trend use chronological periods independent of file order', () => {
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'csmkit-usage-order-'));
+  const accountFile = path.join(tmp, 'account.yaml');
+  const usageFile = path.join(tmp, 'usage.csv');
+  fs.writeFileSync(
+    accountFile,
+    ['name: Usage Order', 'renewal_date: 2026-12-01', 'owner: Rae', 'arr_usd: 1000', ''].join('\n')
+  );
+  fs.writeFileSync(
+    usageFile,
+    ['period,active_users,events', '2026-08,10,200', '2026-07,8,160', ''].join('\n')
+  );
+
+  const out = run(['brief', '--account', accountFile, '--usage', usageFile, ...AS_OF]);
+
+  assert.match(out, /\| Latest usage period \(2026-08\) \| 10 active users · 200 events \| `usage\.csv#L2` \|/);
+  assert.match(out, /\| Usage trend \(active users, 2026-07 → 2026-08\) \| \+25% \| `usage\.csv#L2,L3` \|/);
+});
+
+test('zero active-user baseline suppresses uncomputable usage trend', () => {
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'csmkit-zero-users-'));
+  const accountFile = path.join(tmp, 'account.yaml');
+  const usageFile = path.join(tmp, 'usage.csv');
+  fs.writeFileSync(
+    accountFile,
+    ['name: Zero Users', 'renewal_date: 2026-12-01', 'owner: Rae', 'arr_usd: 1000', ''].join('\n')
+  );
+  fs.writeFileSync(
+    usageFile,
+    ['period,active_users,events', '2026-07,0,100', '2026-08,10,200', ''].join('\n')
+  );
+
+  const out = run(['brief', '--account', accountFile, '--usage', usageFile, ...AS_OF]);
+
+  assert.match(out, /\| Latest usage period \(2026-08\) \| 10 active users · 200 events \| `usage\.csv#L3` \|/);
+  assert.doesNotMatch(out, /Usage trend \(active users/);
+  assert.doesNotMatch(out, /Infinity/);
+});
+
 test('unusable CSV row is skipped with a warning and never becomes a fact', () => {
   const res = runSafe([
     'brief',
