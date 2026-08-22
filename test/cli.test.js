@@ -65,8 +65,8 @@ test('full fixture renders complete brief with correct citations', () => {
   assert.match(out, /_None triggered by the current deterministic rules\._/);
 
   // Stakeholder map derived from CRM contacts, most recent touch first.
-  assert.match(out, /\| Jordan Lee \| VP Operations \| 2026-08-14 \(meeting\) \| 4 \| `crm\.csv#L5` \|/);
-  assert.match(out, /\| Sam Ortiz \| Procurement Lead \| 2026-07-25 \(call\) \| 2 \| `crm\.csv#L6` \|/);
+  assert.match(out, /\| Jordan Lee \| VP Operations \| 2026-08-14 \(meeting\) \| 4 \| `crm\.csv#L2,L4,L5,L8` \|/);
+  assert.match(out, /\| Sam Ortiz \| Procurement Lead \| 2026-07-25 \(call\) \| 2 \| `crm\.csv#L6,L9` \|/);
   assert.match(out, /\| Priya Natarajan \| Head of Support \| 2026-04-02 \(meeting\) \| 1 \| `crm\.csv#L3` \|/);
 
   // All evidence present -> satisfied checklist cites what it checked.
@@ -111,7 +111,7 @@ test('risky fixture triggers all four deterministic risk flags with citations', 
   // 4. Renewal <=60d without recent meeting; absence claim cites searched range too.
   assert.match(
     out,
-    /🔴 Renewal within 60 days but no customer meeting\/call in the last 30 days \(last: 2026-05-22\) — renewal `account\.yaml#L3`, last meeting `crm\.csv#L3`/
+    /🔴 Renewal within 60 days but no customer meeting\/call in the last 30 days \(last: 2026-05-22\) — renewal `account\.yaml#L3`, last meeting `crm\.csv#L3`, search covered `crm\.csv#L2-L3`/
   );
 
   // Ticket load reflects the open set including severity mix.
@@ -276,7 +276,7 @@ test('no-risk statement cites the evidence ranges it checked', () => {
 
   assert.match(
     out,
-    /_None triggered by the current deterministic rules\._ Evidence checked: `crm\.csv#L2-L9`, `tickets\.csv#L2-L6`, `usage\.csv#L2-L7`\./
+    /_None triggered by the current deterministic rules\._ Evidence checked: `account\.yaml#L6`, `crm\.csv#L2-L9`, `tickets\.csv#L2-L6`, `usage\.csv#L2-L7`\./
   );
 });
 
@@ -498,6 +498,35 @@ test('future usage periods do not affect as-of latest trend or risk', () => {
   assert.match(out, /\| Usage trend \(active users, 2026-06 → 2026-07\) \| \+0% \| `usage\.csv#L2,L3` \|/);
   assert.doesNotMatch(out, /2026-09/);
   assert.doesNotMatch(out, /Usage declining/);
+});
+
+test('invalid usage metrics are warned and treated as absent', () => {
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'csmkit-invalid-usage-metrics-'));
+  const accountFile = path.join(tmp, 'account.yaml');
+  const usageFile = path.join(tmp, 'usage.csv');
+  fs.writeFileSync(
+    accountFile,
+    ['name: Invalid Usage Metrics', 'renewal_date: 2026-12-01', 'owner: Rae', 'arr_usd: 1000', ''].join('\n')
+  );
+  fs.writeFileSync(
+    usageFile,
+    [
+      'period,active_users,events',
+      '2026-07,1.6,-5',
+      '2026-08,10,200',
+      '',
+    ].join('\n')
+  );
+
+  const res = runSafe(['brief', '--account', accountFile, '--usage', usageFile, ...AS_OF]);
+
+  assert.strictEqual(res.code, 0);
+  assert.match(res.stderr, /warning: usage\.csv#L2: ignored invalid active_users "1\.6" \(must be a non-negative integer\)/);
+  assert.match(res.stderr, /warning: usage\.csv#L2: ignored invalid events "-5" \(must be a non-negative integer\)/);
+  assert.match(res.stdout, /\| Latest usage period \(2026-08\) \| 10 active users · 200 events \| `usage\.csv#L3` \|/);
+  assert.doesNotMatch(res.stdout, /2 active users/);
+  assert.doesNotMatch(res.stdout, /-5 events/);
+  assert.doesNotMatch(res.stdout, /Usage trend \(active users/);
 });
 
 test('large aggregate citations use contributor line ranges', () => {

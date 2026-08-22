@@ -31,7 +31,7 @@ _Every fact below cites its source span (`file#L<row>`). Facts that cannot be tr
 ## Risk flags
 
 - 🟠 Usage declining: active users down 22% (2026-02 → 2026-07) — `usage.csv#L2,L7`
-- 🔴 Renewal within 60 days but no customer meeting/call in the last 30 days (last: 2026-07-19) — renewal `account.yaml#L7`, last meeting `crm.csv#L7`
+- 🔴 Renewal within 60 days but no customer meeting/call in the last 30 days (last: 2026-07-19) — renewal `account.yaml#L7`, last meeting `crm.csv#L7`, search covered `crm.csv#L2-L8`
 
 ## Stakeholder map
 
@@ -39,8 +39,8 @@ _Derived from the CRM activity export, most recent touch first._
 
 | Stakeholder | Role | Last touch | Activities | Source |
 |---|---|---|---|---|
-| Jordan Lee | VP Operations | 2026-08-10 (email) | 4 | `crm.csv#L8` |
-| Priya Natarajan | IT Director | 2026-07-02 (ticket_review) | 2 | `crm.csv#L6` |
+| Jordan Lee | VP Operations | 2026-08-10 (email) | 4 | `crm.csv#L2,L3,L7,L8` |
+| Priya Natarajan | IT Director | 2026-07-02 (ticket_review) | 2 | `crm.csv#L4,L6` |
 | Sam Ortiz | Procurement Lead | 2026-06-11 (call) | 1 | `crm.csv#L5` |
 
 ## Missing-evidence checklist
