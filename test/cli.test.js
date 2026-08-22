@@ -244,6 +244,137 @@ test('zero active-user baseline suppresses uncomputable usage trend', () => {
   assert.doesNotMatch(out, /Infinity/);
 });
 
+test('quoted CSV fields with commas stay in one field', () => {
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'csmkit-quoted-csv-'));
+  const accountFile = path.join(tmp, 'account.yaml');
+  const crmFile = path.join(tmp, 'crm.csv');
+  fs.writeFileSync(
+    accountFile,
+    ['name: Quoted CSV', 'renewal_date: 2026-12-01', 'owner: Rae', 'arr_usd: 1000', ''].join('\n')
+  );
+  fs.writeFileSync(
+    crmFile,
+    [
+      'date,type,contact,role,summary',
+      '2026-08-01,call,"Lee, Jordan",VP Ops,Renewal call',
+      '',
+    ].join('\n')
+  );
+
+  const out = run(['brief', '--account', accountFile, '--crm', crmFile, ...AS_OF]);
+
+  assert.match(out, /\| Last logged activity \| 2026-08-01 — call with Lee, Jordan \| `crm\.csv#L2` \|/);
+  assert.match(out, /\| Lee, Jordan \| VP Ops \| 2026-08-01 \(call\) \| 1 \| `crm\.csv#L2` \|/);
+});
+
+test('no-risk statement cites the evidence ranges it checked', () => {
+  const out = run(fullArgs());
+
+  assert.match(
+    out,
+    /_None triggered by the current deterministic rules\._ Evidence checked: `crm\.csv#L2-L9`, `tickets\.csv#L2-L6`, `usage\.csv#L2-L7`\./
+  );
+});
+
+test('future CRM activity does not count as recent activity or meeting', () => {
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'csmkit-future-crm-'));
+  const accountFile = path.join(tmp, 'account.yaml');
+  const crmFile = path.join(tmp, 'crm.csv');
+  fs.writeFileSync(
+    accountFile,
+    ['name: Future CRM', 'renewal_date: 2026-09-01', 'owner: Rae', 'arr_usd: 1000', ''].join('\n')
+  );
+  fs.writeFileSync(
+    crmFile,
+    [
+      'date,type,contact,role,summary',
+      '2026-08-25,meeting,Alice Rivera,CFO,Future renewal meeting',
+      '',
+    ].join('\n')
+  );
+
+  const out = run(['brief', '--account', accountFile, '--crm', crmFile, ...AS_OF]);
+
+  assert.match(out, /\| Activity volume \(last 30d \/ prior 30d\) \| 0 \/ 0 \| `crm\.csv#L2-L2` \|/);
+  assert.match(out, /no customer meeting\/call on or before as-of date in the CRM export/);
+  assert.doesNotMatch(out, /_None triggered by the current deterministic rules\._/);
+});
+
+test('ticket load and risk flags evaluate open state as of the brief date', () => {
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'csmkit-ticket-asof-'));
+  const accountFile = path.join(tmp, 'account.yaml');
+  const ticketsFile = path.join(tmp, 'tickets.csv');
+  fs.writeFileSync(
+    accountFile,
+    ['name: Ticket As Of', 'renewal_date: 2026-12-01', 'owner: Rae', 'arr_usd: 1000', ''].join('\n')
+  );
+  fs.writeFileSync(
+    ticketsFile,
+    [
+      'opened,closed,severity,subject,status',
+      '2026-08-01,2026-08-30,high,Connector down,closed',
+      '',
+    ].join('\n')
+  );
+
+  const out = run(['brief', '--account', accountFile, '--tickets', ticketsFile, ...AS_OF]);
+
+  assert.match(out, /\| Ticket load \| 1 open \(1 high · 0 medium · 0 low\) \| `tickets\.csv#L2` \|/);
+  assert.match(out, /High-severity ticket open 21 days: "Connector down" — `tickets\.csv#L2`/);
+});
+
+test('documented optional CRM role and usage events columns are optional', () => {
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'csmkit-optional-cols-'));
+  const accountFile = path.join(tmp, 'account.yaml');
+  const crmFile = path.join(tmp, 'crm.csv');
+  const usageFile = path.join(tmp, 'usage.csv');
+  fs.writeFileSync(
+    accountFile,
+    ['name: Optional Columns', 'renewal_date: 2026-12-01', 'owner: Rae', 'arr_usd: 1000', ''].join('\n')
+  );
+  fs.writeFileSync(
+    crmFile,
+    ['date,type,contact,summary', '2026-08-01,call,Alice Rivera,Renewal call', ''].join('\n')
+  );
+  fs.writeFileSync(
+    usageFile,
+    ['period,active_users', '2026-08,10', ''].join('\n')
+  );
+
+  const res = runSafe(['brief', '--account', accountFile, '--crm', crmFile, '--usage', usageFile, ...AS_OF]);
+
+  assert.strictEqual(res.code, 0);
+  assert.match(res.stdout, /\| Alice Rivera \| — \| 2026-08-01 \(call\) \| 1 \| `crm\.csv#L2` \|/);
+  assert.match(res.stdout, /\| Latest usage period \(2026-08\) \| 10 active users \| `usage\.csv#L2` \|/);
+});
+
+test('usage periods sort numerically and unorderable periods are skipped', () => {
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'csmkit-period-sort-'));
+  const accountFile = path.join(tmp, 'account.yaml');
+  const usageFile = path.join(tmp, 'usage.csv');
+  fs.writeFileSync(
+    accountFile,
+    ['name: Period Sort', 'renewal_date: 2026-12-01', 'owner: Rae', 'arr_usd: 1000', ''].join('\n')
+  );
+  fs.writeFileSync(
+    usageFile,
+    [
+      'period,active_users,events',
+      '2026-10,12,240',
+      '2026-9,10,200',
+      'FY26-Q4,99,990',
+      '',
+    ].join('\n')
+  );
+
+  const res = runSafe(['brief', '--account', accountFile, '--usage', usageFile, ...AS_OF]);
+
+  assert.strictEqual(res.code, 0);
+  assert.match(res.stderr, /warning: usage\.csv#L4: skipped — period "FY26-Q4" is not YYYY-M, YYYY-MM, or YYYY-MM-DD/);
+  assert.match(res.stdout, /\| Latest usage period \(2026-10\) \| 12 active users · 240 events \| `usage\.csv#L2` \|/);
+  assert.match(res.stdout, /\| Usage trend \(active users, 2026-9 → 2026-10\) \| \+20% \| `usage\.csv#L2,L3` \|/);
+});
+
 test('unusable CSV row is skipped with a warning and never becomes a fact', () => {
   const res = runSafe([
     'brief',
