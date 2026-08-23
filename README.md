@@ -1,6 +1,6 @@
 # csm-kit
 
-**Evidence-cited Customer Success briefs from plain CSV exports.** One CLI, many brief types. Every factual line in a generated brief cites its source (`file.csv#L42`) — a fact that cannot be traced to a source span does not render. No dependencies, no integrations, no LLM calls required.
+**Evidence-cited Customer Success briefs from plain CSV exports.** One CLI, many brief types. Every factual line in a generated brief cites its source (`file.csv#L42`) — a fact that cannot be traced to a source span does not render. No dependencies, no integrations, no LLM calls, no network calls.
 
 ---
 
