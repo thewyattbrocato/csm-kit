@@ -268,6 +268,31 @@ test('usage latest and trend use chronological periods independent of file order
   assert.match(out, /\| Usage trend \(active users, 2026-07 → 2026-08\) \| \+25% \| `usage\.csv#L2,L3` \|/);
 });
 
+test('duplicate usage periods are skipped before trend and risk calculations', () => {
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'csmkit-duplicate-usage-'));
+  const accountFile = path.join(tmp, 'account.yaml');
+  const usageFile = path.join(tmp, 'usage.csv');
+  fs.writeFileSync(
+    accountFile,
+    ['name: Duplicate Usage', 'renewal_date: 2026-12-01', 'owner: Rae', 'arr_usd: 1000', ''].join('\n')
+  );
+  fs.writeFileSync(
+    usageFile,
+    ['period,active_users,events', '2026-08,100,1000', '2026-08,50,500', ''].join('\n')
+  );
+
+  const res = runSafe(['brief', '--account', accountFile, '--usage', usageFile, ...AS_OF]);
+
+  assert.strictEqual(res.code, 0);
+  assert.match(
+    res.stderr,
+    /warning: usage\.csv#L3: skipped — duplicate usage period "2026-08" \(first seen at usage\.csv#L2\)/
+  );
+  assert.match(res.stdout, /\| Latest usage period \(2026-08\) \| 100 active users · 1,000 events \| `usage\.csv#L2` \|/);
+  assert.doesNotMatch(res.stdout, /Usage trend \(active users, 2026-08 → 2026-08\)/);
+  assert.doesNotMatch(res.stdout, /Usage declining/);
+});
+
 test('zero active-user baseline suppresses uncomputable usage trend', () => {
   const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'csmkit-zero-users-'));
   const accountFile = path.join(tmp, 'account.yaml');
