@@ -1,0 +1,18 @@
+{
+  "name": "csm-kit",
+  "version": "0.1.0",
+  "description": "Evidence-cited Customer Success brief engine: turns CSV exports + a small YAML account file into markdown briefs where every fact cites its source span.",
+  "license": "MIT",
+  "type": "commonjs",
+  "bin": {
+    "csmkit": "bin/csmkit.js"
+  },
+  "scripts": {
+    "test": "node --test",
+    "example": "node bin/csmkit.js brief --account examples/acme/account.yaml --crm examples/acme/crm.csv --tickets examples/acme/tickets.csv --usage examples/acme/usage.csv --as-of 2026-08-22 --stats --out examples/example-renewal-brief.md"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {}
+}

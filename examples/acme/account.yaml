@@ -1,0 +1,7 @@
+# acme/account.yaml — the account under review.
+# v0.1 schema: flat `key: value` pairs only. Required: name, renewal_date.
+name: Acme Manufacturing Co.
+owner: Dana Reyes
+tier: enterprise
+arr_usd: 184000
+renewal_date: 2026-10-15

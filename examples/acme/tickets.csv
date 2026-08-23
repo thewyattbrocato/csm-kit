@@ -1,0 +1,5 @@
+opened,closed,severity,status,subject
+2026-05-14,2026-05-16,p1,closed,Sandbox connector outage
+2026-06-03,2026-06-10,p2,resolved,Bulk import stuck at 80 percent
+2026-07-22,,medium,open,Dashboard filter save fails intermittently
+2026-08-16,,low,new,Feature request: scheduled CSV export

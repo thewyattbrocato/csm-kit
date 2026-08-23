@@ -1,0 +1,26 @@
+name: CI
+
+on:
+  push:
+    branches: ['**']
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Syntax gate
+        run: |
+          node --check bin/csmkit.js
+          node --check lib/csv.js
+          node --check lib/load.js
+          node --check lib/yaml-lite.js
+          node --check lib/brief.js
+          node --check lib/stats.js
+          for f in test/*.test.js; do node --check "$f"; done
+      - name: Behavior tests (real CLI executions)
+        run: npm test

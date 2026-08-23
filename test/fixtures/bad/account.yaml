@@ -1,0 +1,3 @@
+# Renewal date deliberately invalid to test graceful degradation.
+name: Edge Case Corp
+renewal_date: October 15th
