@@ -118,6 +118,25 @@ test('risky fixture triggers all four deterministic risk flags with citations', 
   assert.match(out, /\| Ticket load \| 2 open \(1 high · 0 medium · 1 low\) \| `tickets\.csv#L2,L3` \|/);
 });
 
+test('overdue renewal does not trigger near-renewal risk', () => {
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'csmkit-overdue-renewal-'));
+  const accountFile = path.join(tmp, 'account.yaml');
+  const crmFile = path.join(tmp, 'crm.csv');
+  fs.writeFileSync(
+    accountFile,
+    ['name: Overdue Renewal', 'renewal_date: 2025-01-01', 'owner: Rae', 'arr_usd: 1000', ''].join('\n')
+  );
+  fs.writeFileSync(
+    crmFile,
+    ['date,type,contact,role,summary', '2026-08-10,email,Alice Rivera,CFO,Recent note', ''].join('\n')
+  );
+
+  const out = run(['brief', '--account', accountFile, '--crm', crmFile, ...AS_OF]);
+
+  assert.doesNotMatch(out, /Renewal within 60 days/);
+  assert.match(out, /🔴 Renewal date has already passed — confirm actual date — `account\.yaml#L2`/);
+});
+
 test('missing CSVs suppress their sections and appear in checklist', () => {
   const out = run(['brief', '--account', path.join(FIXTURES, 'sparse', 'account.yaml'), ...AS_OF]);
 
