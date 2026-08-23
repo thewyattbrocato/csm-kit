@@ -367,6 +367,36 @@ test('no-risk statement cites the evidence ranges it checked', () => {
   );
 });
 
+test('no-risk statement requires as-of usable evidence', () => {
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'csmkit-no-risk-asof-evidence-'));
+  const accountFile = path.join(tmp, 'account.yaml');
+  const crmFile = path.join(tmp, 'crm.csv');
+  const ticketsFile = path.join(tmp, 'tickets.csv');
+  const usageFile = path.join(tmp, 'usage.csv');
+  fs.writeFileSync(
+    accountFile,
+    ['name: Future Usage Evidence', 'renewal_date: 2026-12-01', 'owner: Rae', 'arr_usd: 1000', ''].join('\n')
+  );
+  fs.writeFileSync(
+    crmFile,
+    ['date,type,contact,role,summary', '2026-08-10,meeting,Alice Rivera,CFO,Recent meeting', ''].join('\n')
+  );
+  fs.writeFileSync(
+    ticketsFile,
+    ['opened,closed,severity,subject,status', '2026-08-01,2026-08-02,low,Resolved question,closed', ''].join('\n')
+  );
+  fs.writeFileSync(
+    usageFile,
+    ['period,active_users,events', '2026-09,100,1000', '2026-10,100,1000', ''].join('\n')
+  );
+
+  const out = run(['brief', '--account', accountFile, '--crm', crmFile, '--tickets', ticketsFile, '--usage', usageFile, ...AS_OF]);
+
+  assert.match(out, /## Evidence completeness: 5\/5 \(100%\)/);
+  assert.doesNotMatch(out, /Latest usage period/);
+  assert.doesNotMatch(out, /_None triggered by the current deterministic rules\._/);
+});
+
 test('no-risk statement is suppressed when renewal rules lack a valid date', () => {
   const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'csmkit-no-renewal-norisk-'));
   const accountFile = path.join(tmp, 'account.yaml');
