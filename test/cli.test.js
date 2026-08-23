@@ -452,9 +452,9 @@ test('rendered input values stay single-line and table-safe with citations', () 
   const suspiciousLines = out.split('\n').filter((line) => /injected|uncited/.test(line));
 
   assert.match(out, /call\\\|onsite with Alice \\\| injected \\\| row/);
-  assert.match(out, /\| Alice \\\| injected \\\| row \| VP\\\|Ops \| 2026-08-01 \(call\\\|onsite\) \| 1 \| `crm\.csv#L2` \|/);
-  assert.match(out, /High-severity ticket open 21 days: "Broken \\\| uncited \\\| row" — `tickets\.csv#L2`/);
-  assert.ok(suspiciousLines.every((line) => /`(crm|tickets)\.csv#L2`/.test(line)), suspiciousLines.join('\n'));
+  assert.match(out, /\| Alice \\\| injected \\\| row \| VP\\\|Ops \| 2026-08-01 \(call\\\|onsite\) \| 1 \| `crm\.csv#L2-L3` \|/);
+  assert.match(out, /High-severity ticket open 21 days: "Broken \\\| uncited \\\| row" — `tickets\.csv#L2-L3`/);
+  assert.ok(suspiciousLines.every((line) => /`(crm|tickets)\.csv#L2-L3`/.test(line)), suspiciousLines.join('\n'));
 });
 
 test('ticket load and risk flags evaluate open state as of the brief date', () => {
