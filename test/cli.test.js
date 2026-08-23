@@ -327,7 +327,7 @@ test('no-risk statement is suppressed when renewal rules lack a valid date', () 
     /warning: account\.yaml#L2: renewal_date "September 1" is not a valid YYYY-MM-DD date/
   );
   assert.doesNotMatch(res.stdout, /_None triggered by the current deterministic rules\._/);
-  assert.match(res.stdout, /\| Renewal date \(account\.yaml\) \| MISSING \| missing or invalid \|/);
+  assert.match(res.stdout, /\| Renewal date \(account\.yaml\) \| MISSING \| invalid value \(`account\.yaml#L2`\) \|/);
 });
 
 test('future CRM activity does not count as recent activity or meeting', () => {
@@ -728,7 +728,7 @@ test('invalid ARR is treated as a missing recommended field', () => {
   assert.match(res.stderr, /warning: account\.yaml#L3: arr_usd "nope" is not a number/);
   assert.match(res.stdout, /## Evidence completeness: 5\/5 \(100%\)/);
   assert.doesNotMatch(res.stdout, /All required evidence present and all recommended fields filled/);
-  assert.match(res.stdout, /- \[ \] Add `arr_usd:` in account\.yaml/);
+  assert.match(res.stdout, /- \[ \] Fix `arr_usd:` in account\.yaml \(invalid value — `account\.yaml#L3`\)/);
 });
 
 test('large aggregate citations use contributor line ranges', () => {
@@ -774,7 +774,7 @@ test('unusable CSV row is skipped with a warning and never becomes a fact', () =
   assert.doesNotMatch(res.stdout, /## Renewal countdown/);
   // name + 1-row CRM export are present; renewal_date invalid; tickets/usage absent.
   assert.match(res.stdout, /## Evidence completeness: 2\/5 \(40%\)/);
-  assert.match(res.stdout, /\| Renewal date \(account\.yaml\) \| MISSING \| missing or invalid \|/);
+  assert.match(res.stdout, /\| Renewal date \(account\.yaml\) \| MISSING \| invalid value \(`account\.yaml#L3`\) \|/);
 });
 
 test('wrong CSV header fails loudly citing the header line', () => {
