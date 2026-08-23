@@ -390,6 +390,34 @@ test('ticket load and risk flags evaluate open state as of the brief date', () =
   assert.match(out, /High-severity ticket open 21 days: "Connector down" — `tickets\.csv#L2`/);
 });
 
+test('closed tickets without close dates are unresolved as of the brief date', () => {
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'csmkit-ticket-undated-close-'));
+  const accountFile = path.join(tmp, 'account.yaml');
+  const ticketsFile = path.join(tmp, 'tickets.csv');
+  fs.writeFileSync(
+    accountFile,
+    ['name: Undated Close', 'renewal_date: 2026-12-01', 'owner: Rae', 'arr_usd: 1000', ''].join('\n')
+  );
+  fs.writeFileSync(
+    ticketsFile,
+    [
+      'opened,closed,severity,subject,status',
+      '2026-08-01,,high,No dated closure,closed',
+      '',
+    ].join('\n')
+  );
+
+  const res = runSafe(['brief', '--account', accountFile, '--tickets', ticketsFile, ...AS_OF]);
+
+  assert.strictEqual(res.code, 0);
+  assert.match(
+    res.stderr,
+    /warning: tickets\.csv#L2: missing closed date; closed status is not treated as resolved as-of/
+  );
+  assert.match(res.stdout, /\| Ticket load \| 1 open \(1 high · 0 medium · 0 low\) \| `tickets\.csv#L2` \|/);
+  assert.match(res.stdout, /High-severity ticket open 21 days: "No dated closure" — `tickets\.csv#L2`/);
+});
+
 test('unknown ticket severities are warned and counted explicitly', () => {
   const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'csmkit-ticket-severity-'));
   const accountFile = path.join(tmp, 'account.yaml');
