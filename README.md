@@ -40,7 +40,7 @@ Inputs: one `account.yaml` plus up to three CSV exports (CRM activity, tickets, 
 - **Evidence completeness score** — which required evidence is present/missing, rendered first so the reader knows how much trust the rest deserves
 - **Renewal countdown** — days remaining, cited to the YAML line
 - **Signal table** — last activity, activity volume windows, ticket load by severity, latest usage, usage trend; every row cited
-- **Risk flags** — four deterministic rules (relationship going quiet >30d; high-severity ticket open >14d; usage decline ≥20%; renewal ≤60d without recent customer meeting/call), each citing its evidence
+- **Risk flags** — deterministic rules (relationship going quiet >30d; high-severity ticket open >14d; usage decline ≥20%; renewal ≤60d without recent customer meeting/call; overdue renewal date), each citing its evidence
 - **Stakeholder map** — contacts derived from the CRM export, most recent touch first
 - **Missing-evidence checklist** — actionable gaps, not vague warnings
 
@@ -70,7 +70,7 @@ See [`examples/example-renewal-brief.md`](examples/example-renewal-brief.md) for
 | `arr_usd` | recommended | Commercial urgency sizing |
 | `tier` | optional | Context |
 
-CSV columns are matched case-insensitively with common aliases (e.g. `priority`→severity, `created`→opened). Dates are strict ISO `YYYY-MM-DD`. Rows that fail validation are skipped with a `file#L<n>` warning on stderr.
+CSV columns are matched case-insensitively with common aliases (e.g. `priority`→severity, `created`→opened). Date fields are strict ISO `YYYY-MM-DD`; usage `period` accepts `YYYY-M`, `YYYY-MM`, or `YYYY-MM-DD`. Rows that fail validation are skipped with a `file#L<n>` warning on stderr.
 
 | Export | Required columns | Optional |
 |---|---|---|
@@ -83,7 +83,7 @@ CSV columns are matched case-insensitively with common aliases (e.g. `priority`�
 **Primary impact metric — minutes saved per run.** Manual renewal prep is documented at 60–90 min/account. Each `--stats` run appends one JSON line to `.csmkit-stats.jsonl`:
 
 ```json
-{"ts":"2026-08-22T19:35:43Z","run":"brief","account":"Acme Manufacturing Co.","inputs":{"crm_rows":7,"ticket_rows":4,"usage_periods":6},"completeness_pct":100,"risk_flags":2,"stakeholders":3,"baseline_manual_minutes":75,"automated_minutes":0.05,"minutes_saved":74.95}
+{"ts":"2026-08-22T19:35:43.000Z","tool":"csm-kit","version":"0.1.0","run":"brief","account":"Acme Manufacturing Co.","inputs":{"crm_rows":7,"ticket_rows":4,"usage_periods":6},"completeness_pct":100,"risk_flags":2,"stakeholders":3,"baseline_manual_minutes":75,"automated_minutes":0.05,"minutes_saved":74.95}
 ```
 
 - Baseline defaults to **75 minutes** (midpoint of the documented 60–90 range) and is configurable per run (`--baseline-minutes`, env `CSMKIT_BASELINE_MINUTES`). The baseline is an explicit, auditable constant — never auto-inflated. `minutes_saved = baseline − measured automated run time`.

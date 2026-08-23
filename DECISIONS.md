@@ -46,7 +46,7 @@ One entry per significant build choice: what the alternatives were, what we chos
 
 **Alternatives:** LLM summarization from day one; ML risk scoring; deterministic rules.
 
-**Choice:** Four auditable risk rules (relationship staleness >30d, high-severity ticket open >14d, usage decline >=20%, renewal <=60d without recent meeting/call) and arithmetic signals. No network calls anywhere in v0.1.
+**Choice:** A small auditable ruleset (relationship staleness >30d, high-severity ticket open >14d, usage decline >=20%, renewal <=60d without recent meeting/call, overdue renewal date) and arithmetic signals. No network calls anywhere in v0.1.
 
 **Why:** Rules are testable byte-for-byte, explainable when a customer asks "why flagged?", and incapable of hallucinating a fact past the citation contract. The discovery evidence itself identifies over-signaling and opacity as the industry's failure mode for scores — shipping another black box would repeat that mistake. An optional LLM layer remains on the roadmap, strictly gated by D2: it may arrange prose, never originate facts.
 
