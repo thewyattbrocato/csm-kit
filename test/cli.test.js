@@ -280,6 +280,34 @@ test('no-risk statement cites the evidence ranges it checked', () => {
   );
 });
 
+test('no-risk statement is suppressed when renewal rules lack a valid date', () => {
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'csmkit-no-renewal-norisk-'));
+  const accountFile = path.join(tmp, 'account.yaml');
+  const crmFile = path.join(tmp, 'crm.csv');
+  fs.writeFileSync(
+    accountFile,
+    ['name: Missing Renewal Risk', 'renewal_date: September 1', 'owner: Rae', 'arr_usd: 1000', ''].join('\n')
+  );
+  fs.writeFileSync(
+    crmFile,
+    [
+      'date,type,contact,role,summary',
+      '2026-08-10,meeting,Alice Rivera,CFO,Recent meeting',
+      '',
+    ].join('\n')
+  );
+
+  const res = runSafe(['brief', '--account', accountFile, '--crm', crmFile, ...AS_OF]);
+
+  assert.strictEqual(res.code, 0);
+  assert.match(
+    res.stderr,
+    /warning: account\.yaml#L2: renewal_date "September 1" is not a valid YYYY-MM-DD date/
+  );
+  assert.doesNotMatch(res.stdout, /_None triggered by the current deterministic rules\._/);
+  assert.match(res.stdout, /\| Renewal date \(account\.yaml\) \| MISSING \| missing or invalid \|/);
+});
+
 test('future CRM activity does not count as recent activity or meeting', () => {
   const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'csmkit-future-crm-'));
   const accountFile = path.join(tmp, 'account.yaml');
@@ -418,6 +446,34 @@ test('closed tickets without close dates are unresolved as of the brief date', (
   assert.match(res.stdout, /High-severity ticket open 21 days: "No dated closure" — `tickets\.csv#L2`/);
 });
 
+test('impossible ticket close dates are ignored for as-of state', () => {
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'csmkit-ticket-impossible-close-'));
+  const accountFile = path.join(tmp, 'account.yaml');
+  const ticketsFile = path.join(tmp, 'tickets.csv');
+  fs.writeFileSync(
+    accountFile,
+    ['name: Impossible Close', 'renewal_date: 2026-12-01', 'owner: Rae', 'arr_usd: 1000', ''].join('\n')
+  );
+  fs.writeFileSync(
+    ticketsFile,
+    [
+      'opened,closed,severity,subject,status',
+      '2026-08-01,2026-07-01,high,Impossible closure,closed',
+      '',
+    ].join('\n')
+  );
+
+  const res = runSafe(['brief', '--account', accountFile, '--tickets', ticketsFile, ...AS_OF]);
+
+  assert.strictEqual(res.code, 0);
+  assert.match(
+    res.stderr,
+    /warning: tickets\.csv#L2: ignored closed "2026-07-01" before opened "2026-08-01"; closed status is not treated as resolved as-of/
+  );
+  assert.match(res.stdout, /\| Ticket load \| 1 open \(1 high · 0 medium · 0 low\) \| `tickets\.csv#L2` \|/);
+  assert.match(res.stdout, /High-severity ticket open 21 days: "Impossible closure" — `tickets\.csv#L2`/);
+});
+
 test('unknown ticket severities are warned and counted explicitly', () => {
   const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'csmkit-ticket-severity-'));
   const accountFile = path.join(tmp, 'account.yaml');
@@ -549,12 +605,35 @@ test('invalid usage metrics are warned and treated as absent', () => {
   const res = runSafe(['brief', '--account', accountFile, '--usage', usageFile, ...AS_OF]);
 
   assert.strictEqual(res.code, 0);
-  assert.match(res.stderr, /warning: usage\.csv#L2: ignored invalid active_users "1\.6" \(must be a non-negative integer\)/);
+  assert.match(res.stderr, /warning: usage\.csv#L2: skipped — active_users "1\.6" is not a non-negative integer/);
   assert.match(res.stderr, /warning: usage\.csv#L2: ignored invalid events "-5" \(must be a non-negative integer\)/);
   assert.match(res.stdout, /\| Latest usage period \(2026-08\) \| 10 active users · 200 events \| `usage\.csv#L3` \|/);
+  assert.doesNotMatch(res.stdout, /2026-07/);
   assert.doesNotMatch(res.stdout, /2 active users/);
   assert.doesNotMatch(res.stdout, /-5 events/);
   assert.doesNotMatch(res.stdout, /Usage trend \(active users/);
+});
+
+test('usage export with no valid active-user rows is incomplete', () => {
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'csmkit-no-valid-usage-'));
+  const accountFile = path.join(tmp, 'account.yaml');
+  const usageFile = path.join(tmp, 'usage.csv');
+  fs.writeFileSync(
+    accountFile,
+    ['name: No Valid Usage', 'renewal_date: 2026-12-01', 'owner: Rae', 'arr_usd: 1000', ''].join('\n')
+  );
+  fs.writeFileSync(
+    usageFile,
+    ['period,active_users,events', '2026-08,bad,', ''].join('\n')
+  );
+
+  const res = runSafe(['brief', '--account', accountFile, '--usage', usageFile, ...AS_OF]);
+
+  assert.strictEqual(res.code, 0);
+  assert.match(res.stderr, /warning: usage\.csv#L2: skipped — active_users "bad" is not a non-negative integer/);
+  assert.match(res.stdout, /## Evidence completeness: 2\/5 \(40%\)/);
+  assert.match(res.stdout, /\| Usage summary \| MISSING \| no valid data rows \|/);
+  assert.doesNotMatch(res.stdout, /Latest usage period/);
 });
 
 test('large aggregate citations use contributor line ranges', () => {
