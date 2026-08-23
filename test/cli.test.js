@@ -476,6 +476,22 @@ test('empty account fields render cited empty-value findings', () => {
   assert.doesNotMatch(res.stdout, /## Renewal countdown/);
 });
 
+test('account YAML warnings use the resolved source label', () => {
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'csmkit-account-label-'));
+  const accountFile = path.join(tmp, 'acme.yml');
+  fs.writeFileSync(
+    accountFile,
+    ['name:', 'renewal_date: 2026-12-01', 'owner: Rae', 'arr_usd: 1000', ''].join('\n')
+  );
+
+  const res = runSafe(['brief', '--account', accountFile, ...AS_OF]);
+
+  assert.strictEqual(res.code, 0);
+  assert.match(res.stderr, /warning: acme\.yml#L1: empty value for "name"/);
+  assert.doesNotMatch(res.stderr, /account\.yaml#L1/);
+  assert.match(res.stdout, /\| Account name \(account\.yaml\) \| MISSING \| empty value \(`acme\.yml#L1`\) \|/);
+});
+
 test('future CRM activity does not count as recent activity or meeting', () => {
   const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'csmkit-future-crm-'));
   const accountFile = path.join(tmp, 'account.yaml');
