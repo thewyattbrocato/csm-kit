@@ -131,3 +131,45 @@ test('csmkit stats summarizes the log; friendly message when empty', () => {
   assert.ok(total > 149 && total <= 150, `unexpected total minutes saved ${total}`);
   assert.ok(avg > 74.5 && avg <= 75, `unexpected avg minutes saved ${avg}`);
 });
+
+test('stats summary breaks minutes saved down by brief type', () => {
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'csmkit-stats-types-'));
+  const statsFile = path.join(tmp, 'impact.jsonl');
+  const handoffDir = path.join(FIXTURES, 'handoff', 'full');
+
+  run(briefArgs(tmp, 'renewal.md', ['--stats', '--stats-file', statsFile]));
+  run([
+    'brief', '--type', 'qbr',
+    '--account', path.join(FIXTURES, 'full', 'account.yaml'),
+    '--crm', path.join(FIXTURES, 'full', 'crm.csv'),
+    '--tickets', path.join(FIXTURES, 'full', 'tickets.csv'),
+    '--usage', path.join(FIXTURES, 'full', 'usage.csv'),
+    '--as-of', '2026-08-22',
+    '--out', path.join(tmp, 'qbr.md'),
+    '--stats', '--stats-file', statsFile,
+  ]);
+  run([
+    'brief', '--type', 'handoff',
+    '--handoff', path.join(handoffDir, 'handoff.yaml'),
+    '--crm', path.join(handoffDir, 'crm.csv'),
+    '--questions', path.join(handoffDir, 'questions.csv'),
+    '--as-of', '2026-08-22',
+    '--out', path.join(tmp, 'handoff.md'),
+    '--stats', '--stats-file', statsFile,
+  ]);
+
+  const summary = run(['stats', '--stats-file', statsFile]).stdout;
+  assert.match(summary, /runs: 3/);
+  assert.match(summary, /minutes saved by brief type:/);
+  assert.match(summary, /renewal: 1 run, [0-9.]+ min saved \(est\.\)/);
+  assert.match(summary, /qbr: 1 run, [0-9.]+ min saved \(est\.\)/);
+  assert.match(summary, /handoff: 1 run, [0-9.]+ min saved \(est\.\)/);
+
+  // Records written before --type existed group honestly as unspecified.
+  fs.appendFileSync(
+    statsFile,
+    JSON.stringify({ ts: '2026-01-01T00:00:00.000Z', minutes_saved: 10 }) + '\n'
+  );
+  const legacy = run(['stats', '--stats-file', statsFile]).stdout;
+  assert.match(legacy, /unspecified: 1 run, 10\.00 min saved \(est\.\)/);
+});

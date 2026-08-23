@@ -135,3 +135,51 @@ One entry per significant build choice: what the alternatives were, what we chos
 **Why:** A trust-first tool that secretly logs undermines its own thesis. Opt-in keeps the metric honest too: each record represents a deliberate claim of value by the person who ran it, not an inflated passive count. Adoption teams can still aggregate later because the format is plain JSONL.
 
 > **Pattern:** Instrumentation should be a feature the user opts into, never a side effect they discover.
+
+## D12. The handoff schema stays typed: lists of flat scalars, not freeform YAML (v0.2)
+
+**Context:** Brief type #2 needs multi-entry registers (success criteria, stakeholder map, promises, risks, links). A general YAML parser with nested maps would express these "naturally" — and reopen every edge case D8 refused.
+
+**Alternatives:** (a) embed a full YAML implementation now that a schema finally wants nesting; (b) split registers into side-car CSVs; (c) extend the flat subset with exactly one feature: block lists of flat scalars under `key:` (`- item`, each item line-numbered); (d) freeform text sections parsed by heuristics.
+
+**Choice:** (c), plus pipe-delimited register rows inside single scalars (`Name | Role | Handoff role`, `Promise | sold or not_sold | detail`) so one human-editable `handoff.yaml` carries the whole handoff. Everything D8 rejects is still rejected loudly: no nesting, no mapping values, no anchors. Malformed rows are skipped with span-citing warnings, never coerced into facts.
+
+**Why:** Schema-first means the *schema* evolves deliberately while the parsing contract stays small enough to reason about. Lists-of-scalars keep every item citable (`handoff.yaml#L17`) — which is what lets completeness scoring, unproven-promise detection, and the gap report stay mechanical. Freeform input would make "which row proves this?" unanswerable again. Side-car CSVs were rejected because an AE filling out one file is the adoption path; friction at input is friction at adoption.
+
+> **Pattern:** Grow a constrained format by adding the narrowest feature that satisfies the new contract — not by adopting the general tool that satisfies every future one.
+
+## D13. Handoff gaps are addressed back to the AE, as asks for evidence (v0.2)
+
+**Context:** The handoff brief's missing-evidence output could be framed as a neutral scorecard, an audit finding, or requests routed to the receiving CSM.
+
+**Alternatives:** generic checklist like the renewal brief's; a scored "handoff quality grade" sent to CS leadership; gaps logged to a dashboard.
+
+**Choice:** The section is titled **Gap report — for {AE}**, names the sending AE from `ae:` in the YAML, and phrases every line as a specific ask for specific evidence ("Confirm sold status of X — currently unproven", "add a promises register"). Recommended nudges ride along (close_date, week-one questions log).
+
+**Why:** In the handoff workflow, the AE is the only person who can supply what's missing — routing gaps anywhere else guarantees they die. Addressing them to a named person converts a passive score into an actionable request, which mirrors how the discovery evidence describes successful handoffs (enforcement tooling, not blame tooling). It also keeps the citation contract honest: every ask cites the span that exposed the gap, so the AE can verify the claim before fixing it.
+
+> **Pattern:** Point a report at the one person who can act on it, and phrase findings as requests they can say yes to.
+
+## D14. QBR packets stay deterministic; the LLM layer has a named extension point but no key (v0.3)
+
+**Context:** Slide-oriented QBR packets look like the obvious place for generated narrative ("summarize this quarter's wins").
+
+**Alternatives:** ship an optional LLM drafting flag now; wait until the engine has more brief types; hardcode "never".
+
+**Choice:** v0.3 renders slides purely from evaluated rules over the shared pipeline — executive summary, value delivered, open risks, next-quarter plan skeleton all derive deterministically from cited evidence. The LLM layer stays deferred with its seam defined: a future drafting step may sit between evidence assembly and rendering inside `buildQbrBrief`, and per D4/D2 it may arrange prose but every factual sentence must still resolve to a source span or be suppressed.
+
+**Why:** Deterministic-first keeps the packet byte-reproducible (`--as-of`), testable against fixtures, and defensible in the room — the same properties that made the renewal brief trustworthy. Adding generation before the evidence pipeline is proven would couple two risky changes. Naming the extension point (instead of vague "later") makes the deferral a design decision rather than procrastination.
+
+> **Pattern:** Defer a capability by defining exactly where it will plug in and what contract it must obey — not by leaving it out silently.
+
+## D15. Unproven beats both "sold" and silence: UNPROVEN as a first-class state (v0.2)
+
+**Context:** Promise registers record what was sold — but real-world rows arrive blank, typo'd, or ambiguous. Dropping those rows hides risk; defaulting them to sold fabricates commitments.
+
+**Alternatives:** skip unrecognized statuses with a warning (renewal's broken-row precedent); assume sold; render three states.
+
+**Choice:** Three-state status vocabulary: `sold`, `not_sold`, and anything else renders as **UNPROVEN** — in the register table, as a 🟠 risk flag citing the row, and as a confirmation ask in the gap report. Unrecognizable non-empty statuses additionally warn on stderr naming their span.
+
+**Why:** This extends the citation contract's core move (D2: absence claims cite searched ranges) from *facts about data* to *facts about proof*. A promise whose sale can't be evidenced is exactly the kind of silent liability that poisons handoffs, and it deserves louder treatment than suppression — the reader must see that something was claimed without proof. Unproven-state rendering turns "we don't know" into actionable work instead of a hole in the document.
+
+> **Pattern:** When evidence is absent, render the absence of proof itself — labeled, cited, and routed to whoever can cure it.

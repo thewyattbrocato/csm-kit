@@ -1,0 +1,27 @@
+# Full handoff fixture - every fact in the brief traces to a line here.
+account: Northwind Logistics Inc.
+ae: Morgan Diaz
+close_date: 2026-08-01
+
+success_criteria:
+- Onboard 40 weekly active users by 2026-09-30
+- SSO configured during kickoff week
+- First business review scheduled by 2026-10-15
+
+stakeholders:
+- Jordan Lee | VP Operations | executive_sponsor
+- Sam Ortiz | Procurement Lead | economic_buyer
+- Priya Natarajan | Head of Support | technical_buyer
+
+promises:
+- Multi-year discount | sold | 12% discount applied to years 2-3
+- EU data residency review | sold | Legal sign-off before go-live
+- Dedicated CSM included | not_sold | Discussed on closing call; excluded from contract
+
+risks:
+- Procurement has not countersigned the SOW
+- Customer expects API access bundled at current tier
+
+links:
+- https://example.com/recordings/closing-call
+- https://example.com/docs/proposal-v2.pdf

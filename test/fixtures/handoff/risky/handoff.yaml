@@ -1,0 +1,18 @@
+# Risky handoff fixture - unproven promises, thin map, one silent stakeholder.
+account: Volatile Ventures LLC
+ae: Sasha Kim
+
+success_criteria:
+- Kickoff completed within two weeks of close
+
+stakeholders:
+- Riley Chen | Day-to-day contact | day_to_day
+- Noor Haddad | IT Director | tech_buyer
+
+promises:
+- Custom onboarding workshop | sold |
+- Premium support tier | maybe_sold | Mentioned once on a call
+- Data migration assist | | status never recorded
+
+links:
+- https://example.com/recordings/kickoff-prep
