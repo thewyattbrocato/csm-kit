@@ -6,7 +6,7 @@ const path = require('path');
 const { parseArgs } = require('util');
 
 const pkg = require('../package.json');
-const { LoadError, loadAccount, loadCrm, loadTickets, loadUsage, parseIsoDate } = require('../lib/load');
+const { LoadError, baseName, loadAccount, loadCrm, loadTickets, loadUsage, parseIsoDate } = require('../lib/load');
 const { buildBrief } = require('../lib/brief');
 const {
   DEFAULT_STATS_FILE,
@@ -64,6 +64,37 @@ function resolveBaseline(flagValue) {
   return numArg(raw, 'baseline-minutes');
 }
 
+function sourceLabels(pathsByKey) {
+  const labels = {};
+  const entries = Object.entries(pathsByKey).filter(([, filePath]) => filePath);
+  const groups = new Map();
+  for (const [key, filePath] of entries) {
+    const base = baseName(filePath);
+    if (!groups.has(base)) groups.set(base, []);
+    groups.get(base).push({ key, filePath: path.resolve(filePath) });
+  }
+  for (const [base, group] of groups) {
+    if (group.length === 1) {
+      labels[group[0].key] = base;
+      continue;
+    }
+    const partsByKey = group.map((entry) => ({
+      key: entry.key,
+      parts: entry.filePath.split(path.sep).filter(Boolean),
+    }));
+    let depth = 1;
+    while (depth < Math.max(...partsByKey.map((entry) => entry.parts.length))) {
+      const seen = new Set(partsByKey.map((entry) => entry.parts.slice(-depth).join('/')));
+      if (seen.size === partsByKey.length) break;
+      depth++;
+    }
+    for (const entry of partsByKey) {
+      labels[entry.key] = entry.parts.slice(-depth).join('/');
+    }
+  }
+  return labels;
+}
+
 function cmdBrief(argv) {
   let args;
   try {
@@ -100,13 +131,19 @@ function cmdBrief(argv) {
 
   let account;
   try {
-    account = loadAccount(args.values.account);
-    const crm = loadCrm(args.values.crm);
-    const tickets = loadTickets(args.values.tickets);
-    const usage = loadUsage(args.values.usage);
+    const labels = sourceLabels({
+      account: args.values.account,
+      crm: args.values.crm,
+      tickets: args.values.tickets,
+      usage: args.values.usage,
+    });
+    account = loadAccount(args.values.account, labels.account);
+    const crm = loadCrm(args.values.crm, labels.crm);
+    const tickets = loadTickets(args.values.tickets, labels.tickets);
+    const usage = loadUsage(args.values.usage, labels.usage);
 
     const warnings = [
-      ...account.warnings.map((w) => ({ src: 'account.yaml', msg: w })),
+      ...account.warnings.map((w) => ({ src: account.file, msg: w })),
       ...(crm.warnings ?? []).map((w) => ({ src: crm.source, msg: w })),
       ...(tickets.warnings ?? []).map((w) => ({ src: tickets.source, msg: w })),
       ...(usage.warnings ?? []).map((w) => ({ src: usage.source, msg: w })),

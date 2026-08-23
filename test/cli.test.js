@@ -137,6 +137,26 @@ test('overdue renewal does not trigger near-renewal risk', () => {
   assert.match(out, /🔴 Renewal date has already passed — confirm actual date — `account\.yaml#L2`/);
 });
 
+test('no-risk filler requires all required evidence', () => {
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'csmkit-partial-norisk-'));
+  const accountFile = path.join(tmp, 'account.yaml');
+  const ticketsFile = path.join(tmp, 'tickets.csv');
+  fs.writeFileSync(
+    accountFile,
+    ['name: Partial Evidence', 'renewal_date: 2026-12-01', 'owner: Rae', 'arr_usd: 1000', ''].join('\n')
+  );
+  fs.writeFileSync(
+    ticketsFile,
+    ['opened,closed,severity,subject,status', '2026-08-01,2026-08-02,low,Resolved question,closed', ''].join('\n')
+  );
+
+  const out = run(['brief', '--account', accountFile, '--tickets', ticketsFile, ...AS_OF]);
+
+  assert.doesNotMatch(out, /_None triggered by the current deterministic rules\._/);
+  assert.match(out, /- \[ \] provide --crm <activity-export\.csv> — required evidence \(CRM activity export\)/);
+  assert.match(out, /- \[ \] provide --usage <usage-summary\.csv> — required evidence \(Usage summary\)/);
+});
+
 test('missing CSVs suppress their sections and appear in checklist', () => {
   const out = run(['brief', '--account', path.join(FIXTURES, 'sparse', 'account.yaml'), ...AS_OF]);
 
@@ -224,6 +244,7 @@ test('all-invalid CRM export does not render uncited near-renewal absence risk',
 
   assert.strictEqual(res.code, 0);
   assert.match(res.stderr, /warning: crm\.csv#L2: skipped — date "not-a-date" is not YYYY-MM-DD/);
+  assert.match(res.stdout, /\| CRM activity export \| MISSING \| no valid data rows \(`crm\.csv#L1`\) \|/);
   assert.doesNotMatch(res.stdout, /no customer meeting\/call anywhere/);
   assert.doesNotMatch(res.stdout, /search covered null/);
 });
@@ -307,7 +328,7 @@ test('unterminated quoted CSV records are skipped with a source warning', () => 
 
   assert.strictEqual(res.code, 0);
   assert.match(res.stderr, /warning: crm\.csv#L2: skipped — unterminated quoted record/);
-  assert.match(res.stdout, /\| CRM activity export \| MISSING \| no valid data rows \|/);
+  assert.match(res.stdout, /\| CRM activity export \| MISSING \| no valid data rows \(`crm\.csv#L1`\) \|/);
   assert.doesNotMatch(res.stdout, /Last logged activity/);
   assert.doesNotMatch(res.stdout, /Alice Rivera/);
 });
@@ -716,8 +737,37 @@ test('usage export with no valid active-user rows is incomplete', () => {
   assert.strictEqual(res.code, 0);
   assert.match(res.stderr, /warning: usage\.csv#L2: skipped — active_users "bad" is not a non-negative integer/);
   assert.match(res.stdout, /## Evidence completeness: 2\/5 \(40%\)/);
-  assert.match(res.stdout, /\| Usage summary \| MISSING \| no valid data rows \|/);
+  assert.match(res.stdout, /\| Usage summary \| MISSING \| no valid data rows \(`usage\.csv#L1`\) \|/);
   assert.doesNotMatch(res.stdout, /Latest usage period/);
+});
+
+test('provided CSVs with no valid rows cite header spans', () => {
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'csmkit-empty-valid-csvs-'));
+  const accountFile = path.join(tmp, 'account.yaml');
+  const crmFile = path.join(tmp, 'crm.csv');
+  const ticketsFile = path.join(tmp, 'tickets.csv');
+  const usageFile = path.join(tmp, 'usage.csv');
+  fs.writeFileSync(
+    accountFile,
+    ['name: Empty Valid Rows', 'renewal_date: 2026-12-01', 'owner: Rae', 'arr_usd: 1000', ''].join('\n')
+  );
+  fs.writeFileSync(crmFile, ['date,type,contact,role,summary', 'bad,email,Alice Rivera,CFO,Broken', ''].join('\n'));
+  fs.writeFileSync(ticketsFile, ['opened,closed,severity,subject,status', 'bad,,low,Broken,open', ''].join('\n'));
+  fs.writeFileSync(usageFile, ['period,active_users,events', '2026-08,bad,100', ''].join('\n'));
+
+  const res = runSafe([
+    'brief',
+    '--account', accountFile,
+    '--crm', crmFile,
+    '--tickets', ticketsFile,
+    '--usage', usageFile,
+    ...AS_OF,
+  ]);
+
+  assert.strictEqual(res.code, 0);
+  assert.match(res.stdout, /\| CRM activity export \| MISSING \| no valid data rows \(`crm\.csv#L1`\) \|/);
+  assert.match(res.stdout, /\| Ticket export \| MISSING \| no valid data rows \(`tickets\.csv#L1`\) \|/);
+  assert.match(res.stdout, /\| Usage summary \| MISSING \| no valid data rows \(`usage\.csv#L1`\) \|/);
 });
 
 test('invalid ARR is treated as a missing recommended field', () => {
@@ -769,6 +819,28 @@ test('large aggregate citations use contributor line ranges', () => {
 
   assert.match(out, /\| Ticket load \| 9 open \(0 high · 0 medium · 9 low\) \| `tickets\.csv#L2-L10` \|/);
   assert.doesNotMatch(out, /\+1 more/);
+});
+
+test('duplicate input basenames get unique source labels', () => {
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'csmkit-source-labels-'));
+  const crmDir = path.join(tmp, 'crm');
+  const ticketDir = path.join(tmp, 'support');
+  fs.mkdirSync(crmDir);
+  fs.mkdirSync(ticketDir);
+  const accountFile = path.join(tmp, 'account.yaml');
+  const crmFile = path.join(crmDir, 'export.csv');
+  const ticketsFile = path.join(ticketDir, 'export.csv');
+  fs.writeFileSync(
+    accountFile,
+    ['name: Source Labels', 'renewal_date: 2026-12-01', 'owner: Rae', 'arr_usd: 1000', ''].join('\n')
+  );
+  fs.writeFileSync(crmFile, ['date,type,contact,role,summary', '2026-08-01,call,Alice Rivera,CFO,Check-in', ''].join('\n'));
+  fs.writeFileSync(ticketsFile, ['opened,closed,severity,subject,status', '2026-08-01,,low,Question,open', ''].join('\n'));
+
+  const out = run(['brief', '--account', accountFile, '--crm', crmFile, '--tickets', ticketsFile, ...AS_OF]);
+
+  assert.match(out, /\| Last logged activity \| 2026-08-01 — call with Alice Rivera \| `crm\/export\.csv#L2` \|/);
+  assert.match(out, /\| Ticket load \| 1 open \(0 high · 0 medium · 1 low\) \| `support\/export\.csv#L2` \|/);
 });
 
 test('unusable CSV row is skipped with a warning and never becomes a fact', () => {
