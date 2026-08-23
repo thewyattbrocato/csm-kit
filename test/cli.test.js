@@ -271,6 +271,28 @@ test('quoted CSV fields with commas stay in one field', () => {
   assert.match(out, /\| Lee, Jordan \| VP Ops \| 2026-08-01 \(call\) \| 1 \| `crm\.csv#L2` \|/);
 });
 
+test('unterminated quoted CSV records are skipped with a source warning', () => {
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'csmkit-unterminated-csv-'));
+  const accountFile = path.join(tmp, 'account.yaml');
+  const crmFile = path.join(tmp, 'crm.csv');
+  fs.writeFileSync(
+    accountFile,
+    ['name: Unterminated CSV', 'renewal_date: 2026-12-01', 'owner: Rae', 'arr_usd: 1000', ''].join('\n')
+  );
+  fs.writeFileSync(
+    crmFile,
+    ['date,type,contact,role,summary', '2026-08-01,"call,Alice Rivera,CFO,Malformed summary'].join('\n')
+  );
+
+  const res = runSafe(['brief', '--account', accountFile, '--crm', crmFile, ...AS_OF]);
+
+  assert.strictEqual(res.code, 0);
+  assert.match(res.stderr, /warning: crm\.csv#L2: skipped — unterminated quoted record/);
+  assert.match(res.stdout, /\| CRM activity export \| MISSING \| no valid data rows \|/);
+  assert.doesNotMatch(res.stdout, /Last logged activity/);
+  assert.doesNotMatch(res.stdout, /Alice Rivera/);
+});
+
 test('no-risk statement cites the evidence ranges it checked', () => {
   const out = run(fullArgs());
 
@@ -474,6 +496,49 @@ test('impossible ticket close dates are ignored for as-of state', () => {
   assert.match(res.stdout, /High-severity ticket open 21 days: "Impossible closure" — `tickets\.csv#L2`/);
 });
 
+test('stale high-ticket overflow is cited and stats count every qualifier', () => {
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'csmkit-stale-high-overflow-'));
+  const accountFile = path.join(tmp, 'account.yaml');
+  const ticketsFile = path.join(tmp, 'tickets.csv');
+  const statsFile = path.join(tmp, 'stats.jsonl');
+  fs.writeFileSync(
+    accountFile,
+    ['name: Stale Overflow', 'renewal_date: 2026-12-01', 'owner: Rae', 'arr_usd: 1000', ''].join('\n')
+  );
+  fs.writeFileSync(
+    ticketsFile,
+    [
+      'opened,closed,severity,subject,status',
+      '2026-08-01,,high,Issue one,open',
+      '2026-08-02,,high,Issue two,open',
+      '2026-08-03,,high,Issue three,open',
+      '2026-08-04,,high,Issue four,open',
+      '2026-08-05,,high,Issue five,open',
+      '',
+    ].join('\n')
+  );
+
+  const res = runSafe([
+    'brief',
+    '--account', accountFile,
+    '--tickets', ticketsFile,
+    ...AS_OF,
+    '--stats',
+    '--stats-file', statsFile,
+  ]);
+
+  assert.strictEqual(res.code, 0);
+  assert.match(res.stdout, /High-severity ticket open 21 days: "Issue one" — `tickets\.csv#L2`/);
+  assert.match(res.stdout, /High-severity ticket open 20 days: "Issue two" — `tickets\.csv#L3`/);
+  assert.match(res.stdout, /High-severity ticket open 19 days: "Issue three" — `tickets\.csv#L4`/);
+  assert.match(res.stdout, /🔴 2 additional high-severity tickets open more than 14 days — `tickets\.csv#L5,L6`/);
+  assert.doesNotMatch(res.stdout, /High-severity ticket open 18 days: "Issue four"/);
+  assert.doesNotMatch(res.stdout, /High-severity ticket open 17 days: "Issue five"/);
+
+  const stats = JSON.parse(fs.readFileSync(statsFile, 'utf8').trim());
+  assert.strictEqual(stats.risk_flags, 5);
+});
+
 test('unknown ticket severities are warned and counted explicitly', () => {
   const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'csmkit-ticket-severity-'));
   const accountFile = path.join(tmp, 'account.yaml');
@@ -634,6 +699,36 @@ test('usage export with no valid active-user rows is incomplete', () => {
   assert.match(res.stdout, /## Evidence completeness: 2\/5 \(40%\)/);
   assert.match(res.stdout, /\| Usage summary \| MISSING \| no valid data rows \|/);
   assert.doesNotMatch(res.stdout, /Latest usage period/);
+});
+
+test('invalid ARR is treated as a missing recommended field', () => {
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'csmkit-invalid-arr-'));
+  const accountFile = path.join(tmp, 'account.yaml');
+  const crmFile = path.join(tmp, 'crm.csv');
+  const ticketsFile = path.join(tmp, 'tickets.csv');
+  const usageFile = path.join(tmp, 'usage.csv');
+  fs.writeFileSync(
+    accountFile,
+    ['name: Invalid ARR', 'owner: Rae', 'arr_usd: nope', 'renewal_date: 2026-12-01', ''].join('\n')
+  );
+  fs.writeFileSync(crmFile, ['date,type,contact,role,summary', '2026-08-01,call,Alice Rivera,CFO,Check-in', ''].join('\n'));
+  fs.writeFileSync(ticketsFile, ['opened,closed,severity,subject,status', '2026-08-01,2026-08-02,low,Question,closed', ''].join('\n'));
+  fs.writeFileSync(usageFile, ['period,active_users,events', '2026-08,10,200', ''].join('\n'));
+
+  const res = runSafe([
+    'brief',
+    '--account', accountFile,
+    '--crm', crmFile,
+    '--tickets', ticketsFile,
+    '--usage', usageFile,
+    ...AS_OF,
+  ]);
+
+  assert.strictEqual(res.code, 0);
+  assert.match(res.stderr, /warning: account\.yaml#L3: arr_usd "nope" is not a number/);
+  assert.match(res.stdout, /## Evidence completeness: 5\/5 \(100%\)/);
+  assert.doesNotMatch(res.stdout, /All required evidence present and all recommended fields filled/);
+  assert.match(res.stdout, /- \[ \] Add `arr_usd:` in account\.yaml/);
 });
 
 test('large aggregate citations use contributor line ranges', () => {
