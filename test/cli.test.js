@@ -916,6 +916,39 @@ test('provided CSVs with no valid rows cite header spans', () => {
   assert.match(res.stdout, /\| Usage summary \| MISSING \| no valid data rows \(`usage\.csv#L1`\) \|/);
 });
 
+test('zero-byte CSV exports do not fabricate header spans', () => {
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'csmkit-zero-byte-csvs-'));
+  const accountFile = path.join(tmp, 'account.yaml');
+  const crmFile = path.join(tmp, 'crm.csv');
+  const ticketsFile = path.join(tmp, 'tickets.csv');
+  const usageFile = path.join(tmp, 'usage.csv');
+  fs.writeFileSync(
+    accountFile,
+    ['name: Zero Byte Exports', 'renewal_date: 2026-12-01', 'owner: Rae', 'arr_usd: 1000', ''].join('\n')
+  );
+  fs.writeFileSync(crmFile, '');
+  fs.writeFileSync(ticketsFile, '');
+  fs.writeFileSync(usageFile, '');
+
+  const res = runSafe([
+    'brief',
+    '--account', accountFile,
+    '--crm', crmFile,
+    '--tickets', ticketsFile,
+    '--usage', usageFile,
+    ...AS_OF,
+  ]);
+
+  assert.strictEqual(res.code, 0);
+  assert.match(res.stdout, /\| CRM activity export \| MISSING \| no valid data rows \|/);
+  assert.match(res.stdout, /\| Ticket export \| MISSING \| no valid data rows \|/);
+  assert.match(res.stdout, /\| Usage summary \| MISSING \| no valid data rows \|/);
+  assert.doesNotMatch(res.stdout, /`(?:crm|tickets|usage)\.csv#L1`/);
+  assert.match(res.stdout, /- \[ \] add at least one valid data row to crm\.csv — required evidence \(CRM activity export\)/);
+  assert.match(res.stdout, /- \[ \] add at least one valid data row to tickets\.csv — required evidence \(Ticket export\)/);
+  assert.match(res.stdout, /- \[ \] add at least one valid data row to usage\.csv — required evidence \(Usage summary\)/);
+});
+
 test('invalid ARR is treated as a missing recommended field', () => {
   const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'csmkit-invalid-arr-'));
   const accountFile = path.join(tmp, 'account.yaml');

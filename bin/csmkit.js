@@ -128,6 +128,7 @@ function cmdBrief(argv) {
   } else {
     asOfDt = parseIsoDate(new Date().toISOString().slice(0, 10));
   }
+  const baselineMinutes = args.values.stats ? resolveBaseline(args.values['baseline-minutes']) : null;
 
   let account;
   try {
@@ -169,7 +170,6 @@ function cmdBrief(argv) {
     }
 
     if (args.values.stats) {
-      const baselineMinutes = resolveBaseline(args.values['baseline-minutes']);
       const automatedMinutes =
         Math.round((Number(process.hrtime.bigint() - startedAtNs) / 1e9 / 60) * 100) / 100;
       const minutesSaved = Math.round((baselineMinutes - automatedMinutes) * 100) / 100;

@@ -23,6 +23,14 @@ function run(args, env = {}) {
   return { stdout: res.stdout ?? '', stderr: res.stderr ?? '' };
 }
 
+function runSafe(args, env = {}) {
+  const res = spawnSync(process.execPath, [CLI, ...args], {
+    encoding: 'utf8',
+    env: { ...process.env, ...env },
+  });
+  return { code: res.status ?? 1, stdout: res.stdout ?? '', stderr: res.stderr ?? '' };
+}
+
 function briefArgs(tmp, name, extra = []) {
   const d = path.join(FIXTURES, 'full');
   return [
@@ -66,6 +74,23 @@ test('--stats appends one JSON line per run with minutes-saved math', () => {
   // Env var baseline honored when flag absent.
   const second = JSON.parse(lines[1]);
   assert.strictEqual(second.baseline_manual_minutes, 60);
+});
+
+test('invalid --baseline-minutes exits before writing brief or stats artifacts', () => {
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'csmkit-bad-baseline-'));
+  const outFile = path.join(tmp, 'brief.md');
+  const statsFile = path.join(tmp, 'impact.jsonl');
+
+  const res = runSafe(briefArgs(tmp, 'brief.md', [
+    '--stats',
+    '--stats-file', statsFile,
+    '--baseline-minutes', 'nope',
+  ]));
+
+  assert.strictEqual(res.code, 2);
+  assert.match(res.stderr, /--baseline-minutes must be a positive number, got "nope"/);
+  assert.strictEqual(fs.existsSync(outFile), false);
+  assert.strictEqual(fs.existsSync(statsFile), false);
 });
 
 test('--stats keeps the brief on stdout and confirmation on stderr', () => {
