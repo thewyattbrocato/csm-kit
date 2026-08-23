@@ -370,6 +370,26 @@ test('no-risk statement is suppressed when renewal rules lack a valid date', () 
   assert.match(res.stdout, /\| Renewal date \(account\.yaml\) \| MISSING \| invalid value \(`account\.yaml#L2`\) \|/);
 });
 
+test('empty account fields render cited empty-value findings', () => {
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'csmkit-empty-account-fields-'));
+  const accountFile = path.join(tmp, 'account.yaml');
+  fs.writeFileSync(
+    accountFile,
+    ['name:', 'renewal_date:', 'owner:', 'arr_usd:', ''].join('\n')
+  );
+
+  const res = runSafe(['brief', '--account', accountFile, ...AS_OF]);
+
+  assert.strictEqual(res.code, 0);
+  assert.match(res.stderr, /warning: account\.yaml#L1: empty value for "name"/);
+  assert.match(res.stderr, /warning: account\.yaml#L2: empty value for "renewal_date"/);
+  assert.match(res.stdout, /\| Account name \(account\.yaml\) \| MISSING \| empty value \(`account\.yaml#L1`\) \|/);
+  assert.match(res.stdout, /\| Renewal date \(account\.yaml\) \| MISSING \| empty value \(`account\.yaml#L2`\) \|/);
+  assert.match(res.stdout, /- \[ \] Fix `owner:` in account\.yaml \(empty value — `account\.yaml#L3`\)/);
+  assert.match(res.stdout, /- \[ \] Fix `arr_usd:` in account\.yaml \(empty value — `account\.yaml#L4`\)/);
+  assert.doesNotMatch(res.stdout, /## Renewal countdown/);
+});
+
 test('future CRM activity does not count as recent activity or meeting', () => {
   const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'csmkit-future-crm-'));
   const accountFile = path.join(tmp, 'account.yaml');
