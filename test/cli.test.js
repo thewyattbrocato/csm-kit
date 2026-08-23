@@ -397,6 +397,37 @@ test('no-risk statement requires as-of usable evidence', () => {
   assert.doesNotMatch(out, /_None triggered by the current deterministic rules\._/);
 });
 
+test('no-risk statement requires a usable usage-decline baseline', () => {
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'csmkit-no-risk-usage-baseline-'));
+  const accountFile = path.join(tmp, 'account.yaml');
+  const crmFile = path.join(tmp, 'crm.csv');
+  const ticketsFile = path.join(tmp, 'tickets.csv');
+  const usageFile = path.join(tmp, 'usage.csv');
+  fs.writeFileSync(
+    accountFile,
+    ['name: Single Usage Period', 'renewal_date: 2026-12-01', 'owner: Rae', 'arr_usd: 1000', ''].join('\n')
+  );
+  fs.writeFileSync(
+    crmFile,
+    ['date,type,contact,role,summary', '2026-08-10,meeting,Alice Rivera,CFO,Recent meeting', ''].join('\n')
+  );
+  fs.writeFileSync(
+    ticketsFile,
+    ['opened,closed,severity,subject,status', '2026-08-01,2026-08-02,low,Resolved question,closed', ''].join('\n')
+  );
+  fs.writeFileSync(
+    usageFile,
+    ['period,active_users,events', '2026-08,100,1000', ''].join('\n')
+  );
+
+  const out = run(['brief', '--account', accountFile, '--crm', crmFile, '--tickets', ticketsFile, '--usage', usageFile, ...AS_OF]);
+
+  assert.match(out, /## Evidence completeness: 5\/5 \(100%\)/);
+  assert.match(out, /\| Latest usage period \(2026-08\) \| 100 active users · 1,000 events \| `usage\.csv#L2` \|/);
+  assert.doesNotMatch(out, /Usage trend \(active users/);
+  assert.doesNotMatch(out, /_None triggered by the current deterministic rules\._/);
+});
+
 test('no-risk statement is suppressed when renewal rules lack a valid date', () => {
   const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'csmkit-no-renewal-norisk-'));
   const accountFile = path.join(tmp, 'account.yaml');
@@ -467,6 +498,30 @@ test('future CRM activity does not count as recent activity or meeting', () => {
   assert.match(out, /\| Activity volume \(last 30d \/ prior 30d\) \| 0 \/ 0 \| `crm\.csv#L2-L2` \|/);
   assert.match(out, /no customer meeting\/call on or before as-of date in the CRM export/);
   assert.doesNotMatch(out, /_None triggered by the current deterministic rules\._/);
+});
+
+test('meeting activity types use separator token matching', () => {
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'csmkit-meeting-tokens-'));
+  const accountFile = path.join(tmp, 'account.yaml');
+  const crmFile = path.join(tmp, 'crm.csv');
+  fs.writeFileSync(
+    accountFile,
+    ['name: Meeting Tokens', 'renewal_date: 2026-09-01', 'owner: Rae', 'arr_usd: 1000', ''].join('\n')
+  );
+
+  fs.writeFileSync(
+    crmFile,
+    ['date,type,contact,role,summary', '2026-08-10,customer_call,Alice Rivera,CFO,Recent renewal call', ''].join('\n')
+  );
+  const withCustomerCall = run(['brief', '--account', accountFile, '--crm', crmFile, ...AS_OF]);
+  assert.doesNotMatch(withCustomerCall, /Renewal within 60 days but no customer meeting\/call/);
+
+  fs.writeFileSync(
+    crmFile,
+    ['date,type,contact,role,summary', '2026-08-10,ticket_review,Alice Rivera,CFO,Support ticket review', ''].join('\n')
+  );
+  const withTicketReview = run(['brief', '--account', accountFile, '--crm', crmFile, ...AS_OF]);
+  assert.match(withTicketReview, /no customer meeting\/call anywhere in the CRM export/);
 });
 
 test('future CRM activity does not hide stale as-of relationship facts', () => {
