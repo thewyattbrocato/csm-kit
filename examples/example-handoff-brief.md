@@ -39,9 +39,9 @@ _From the handoff record, enriched with CRM activity where names match._
 
 | Stakeholder | Role | Handoff role | Last CRM touch | Activities | Source |
 |---|---|---|---|---|---|
-| Jordan Lee | VP Operations | executive_sponsor | 2026-08-10 (email) | 4 | `handoff.yaml#L12` |
-| Sam Ortiz | Procurement Lead | economic_buyer | 2026-06-11 (call) | 1 | `handoff.yaml#L13` |
-| Priya Natarajan | IT Director | technical_buyer | 2026-07-02 (ticket_review) | 2 | `handoff.yaml#L14` |
+| Jordan Lee | VP Operations | executive_sponsor | 2026-08-10 (email) | 4 | `handoff.yaml#L12` · `crm.csv#L2,L3,L7,L8` |
+| Sam Ortiz | Procurement Lead | economic_buyer | 2026-06-11 (call) | 1 | `handoff.yaml#L13` · `crm.csv#L5` |
+| Priya Natarajan | IT Director | technical_buyer | 2026-07-02 (ticket_review) | 2 | `handoff.yaml#L14` · `crm.csv#L4,L6` |
 
 ## Risks / dependencies
 

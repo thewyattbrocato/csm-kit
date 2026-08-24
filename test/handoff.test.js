@@ -59,11 +59,11 @@ test('full handoff fixture renders complete brief with correct citations', () =>
   // Stakeholder map enriched with CRM touches where names match.
   assert.match(
     out,
-    /\| Jordan Lee \| VP Operations \| executive_sponsor \| 2026-07-19 \(meeting\) \| 2 \| `handoff\.yaml#L12` \|/
+    /\| Jordan Lee \| VP Operations \| executive_sponsor \| 2026-07-19 \(meeting\) \| 2 \| `handoff\.yaml#L12` · `crm\.csv#L2,L3` \|/
   );
   assert.match(
     out,
-    /\| Sam Ortiz \| Procurement Lead \| economic_buyer \| 2026-08-10 \(call\) \| 1 \| `handoff\.yaml#L13` \|/
+    /\| Sam Ortiz \| Procurement Lead \| economic_buyer \| 2026-08-10 \(call\) \| 1 \| `handoff\.yaml#L13` · `crm\.csv#L4` \|/
   );
 
   // Week-one questions log renders with row spans.
@@ -131,7 +131,7 @@ test('risky handoff flags unproven promises, thin map, and silent stakeholders',
   // ...and the CRM export range for the stakeholder with no recorded activity.
   assert.match(
     out,
-    /- 🟠 No CRM-recorded activity for mapped stakeholder "Noor Haddad" \(IT Director\) as-of 2026-08-22 — search covered `crm\.csv#L2-L2`/
+    /- 🟠 No CRM-recorded activity for mapped stakeholder "Noor Haddad" \(IT Director\) as-of 2026-08-22 — `handoff\.yaml#L10`, search covered `crm\.csv#L2-L2`/
   );
   assert.match(out, /none as-of 2026-08-22 \(searched `crm\.csv#L2-L2`\)/);
 
@@ -291,6 +291,49 @@ test('handoff block-list items strip trailing comments outside quotes', () => {
   assert.match(out, /- Procurement dependency — `handoff\.yaml#L10`/);
   assert.match(out, /- https:\/\/example\.com\/proposal #section — `handoff\.yaml#L12`/);
   assert.doesNotMatch(out, /internal note|sales-only note|revops note|private note|link note/);
+});
+
+test('unmatched stakeholder overflow risk cites overflowed map rows and CRM range', () => {
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'csmkit-handoff-overflow-'));
+  const handoffFile = path.join(tmp, 'handoff.yaml');
+  const crmFile = path.join(tmp, 'crm.csv');
+  fs.writeFileSync(
+    handoffFile,
+    [
+      'account: Overflow Co.',
+      'ae: Avery Stone',
+      'success_criteria:',
+      '- Launch pilot',
+      'stakeholders:',
+      '- Alpha One | VP Operations | executive_sponsor',
+      '- Beta Two | Procurement | economic_buyer',
+      '- Gamma Three | IT Director | technical_buyer',
+      '- Delta Four | Legal | legal',
+      '- Epsilon Five | Finance | finance',
+      'promises:',
+      '- Pilot support | sold | included',
+      'risks:',
+      '- Legal review pending',
+      'links:',
+      '- https://example.com/proposal',
+      '',
+    ].join('\n')
+  );
+  fs.writeFileSync(
+    crmFile,
+    ['date,type,contact,role,summary', '2026-08-01,email,Known Contact,Operations,No mapped stakeholder touched', ''].join('\n')
+  );
+
+  const out = run(['brief', '--type', 'handoff', '--handoff', handoffFile, '--crm', crmFile, ...AS_OF]);
+
+  assert.match(
+    out,
+    /- 🟠 No CRM-recorded activity for mapped stakeholder "Alpha One" \(VP Operations\) as-of 2026-08-22 — `handoff\.yaml#L6`, search covered `crm\.csv#L2-L2`/
+  );
+  assert.match(
+    out,
+    /- 🟠 2 additional mapped stakeholders with no CRM-recorded activity — `handoff\.yaml#L9,L10`, search covered `crm\.csv#L2-L2`/
+  );
 });
 
 test('same handoff inputs and as-of produce byte-identical output', () => {

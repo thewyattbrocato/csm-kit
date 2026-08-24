@@ -43,7 +43,9 @@ function qbrArgs(dir, extra = []) {
 test('full fixture renders a complete QBR packet with cited slides', () => {
   const out = run(qbrArgs('full'));
 
-  assert.match(out, /# QBR Packet — Northwind Logistics Inc\./);
+  assert.match(out, /^# QBR Packet$/m);
+  assert.match(out, /\*\*Northwind Logistics Inc\.\*\* — `account\.yaml#L2`/);
+  assert.doesNotMatch(out, /^# QBR Packet — /m);
   assert.match(out, /## Evidence completeness: 5\/5 \(100%\)/);
 
   // Executive summary: every bullet cites its source span.
