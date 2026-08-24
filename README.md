@@ -139,6 +139,8 @@ Handoff roles use exact-token vocabulary (`executive_sponsor`, `economic_buyer`,
 
 Week-one questions log (`--questions`, optional CSV): columns `date`, `question`, optional `asked_by`.
 
+Input flags are strict by brief type: `--handoff` and `--questions` are handoff-only, while `--tickets` and `--usage` are accepted only for renewal and qbr.
+
 ## Success metrics
 
 **Primary impact metric — minutes saved per run.** Manual renewal prep is documented at 60–90 min/account. Each `--stats` run appends one JSON line to `.csmkit-stats.jsonl`:
@@ -148,7 +150,7 @@ Week-one questions log (`--questions`, optional CSV): columns `date`, `question`
 ```
 
 - Baseline defaults to **75 minutes** (midpoint of the documented 60–90 range) and is configurable per run (`--baseline-minutes`, env `CSMKIT_BASELINE_MINUTES`). The baseline is an explicit, auditable constant — never auto-inflated. `minutes_saved = baseline − measured automated run time`.
-- Records carry `brief_type` (`renewal` | `handoff` | `qbr`), and `csmkit stats` breaks minutes saved down per type.
+- Records carry `brief_type` (`renewal` | `handoff` | `qbr`), and `csmkit stats` breaks minutes saved down per type; legacy records without that field are grouped as `unspecified`.
 - `csmkit stats` reads the log back: runs, accounts covered, total and average minutes saved. That cumulative number is the adoption/impact story, inspectable by anyone with access to the file.
 - **Secondary metric:** completeness percentage over time — a leading indicator of CRM/data hygiene per account.
 

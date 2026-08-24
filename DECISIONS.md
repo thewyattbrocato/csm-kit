@@ -10,7 +10,7 @@ One entry per significant build choice: what the alternatives were, what we chos
 
 **Alternatives:** (a) one bespoke tool per artifact; (b) a free-form generator that takes any inputs and "figures out" a document; (c) typed schemas + one shared render pipeline.
 
-**Choice:** (c). Brief type #1 ships with an engine whose sections derive from declared schemas and deterministic rules; briefs #2 and #3 will be new schemas on the same engine.
+**Choice:** (c). Brief types register as schemas plus deterministic builders on one dispatcher (`lib/brief.js`): renewal, handoff, and qbr all share the same evidence/rendering contract instead of forking into separate tools.
 
 **Why:** Bespoke tools multiply maintenance and fragment trust. Free-form generation is seductive but untestable — you cannot assert "this sentence is true" against a schema you don't have. Typed schemas make validation, completeness scoring, and citations mechanical, and they turn roadmap items into config-plus-rules instead of rewrites.
 
@@ -22,7 +22,7 @@ One entry per significant build choice: what the alternatives were, what we chos
 
 **Alternatives:** best-effort footnotes; citations only for numbers; trusting the transform layer.
 
-**Choice:** Hard rule — every factual statement carries `file#L<row>` or it is suppressed into the missing-evidence checklist. Unparseable rows are skipped loudly (the warning names their span) and never become facts. Even absence claims ("no meeting/call in 30 days") cite the range that was searched.
+**Choice:** Hard rule — every factual statement carries `file#L<row>` or it is suppressed into the missing-evidence checklist / gap report. Unparseable rows are skipped loudly (the warning names their span) and never become facts. Even absence claims ("no meeting/call in 30 days") cite the range that was searched.
 
 **Why:** Citations convert the brief from "another summary someone wrote" into evidence a CSM can defend. They also discipline the codebase: every renderer feature must answer "which row proves this?" before it can ship. Adoption follows verifiability — people paste into renewal meetings what they can defend line-by-line.
 
@@ -58,7 +58,7 @@ One entry per significant build choice: what the alternatives were, what we chos
 
 **Alternatives:** weighted health score; sentiment estimate; evidence-presence ratio.
 
-**Choice:** A `present/5` ratio over required-evidence units (account name, renewal date, three exports), rendered first, with recommended-field nudges (`owner`, `arr_usd`) in the checklist.
+**Choice:** A present/total ratio over brief-specific required-evidence units, rendered first, with recommended-field nudges after required gaps. Renewal and QBR use five units (account name, renewal date, three exports); handoff uses seven units (account, sending AE, success criteria, stakeholder map, promises register, risks/dependencies, links).
 
 **Why:** Health scores encode opinions and decay trust when wrong ("why did a green account churn?"). Evidence presence encodes facts about the input set — verifiable, actionable (add the missing export), and a data-hygiene trend over time. Rendering it first tells readers exactly how much skepticism the rest of the brief deserves, which paradoxically raises trust in what did render.
 
@@ -70,7 +70,7 @@ One entry per significant build choice: what the alternatives were, what we chos
 
 **Alternatives:** telemetry platform; time-tracking surveys; vanity counters ("briefs generated"); minutes-saved log with an explicit baseline.
 
-**Choice:** `--stats` appends one JSON line per run — inputs, completeness, and `minutes_saved = baseline − measured automated time` — with the baseline defaulting to 75 minutes and configurable via flag or env. `csmkit stats` reads the cumulative story back. Opt-in, file-based, zero infrastructure.
+**Choice:** `--stats` appends one JSON line per run — brief type, inputs, completeness, and `minutes_saved = baseline − measured automated time` — with the baseline defaulting to 75 minutes and configurable via flag or env. `csmkit stats` reads the cumulative story back, including a per-type breakdown; legacy records without `brief_type` are grouped as `unspecified`. Opt-in, file-based, zero infrastructure.
 
 **Why:** The 60–90 min/account manual-prep figure is the documented cost being displaced; 75 (its midpoint) is a visible constant anyone can tighten and re-derive, not hidden magic. Per-run JSONL works offline, composes with git, and *is* the audit trail — no dashboard required. Vanity counters prove activity; hours reclaimed prove impact.
 
@@ -84,7 +84,7 @@ One entry per significant build choice: what the alternatives were, what we chos
 
 **Choice:** Plain markdown to stdout or a file.
 
-**Why:** Markdown pastes everywhere, diffs cleanly in git (briefs become reviewable artifacts with history), renders in every tool CSM-adjacent teams already use, and keeps the project dependency-free. Slides arrive later (v0.3) as another *renderer* over the same structured evidence — not a new format to maintain.
+**Why:** Markdown pastes everywhere, diffs cleanly in git (briefs become reviewable artifacts with history), renders in every tool CSM-adjacent teams already use, and keeps the project dependency-free. The QBR packet keeps that contract as slide-oriented markdown sections, not a separate slide-file format.
 
 > **Pattern:** Ship the most boring format that survives every downstream surface. Format ambition belongs in renderers, not in the core contract.
 
@@ -94,7 +94,7 @@ One entry per significant build choice: what the alternatives were, what we chos
 
 **Alternatives:** embed a full YAML implementation; use JSON instead of YAML; hand-roll a subset with loud failures.
 
-**Choice:** A ~70-line parser for flat `key: value` pairs supporting comments and quotes. Nesting, lists, and multi-line scalars are rejected with span-citing errors. Every key records its source line.
+**Choice:** A small parser for flat `key: value` pairs supporting comments and quotes. It later grew only D12's narrow block-list-of-scalars extension for handoff registers. Nesting, mapping values under keys, anchors, and multi-line scalars are still rejected with span-citing errors. Every key, and every supported list item, records its source line.
 
 **Why:** The schema is deliberately flat (D1), so full YAML expressiveness buys nothing while multiplying edge cases (anchors, merge keys, block scalars) we would test forever. Loud rejection of unsupported syntax honors the citation ethos: the parser refuses ambiguity instead of guessing. Human-friendly enough for a non-programmer to edit, machine-strict enough to cite.
 
