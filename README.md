@@ -68,12 +68,20 @@ example account in well under a second. Every factual line cites its source row
 Two more brief types, same engine:
 
 ```console
-$ csmkit brief --type handoff --handoff examples/acme/handoff.yaml \
-    --crm examples/acme/crm.csv --questions examples/acme/questions.csv \
-    --as-of 2026-08-22 --out handoff.md      # sales→CS handoff completeness
-$ csmkit brief --type qbr --account examples/acme/account.yaml \
-    --crm examples/acme/crm.csv --tickets examples/acme/tickets.csv \
-    --usage examples/acme/usage.csv --as-of 2026-08-22 --out qbr.md   # QBR packet
+$ csmkit brief --type handoff \
+    --handoff examples/acme/handoff.yaml \
+    --crm examples/acme/crm.csv \
+    --questions examples/acme/questions.csv \
+    --as-of 2026-08-22 --out handoff.md
+```
+
+```console
+$ csmkit brief --type qbr \
+    --account examples/acme/account.yaml \
+    --crm examples/acme/crm.csv \
+    --tickets examples/acme/tickets.csv \
+    --usage examples/acme/usage.csv \
+    --as-of 2026-08-22 --out qbr.md
 ```
 
 Add `--stats` to any run to log minutes saved, then run `csmkit stats` to see the
