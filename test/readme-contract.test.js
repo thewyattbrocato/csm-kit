@@ -34,6 +34,27 @@ function section(markdown, heading) {
   return next === -1 ? markdown.slice(start).trimEnd() : markdown.slice(start, next).trimEnd();
 }
 
+function sliceBetween(markdown, startMarker, endMarker) {
+  const start = markdown.indexOf(startMarker);
+  assert.notStrictEqual(start, -1, `README is missing ${startMarker.trim()}`);
+
+  const contentStart = start + startMarker.length;
+  const end = markdown.indexOf(endMarker, contentStart);
+  assert.notStrictEqual(end, -1, `README is missing ${endMarker.trim()}`);
+
+  return markdown.slice(contentStart, end);
+}
+
+function consoleBlocks(markdown) {
+  return Array.from(markdown.matchAll(/```console\n([\s\S]*?)\n```/g), (match) => match[1]);
+}
+
+function commandBlock(blocks, firstLine) {
+  const block = blocks.find((candidate) => candidate.startsWith(firstLine));
+  assert.ok(block, `missing console block starting with ${firstLine}`);
+  return block;
+}
+
 test('README Real output excerpt matches generated example sections byte-for-byte', () => {
   const readme = readRelative('README.md');
   const example = readRelative('examples/example-renewal-brief.md');
@@ -45,4 +66,31 @@ test('README Real output excerpt matches generated example sections byte-for-byt
   ].join('\n\n');
 
   assert.strictEqual(readmeRealOutputExcerpt(readme), expected);
+});
+
+test('README Quickstart reuses detailed type commands byte-for-byte', () => {
+  const readme = readRelative('README.md');
+
+  const quickstart = sliceBetween(readme, '## Quickstart\n', '> ### Before / after');
+  const handoff = sliceBetween(
+    readme,
+    '### Brief type #2: Handoff Completeness Brief (v0.2)\n',
+    '### Brief type #3: QBR Packet (v0.3)\n',
+  );
+  const qbr = sliceBetween(
+    readme,
+    '### Brief type #3: QBR Packet (v0.3)\n',
+    '### Input schemas\n',
+  );
+
+  const quickstartBlocks = consoleBlocks(quickstart);
+
+  assert.strictEqual(
+    commandBlock(quickstartBlocks, '$ csmkit brief --type handoff \\'),
+    commandBlock(consoleBlocks(handoff), '$ csmkit brief --type handoff \\'),
+  );
+  assert.strictEqual(
+    commandBlock(quickstartBlocks, '$ csmkit brief --type qbr \\'),
+    commandBlock(consoleBlocks(qbr), '$ csmkit brief --type qbr \\'),
+  );
 });
