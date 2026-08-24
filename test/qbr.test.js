@@ -115,7 +115,7 @@ test('sparse account renders only evidence-backed slides and honest fallbacks', 
   assert.match(out, /- \[ \] Add `owner:` in account\.yaml \(recommended — names the accountable CSM\)/);
 });
 
-test('no-evidence account suppresses plan derivation for an explicit seed line', () => {
+test('no-evidence account suppresses uncited plan absence claims', () => {
   const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'csmkit-qbr-bare-'));
   const accountFile = path.join(tmp, 'account.yaml');
   fs.writeFileSync(accountFile, ['name: Bare Bones Co.', ''].join('\n'));
@@ -125,9 +125,42 @@ test('no-evidence account suppresses plan derivation for an explicit seed line',
   assert.match(out, /## Evidence completeness: 1\/5 \(20%\)/);
   assert.doesNotMatch(out, /## Slide: Executive summary/);
   assert.doesNotMatch(out, /## Slide: Value delivered/);
+  assert.doesNotMatch(out, /no deterministic priorities triggered/);
+  assert.match(out, /## Slide: Next-quarter plan\n\n- Assign an owner and due date to each item above\./);
+});
+
+test('complete QBR with no plan priorities cites checked evidence', () => {
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'csmkit-qbr-no-plan-'));
+  const accountFile = path.join(tmp, 'account.yaml');
+  const crmFile = path.join(tmp, 'crm.csv');
+  const ticketsFile = path.join(tmp, 'tickets.csv');
+  const usageFile = path.join(tmp, 'usage.csv');
+  fs.writeFileSync(accountFile, ['name: Quiet Complete Co.', 'renewal_date: 2027-02-01', ''].join('\n'));
+  fs.writeFileSync(
+    crmFile,
+    ['date,type,contact,role,summary', '2026-08-20,meeting,Avery Stone,VP Operations,Recent cadence', ''].join('\n')
+  );
+  fs.writeFileSync(
+    ticketsFile,
+    ['opened,closed,severity,status,subject', '2026-08-01,2026-08-02,medium,closed,Resolved request', ''].join('\n')
+  );
+  fs.writeFileSync(
+    usageFile,
+    ['period,active_users,events', '2026-07,100,1000', '2026-08,110,1200', ''].join('\n')
+  );
+
+  const out = run([
+    'brief', '--type', 'qbr',
+    '--account', accountFile,
+    '--crm', crmFile,
+    '--tickets', ticketsFile,
+    '--usage', usageFile,
+    ...AS_OF,
+  ]);
+
   assert.match(
     out,
-    /- Seed the agenda from the executive summary above; no deterministic priorities triggered\./
+    /## Slide: Next-quarter plan\n\n- _None triggered by the current deterministic rules\._ Evidence checked: `account\.yaml#L2`, `crm\.csv#L2-L2`, `tickets\.csv#L2-L2`, `usage\.csv#L2-L3`\./
   );
 });
 

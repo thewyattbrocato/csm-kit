@@ -261,6 +261,38 @@ test('handoff without a CRM export renders the plain stakeholder map', () => {
   assert.doesNotMatch(out, /No CRM-recorded activity/);
 });
 
+test('handoff block-list items strip trailing comments outside quotes', () => {
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'csmkit-handoff-comments-'));
+  const handoffFile = path.join(tmp, 'handoff.yaml');
+  fs.writeFileSync(
+    handoffFile,
+    [
+      'account: Commented Co.',
+      'ae: Avery Stone',
+      'success_criteria:',
+      '  - Deploy SSO # internal note',
+      'stakeholders:',
+      '  - Jordan Lee | VP Operations | executive_sponsor # sales-only note',
+      'promises:',
+      '  - Premium onboarding | sold | included # revops note',
+      'risks:',
+      '  - Procurement dependency # private note',
+      'links:',
+      '  - "https://example.com/proposal #section" # link note',
+      '',
+    ].join('\n')
+  );
+
+  const out = run(['brief', '--type', 'handoff', '--handoff', handoffFile, ...AS_OF]);
+
+  assert.match(out, /\| 1 \| Deploy SSO \| `handoff\.yaml#L4` \|/);
+  assert.match(out, /\| Jordan Lee \| VP Operations \| executive_sponsor \| `handoff\.yaml#L6` \|/);
+  assert.match(out, /\| Premium onboarding \| Sold \| included \| `handoff\.yaml#L8` \|/);
+  assert.match(out, /- Procurement dependency — `handoff\.yaml#L10`/);
+  assert.match(out, /- https:\/\/example\.com\/proposal #section — `handoff\.yaml#L12`/);
+  assert.doesNotMatch(out, /internal note|sales-only note|revops note|private note|link note/);
+});
+
 test('same handoff inputs and as-of produce byte-identical output', () => {
   const a = run(handoffArgs('full'));
   const b = run(handoffArgs('full'));
