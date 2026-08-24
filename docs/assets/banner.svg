@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="300" viewBox="0 0 1200 300" role="img" aria-label="csm-kit — Evidence-cited CS briefs from exports you already have">
+  <!-- Hand-built house-style banner. No external fonts, images, or services: system monospace stacks only. -->
+  <rect x="0" y="0" width="1200" height="300" fill="#0d1117"/>
+  <rect x="1.5" y="1.5" width="1197" height="297" rx="12" fill="none" stroke="#30363d" stroke-width="3"/>
+
+  <!-- faint citation-chip motif -->
+  <g opacity="0.16" font-family="ui-monospace, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace">
+    <text x="70" y="80" font-size="22" fill="#8b949e">account.yaml#L7</text>
+    <text x="960" y="72" font-size="22" fill="#8b949e">tickets.csv#L4,L5</text>
+    <text x="52" y="252" font-size="22" fill="#8b949e">crm.csv#L2-L8</text>
+    <text x="920" y="256" font-size="22" fill="#8b949e">usage.csv#L2,L7</text>
+  </g>
+
+  <!-- wordmark -->
+  <text x="600" y="150" text-anchor="middle" font-family="ui-monospace, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace" font-size="92" font-weight="700" letter-spacing="2" fill="#e6edf3">csm<tspan fill="#3fb950">-</tspan>kit</text>
+
+  <!-- thesis line -->
+  <text x="600" y="208" text-anchor="middle" font-family="ui-monospace, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace" font-size="27" fill="#e6edf3">Evidence-cited CS briefs from exports you already have.</text>
+
+  <!-- underline accent -->
+  <rect x="410" y="228" width="380" height="4" rx="2" fill="#3fb950" opacity="0.85"/>
+
+  <!-- contract strip -->
+  <text x="600" y="266" text-anchor="middle" font-family="ui-monospace, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace" font-size="19" fill="#8b949e">every fact cites its source span &#183; no span, no render</text>
+</svg>

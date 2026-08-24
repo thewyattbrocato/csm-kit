@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="104" height="26" viewBox="0 0 104 26" role="img" aria-label="license: MIT">
+  <!-- Hand-built house-style badge. No external fonts or services. -->
+  <rect x="0.5" y="0.5" width="103" height="25" rx="5" fill="#0d1117" stroke="#30363d"/>
+  <rect x="0.5" y="0.5" width="66.5" height="25" rx="5" fill="#21262d"/>
+  <rect x="59" y="0.5" width="8" height="25" fill="#21262d"/>
+  <text x="10" y="17" font-family="ui-monospace, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace" font-size="12" fill="#8b949e">license</text>
+  <text x="72" y="17" font-family="ui-monospace, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace" font-size="12" fill="#e6edf3">MIT</text>
+</svg>

@@ -1,6 +1,54 @@
-# csm-kit
+<!-- Hero assets are hand-built house-style SVGs (docs/assets/) — no external services, fonts, or images. -->
 
-**Evidence-cited Customer Success briefs from plain CSV exports.** One CLI, three brief types (renewal readiness, handoff completeness, QBR packets). Every factual line in a generated brief cites its source (`file.csv#L42`) — a fact that cannot be traced to a source span does not render. No dependencies, no integrations, no LLM calls, no network calls.
+<div align="center">
+  <img src="docs/assets/banner.svg" alt="csm-kit — Evidence-cited CS briefs from exports you already have" width="720">
+</div>
+
+csm-kit is a CLI that assembles Customer Success briefs from the plain CSV exports your CRM, ticketing, and usage systems already produce — plus one small YAML file. Every factual line in the generated brief carries a citation (`file.csv#L42`); a fact that cannot be traced to a source span **does not render**, failing closed into a missing-evidence checklist or gap report instead. One shared engine renders three brief types: renewal readiness, handoff completeness, and QBR packets. No dependencies, no integrations, no LLM calls, no network calls.
+
+<div align="center">
+  <img src="docs/assets/how-it-works.svg" alt="account.yaml plus CRM/tickets/usage CSVs flow through the shared brief engine (schema, validate, render) into a markdown brief where every line cites file#row. Fail-closed: facts without a span go to the missing-evidence checklist. A completeness score renders first." width="720">
+</div>
+
+## Real output
+
+Verbatim excerpt of [`examples/example-renewal-brief.md`](examples/example-renewal-brief.md) — real generated output, not a mockup:
+
+````markdown
+## Evidence completeness: 5/5 (100%)
+
+| Required evidence | Status | Detail |
+|---|---|---|
+| Account name (account.yaml) | present | `account.yaml#L3` |
+| Renewal date (account.yaml) | present | `account.yaml#L7` |
+| CRM activity export | present | 7 activities (`crm.csv#L2-L8`) |
+| Ticket export | present | 4 tickets (`tickets.csv#L2-L5`) |
+| Usage summary | present | 6 periods (`usage.csv#L2-L7`) |
+
+## Renewal countdown
+
+- Renewal date: **2026-10-15** — **54 days away** at as-of 2026-08-22 — `account.yaml#L7`
+
+## Risk flags
+
+- 🟠 Usage declining: active users down 22% (2026-02 → 2026-07) — `usage.csv#L2,L7`
+- 🔴 Renewal within 60 days but no customer meeting/call in the last 30 days (last: 2026-07-19) — renewal `account.yaml#L7`, last meeting `crm.csv#L7`, search covered `crm.csv#L2-L8`
+````
+
+Every span above resolves to a real row in [`examples/acme/`](examples/acme/) — click through and check.
+
+> ### Before / after
+>
+> **⏱ Before:** renewal and QBR prep means manually reconstructing context across CRM, tickets, and usage exports — documented at **60–90 minutes per account per cycle** (see [The problem](#the-problem) for sources).
+>
+> **⚡ After:** one offline CLI run. Pass `--stats` and the tool logs the difference itself — e.g. `"minutes_saved":74.95` on the example account — against a baseline constant (**75 min**, midpoint of the documented range) that is visible and configurable (`--baseline-minutes`), never auto-inflated. See [Success metrics](#success-metrics).
+
+<p align="center">
+  <a href="https://github.com/thewyattbrocato/csm-kit/actions/workflows/ci.yml"><img src="docs/assets/badge-ci.svg" alt="CI: passing"></a>
+  <a href="https://github.com/thewyattbrocato/csm-kit/actions/workflows/ci.yml"><img src="docs/assets/badge-tests.svg" alt="tests: passing"></a>
+  <a href="https://github.com/thewyattbrocato/csm-kit/blob/main/package.json"><img src="docs/assets/badge-license.svg" alt="license: MIT"></a>
+  <a href="https://github.com/thewyattbrocato/csm-kit/blob/main/package.json"><img src="docs/assets/badge-node.svg" alt="node &gt;= 18"></a>
+</p>
 
 ---
 

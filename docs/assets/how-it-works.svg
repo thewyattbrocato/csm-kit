@@ -1,0 +1,87 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="640" viewBox="0 0 1200 640" role="img" aria-label="How csm-kit works: exports plus account.yaml flow through the shared brief engine into a markdown brief where every line cites file#row. The engine is fail-closed and reports an evidence completeness score first.">
+  <!-- Hand-built house-style diagram. No external fonts, images, or services: system monospace stacks only. -->
+  <defs>
+    <marker id="arr" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#8b949e"/>
+    </marker>
+  </defs>
+  <rect x="0" y="0" width="1200" height="640" fill="#0d1117"/>
+  <rect x="1.5" y="1.5" width="1197" height="637" rx="12" fill="none" stroke="#30363d" stroke-width="3"/>
+
+  <g font-family="ui-monospace, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace">
+
+    <!-- ===== 1 · INPUTS ===== -->
+    <text x="40" y="50" font-size="16" font-weight="700" fill="#8b949e">1 &#183; INPUTS &#8212; exports you already have</text>
+
+    <rect x="40" y="66" width="310" height="132" rx="8" fill="#161b22" stroke="#30363d" stroke-width="1.5"/>
+    <text x="58" y="96" font-size="15" font-weight="700" fill="#79c0ff">account.yaml</text>
+    <text x="58" y="126" font-size="13.5" fill="#e6edf3"><tspan fill="#3fb950">L3 </tspan> name: Acme Manufacturing Co.</text>
+    <text x="58" y="150" font-size="13.5" fill="#e6edf3"><tspan fill="#3fb950">L4 </tspan> owner: Dana Reyes</text>
+    <text x="58" y="174" font-size="13.5" fill="#e6edf3"><tspan fill="#3fb950">L7 </tspan> renewal_date: 2026-10-15</text>
+
+    <rect x="40" y="214" width="310" height="42" rx="8" fill="#161b22" stroke="#30363d" stroke-width="1.5"/>
+    <text x="58" y="241" font-size="14" fill="#79c0ff">crm.csv <tspan fill="#8b949e">&#183; 7 activities</tspan></text>
+    <rect x="40" y="268" width="310" height="42" rx="8" fill="#161b22" stroke="#30363d" stroke-width="1.5"/>
+    <text x="58" y="295" font-size="14" fill="#79c0ff">tickets.csv <tspan fill="#8b949e">&#183; 4 tickets</tspan></text>
+    <rect x="40" y="322" width="310" height="42" rx="8" fill="#161b22" stroke="#30363d" stroke-width="1.5"/>
+    <text x="58" y="349" font-size="14" fill="#79c0ff">usage.csv <tspan fill="#8b949e">&#183; 6 periods</tspan></text>
+
+    <!-- ===== 2 · ENGINE ===== -->
+    <text x="440" y="50" font-size="16" font-weight="700" fill="#8b949e">2 &#183; SHARED BRIEF ENGINE</text>
+
+    <rect x="440" y="66" width="360" height="210" rx="8" fill="#161b22" stroke="#30363d" stroke-width="1.5"/>
+    <rect x="450" y="88" width="340" height="44" rx="6" fill="#0d1117" stroke="#30363d"/>
+    <text x="468" y="116" font-size="14" fill="#e6edf3"><tspan fill="#79c0ff">schema</tspan> &#183; typed input contracts</text>
+    <rect x="450" y="148" width="340" height="44" rx="6" fill="#0d1117" stroke="#30363d"/>
+    <text x="468" y="176" font-size="14" fill="#e6edf3"><tspan fill="#79c0ff">validate</tspan> &#183; bad rows skipped loudly</text>
+    <rect x="450" y="208" width="340" height="44" rx="6" fill="#0d1117" stroke="#30363d"/>
+    <text x="468" y="236" font-size="14" fill="#e6edf3"><tspan fill="#79c0ff">render</tspan> &#183; markdown, every fact cited</text>
+
+    <rect x="440" y="300" width="360" height="86" rx="8" fill="#161b22" stroke="#d29922" stroke-width="1.5"/>
+    <text x="458" y="328" font-size="14" font-weight="700" letter-spacing="1" fill="#d29922">FAIL-CLOSED</text>
+    <text x="458" y="352" font-size="13" fill="#e6edf3">a fact without a span does not render;</text>
+    <text x="458" y="372" font-size="13" fill="#e6edf3">gaps &#8594; missing-evidence checklist</text>
+
+    <rect x="440" y="406" width="360" height="86" rx="8" fill="#161b22" stroke="#3fb950" stroke-width="1.5"/>
+    <text x="458" y="434" font-size="14" font-weight="700" letter-spacing="1" fill="#3fb950">COMPLETENESS SCORE</text>
+    <text x="458" y="458" font-size="13" fill="#e6edf3">present / required evidence units,</text>
+    <text x="458" y="478" font-size="13" fill="#e6edf3">rendered first &#8212; calibrates trust</text>
+
+    <!-- ===== 3 · OUTPUT ===== -->
+    <text x="870" y="50" font-size="16" font-weight="700" fill="#8b949e">3 &#183; OUTPUT &#8212; markdown brief</text>
+
+    <rect x="870" y="66" width="300" height="470" rx="8" fill="#161b22" stroke="#30363d" stroke-width="1.5"/>
+    <text x="888" y="88" font-size="13" font-weight="700" fill="#79c0ff">renewal-brief.md (excerpt)</text>
+    <line x1="870" y1="100" x2="1170" y2="100" stroke="#30363d" stroke-width="1.5"/>
+
+    <text x="888" y="128" font-size="13" font-weight="700" fill="#e6edf3"># Renewal Readiness Brief</text>
+
+    <text x="888" y="156" font-size="13" fill="#e6edf3">Acme Manufacturing Co.</text>
+    <text x="902" y="176" font-size="13" fill="#3fb950">account.yaml#L3</text>
+
+    <text x="888" y="206" font-size="13" fill="#3fb950">Evidence completeness 5/5 (100%)</text>
+
+    <text x="888" y="234" font-size="13" fill="#e6edf3">Renewal in 54 days</text>
+    <text x="902" y="254" font-size="13" fill="#3fb950">account.yaml#L7</text>
+
+    <text x="888" y="282" font-size="13" fill="#e6edf3">Usage trend -22%</text>
+    <text x="902" y="302" font-size="13" fill="#3fb950">usage.csv#L2,L7</text>
+
+    <text x="888" y="330" font-size="13" fill="#f85149">&#9888; Renewal &lt;60d, no meeting 30d</text>
+    <text x="902" y="350" font-size="13" fill="#3fb950">account.yaml#L7 &#183; crm.csv#L2-L8</text>
+
+    <text x="888" y="378" font-size="13" fill="#e6edf3">[x] required evidence complete</text>
+
+    <text x="888" y="408" font-size="13" fill="#8b949e">unprovable facts are suppressed &#8594;</text>
+    <text x="888" y="426" font-size="13" fill="#8b949e">listed in the checklist, not shown</text>
+
+    <!-- ===== flow arrows ===== -->
+    <line x1="356" y1="200" x2="434" y2="200" stroke="#8b949e" stroke-width="2" marker-end="url(#arr)"/>
+    <text x="395" y="222" font-size="12" fill="#8b949e" text-anchor="middle">reads</text>
+    <line x1="806" y1="200" x2="864" y2="200" stroke="#8b949e" stroke-width="2" marker-end="url(#arr)"/>
+    <text x="835" y="222" font-size="12" fill="#8b949e" text-anchor="middle">renders</text>
+
+    <!-- ===== footer strip ===== -->
+    <text x="600" y="600" font-size="14" fill="#8b949e" text-anchor="middle">Deterministic &#183; offline &#183; zero dependencies &#183; same inputs + --as-of = byte-identical brief</text>
+  </g>
+</svg>
