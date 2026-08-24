@@ -37,6 +37,54 @@ Verbatim excerpt of [`examples/example-renewal-brief.md`](examples/example-renew
 
 Every span above resolves to a real row in [`examples/acme/`](examples/acme/) — click through and check.
 
+## Quickstart
+
+Requires Node ≥ 18 (`node --version` to check). That's the only prerequisite —
+zero dependencies, no network calls, nothing else to install.
+
+```console
+$ git clone https://github.com/thewyattbrocato/csm-kit && cd csm-kit
+$ npm install -g .        # exposes the `csmkit` binary (may need sudo on system-managed Node)
+```
+
+Prefer not to install globally? Every command below runs identically as
+`node bin/csmkit.js …` from the repo checkout — nothing written outside it:
+
+```console
+$ csmkit brief \
+    --account examples/acme/account.yaml \
+    --crm examples/acme/crm.csv \
+    --tickets examples/acme/tickets.csv \
+    --usage examples/acme/usage.csv \
+    --as-of 2026-08-22 \
+    --out brief.md
+wrote brief.md (5/5 evidence, 100%)
+```
+
+Open `brief.md`: your first Renewal Readiness Brief, generated from the bundled
+example account in well under a second. Every factual line cites its source row
+(`account.yaml#L7`) — click through to [`examples/acme/`](examples/acme/) and check.
+
+Two more brief types, same engine:
+
+```console
+$ csmkit brief --type handoff --handoff examples/acme/handoff.yaml \
+    --crm examples/acme/crm.csv --questions examples/acme/questions.csv \
+    --as-of 2026-08-22 --out handoff.md      # sales→CS handoff completeness
+$ csmkit brief --type qbr --account examples/acme/account.yaml \
+    --crm examples/acme/crm.csv --tickets examples/acme/tickets.csv \
+    --usage examples/acme/usage.csv --as-of 2026-08-22 --out qbr.md   # QBR packet
+```
+
+Add `--stats` to any run to log minutes saved, then run `csmkit stats` to see the
+cumulative impact log.
+
+**Your own data:** copy `examples/acme/`, drop in your CRM/ticket/usage CSV exports
+(common column aliases accepted; dates ISO `YYYY-MM-DD`), edit the YAML, rerun.
+Anything that can't be traced to a source row fails closed into a missing-evidence
+checklist inside the brief — it will tell you exactly which flag needs which file.
+Details: [Input schemas](#input-schemas).
+
 > ### Before / after
 >
 > **⏱ Before:** renewal and QBR prep means manually reconstructing context across CRM, tickets, and usage exports — documented at **60–90 minutes per account per cycle** (see [The problem](#the-problem) for sources).
@@ -85,7 +133,7 @@ Every factual statement rendered by csm-kit resolves to a source span — `accou
 
 ### Brief type #1: Renewal Readiness Brief (v0.1)
 
-Inputs: one `account.yaml` plus up to three CSV exports (CRM activity, tickets, usage). Output: one markdown brief containing:
+Inputs: one `account.yaml` plus up to three CSV exports (CRM activity, tickets, usage). All three CSVs are expected for a complete brief — omitting any lowers the completeness score, and the missing-evidence checklist names the exact flag and file to provide. Output: one markdown brief containing:
 
 - **Evidence completeness score** — which required evidence is present/missing, rendered first so the reader knows how much trust the rest deserves
 - **Renewal countdown** — days remaining, cited to the YAML line
