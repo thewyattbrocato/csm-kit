@@ -6,8 +6,18 @@ const path = require('path');
 const { parseArgs } = require('util');
 
 const pkg = require('../package.json');
-const { LoadError, baseName, loadAccount, loadCrm, loadTickets, loadUsage, parseIsoDate } = require('../lib/load');
-const { buildBrief } = require('../lib/brief');
+const {
+  LoadError,
+  baseName,
+  loadAccount,
+  loadCrm,
+  loadTickets,
+  loadUsage,
+  loadHandoff,
+  loadQuestions,
+  parseIsoDate,
+} = require('../lib/load');
+const { buildBrief, BRIEF_TYPES } = require('../lib/brief');
 const {
   DEFAULT_STATS_FILE,
   DEFAULT_BASELINE_MINUTES,
@@ -19,22 +29,33 @@ const {
 const USAGE = `csm-kit v${pkg.version} — evidence-cited Customer Success briefs
 
 Usage:
-  csmkit brief --account <account.yaml> [--crm <csv>] [--tickets <csv>] [--usage <csv>]
+  csmkit brief --type renewal --account <account.yaml> [--crm <csv>] [--tickets <csv>] [--usage <csv>]
                [--out <file>] [--as-of YYYY-MM-DD] [--stats] [--stats-file <file>]
                [--baseline-minutes <minutes>]
+  csmkit brief --type handoff --handoff <handoff.yaml> [--crm <csv>] [--questions <csv>] [...]
+  csmkit brief --type qbr --account <account.yaml> [--crm <csv>] [--tickets <csv>] [--usage <csv>] [...]
   csmkit stats [--stats-file <file>]
 
 Commands:
-  brief   Render a Renewal Readiness Brief from account.yaml + up to three CSV exports.
+  brief   Render one of three evidence-cited briefs (default --type renewal):
+            renewal  Renewal Readiness Brief from account.yaml + up to three CSV exports
+            handoff  Sales-to-CS Handoff Completeness Brief from handoff.yaml (+ optional
+                     CRM activity CSV and week-one questions log); the gap report is
+                     addressed back to the sending AE
+            qbr      QBR Packet rendered as slide-oriented markdown from account.yaml +
+                     up to three CSV exports (deterministic; no LLM layer)
           Every fact cites its source span (file#L<row>); untraceable facts are omitted
-          and reported in the missing-evidence checklist instead.
+          and reported in the missing-evidence checklist / gap report instead.
   stats   Summarize the minutes-saved impact log written by runs using --stats.
 
 Options (brief):
-  --account           Path to the account YAML file (required)
-  --crm               CRM activity export CSV (optional but scored as required evidence)
-  --tickets           Ticket export CSV (optional but scored as required evidence)
-  --usage             Usage summary CSV (optional but scored as required evidence)
+  --type              Brief type: ${BRIEF_TYPES.join(', ')} (default: renewal)
+  --account           Path to account.yaml (required for renewal and qbr)
+  --handoff           Path to handoff.yaml (required for handoff)
+  --questions         Week-one questions log CSV (optional; handoff only)
+  --crm               CRM activity export CSV (all types)
+  --tickets           Ticket export CSV (renewal and qbr)
+  --usage             Usage summary CSV (renewal and qbr)
   --out               Write the brief to a file instead of stdout
   --as-of             Reference date for countdowns/windows, YYYY-MM-DD (default: today UTC)
   --stats             Append a minutes-saved record to the stats log
@@ -95,13 +116,20 @@ function sourceLabels(pathsByKey) {
   return labels;
 }
 
+function rejectFlag(value, flagName, typeName) {
+  if (value !== undefined) fail(`--${flagName} is not a valid input for --type ${typeName}`);
+}
+
 function cmdBrief(argv) {
   let args;
   try {
     args = parseArgs({
       args: argv,
       options: {
+        type: { type: 'string' },
         account: { type: 'string' },
+        handoff: { type: 'string' },
+        questions: { type: 'string' },
         crm: { type: 'string' },
         tickets: { type: 'string' },
         usage: { type: 'string' },
@@ -117,7 +145,22 @@ function cmdBrief(argv) {
     fail(err.message);
   }
 
-  if (!args.values.account) fail('--account <account.yaml> is required');
+  const type = args.values.type ?? 'renewal';
+  if (!BRIEF_TYPES.includes(type)) {
+    fail(`--type must be one of: ${BRIEF_TYPES.join(', ')} (got "${type}")`);
+  }
+  const isAccountType = type === 'renewal' || type === 'qbr';
+
+  if (isAccountType && !args.values.account) fail(`--account <account.yaml> is required for --type ${type}`);
+  if (type === 'handoff') {
+    if (!args.values.handoff) fail('--handoff <handoff.yaml> is required for --type handoff');
+    if (args.values.account) fail('--account is not a valid input for --type handoff (identity comes from `account:` in handoff.yaml)');
+    rejectFlag(args.values.tickets, 'tickets', type);
+    rejectFlag(args.values.usage, 'usage', type);
+  } else {
+    rejectFlag(args.values.handoff, 'handoff', type);
+    rejectFlag(args.values.questions, 'questions', type);
+  }
 
   const startedAtNs = process.hrtime.bigint();
 
@@ -130,34 +173,44 @@ function cmdBrief(argv) {
   }
   const baselineMinutes = args.values.stats ? resolveBaseline(args.values['baseline-minutes']) : null;
 
-  let account;
   try {
     const labels = sourceLabels({
       account: args.values.account,
+      handoff: args.values.handoff,
       crm: args.values.crm,
       tickets: args.values.tickets,
       usage: args.values.usage,
+      questions: args.values.questions,
     });
-    account = loadAccount(args.values.account, labels.account);
-    const crm = loadCrm(args.values.crm, labels.crm);
-    const tickets = loadTickets(args.values.tickets, labels.tickets);
-    const usage = loadUsage(args.values.usage, labels.usage);
 
-    const warnings = [
-      ...account.warnings.map((w) => ({ src: account.file, msg: w })),
-      ...(crm.warnings ?? []).map((w) => ({ src: crm.source, msg: w })),
-      ...(tickets.warnings ?? []).map((w) => ({ src: tickets.source, msg: w })),
-      ...(usage.warnings ?? []).map((w) => ({ src: usage.source, msg: w })),
-    ];
+    const warnings = [];
+    let briefInputs;
+    if (type === 'handoff') {
+      const handoff = loadHandoff(args.values.handoff, labels.handoff);
+      const crm = loadCrm(args.values.crm, labels.crm);
+      const questions = loadQuestions(args.values.questions, labels.questions);
+      warnings.push(
+        ...handoff.warnings.map((w) => ({ src: handoff.source, msg: w })),
+        ...(crm.warnings ?? []).map((w) => ({ src: crm.source, msg: w })),
+        ...(questions.warnings ?? []).map((w) => ({ src: questions.source, msg: w }))
+      );
+      briefInputs = { handoff, crm, questions };
+    } else {
+      const account = loadAccount(args.values.account, labels.account);
+      const crm = loadCrm(args.values.crm, labels.crm);
+      const tickets = loadTickets(args.values.tickets, labels.tickets);
+      const usage = loadUsage(args.values.usage, labels.usage);
+      warnings.push(
+        ...account.warnings.map((w) => ({ src: account.file, msg: w })),
+        ...(crm.warnings ?? []).map((w) => ({ src: crm.source, msg: w })),
+        ...(tickets.warnings ?? []).map((w) => ({ src: tickets.source, msg: w })),
+        ...(usage.warnings ?? []).map((w) => ({ src: usage.source, msg: w }))
+      );
+      briefInputs = { account, crm, tickets, usage };
+    }
     for (const w of warnings) process.stderr.write(`warning: ${w.msg}\n`);
 
-    const { markdown, completeness, statsContext } = buildBrief({
-      account,
-      crm,
-      tickets,
-      usage,
-      asOfDt,
-    });
+    const { markdown, completeness, statsContext } = buildBrief({ type, ...briefInputs, asOfDt });
 
     if (args.values.out) {
       fs.mkdirSync(path.dirname(path.resolve(args.values.out)), { recursive: true });
@@ -178,11 +231,8 @@ function cmdBrief(argv) {
         tool: pkg.name,
         version: pkg.version,
         run: 'brief',
-        account: statsContext.account,
-        inputs: statsContext.inputs,
-        completeness_pct: statsContext.completeness_pct,
-        risk_flags: statsContext.risk_flags,
-        stakeholders: statsContext.stakeholders,
+        brief_type: type,
+        ...statsContext,
         baseline_manual_minutes: baselineMinutes,
         automated_minutes: automatedMinutes,
         minutes_saved: minutesSaved,
@@ -219,18 +269,22 @@ function cmdStats(argv) {
     process.stdout.write(`${file} exists but contains no readable records.\n`);
     return;
   }
-  process.stdout.write(
-    [
-      `csm-kit impact log (${file})`,
-      `  runs: ${s.runs}`,
-      `  accounts covered: ${s.accounts}`,
-      `  total minutes saved (est.): ${s.totalMinutesSaved.toFixed(2)}`,
-      `  avg minutes saved per run: ${s.avgMinutesSavedPerRun.toFixed(2)}`,
-      `  first run: ${s.firstRunTs ?? '—'}`,
-      `  last run: ${s.lastRunTs ?? '—'}`,
-      '',
-    ].join('\n')
-  );
+  const lines = [
+    `csm-kit impact log (${file})`,
+    `  runs: ${s.runs}`,
+    `  accounts covered: ${s.accounts}`,
+    `  total minutes saved (est.): ${s.totalMinutesSaved.toFixed(2)}`,
+    `  avg minutes saved per run: ${s.avgMinutesSavedPerRun.toFixed(2)}`,
+    `  first run: ${s.firstRunTs ?? '—'}`,
+    `  last run: ${s.lastRunTs ?? '—'}`,
+  ];
+  if (s.byType && s.byType.size > 0) {
+    lines.push('  minutes saved by brief type:');
+    for (const [type, agg] of s.byType) {
+      lines.push(`    ${type}: ${agg.runs} run${agg.runs === 1 ? '' : 's'}, ${agg.totalMinutesSaved.toFixed(2)} min saved (est.)`);
+    }
+  }
+  process.stdout.write(lines.join('\n') + '\n');
 }
 
 function main() {

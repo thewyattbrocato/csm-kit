@@ -1,0 +1,27 @@
+# acme/handoff.yaml - sales-to-CS handoff record for the Acme demo account.
+account: Acme Manufacturing Co.
+ae: Morgan Diaz
+close_date: 2026-08-05
+
+success_criteria:
+- 60 weekly active users across both plants by 2026-11-30
+- SSO live for the pilot group during kickoff week
+- First quarterly business review held before 2026-10-15
+
+stakeholders:
+- Jordan Lee | VP Operations | executive_sponsor
+- Sam Ortiz | Procurement Lead | economic_buyer
+- Priya Natarajan | IT Director | technical_buyer
+
+promises:
+- Multi-year pricing option | sold | Quoted on the 2026-06-11 call; addendum pending countersignature
+- Plant-rollout success plan | sold | Success plan attached to proposal v3
+- Custom dashboard bundle | not_sold | Demonstrated on the closing call but excluded from the signed order
+
+risks:
+- Budget freeze rumored on the customer side (2026-07-19 call)
+- Procurement has not returned the multi-year addendum
+
+links:
+- https://example.com/recordings/acme-closing-call
+- https://example.com/docs/acme-proposal-v3.pdf

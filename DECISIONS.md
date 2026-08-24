@@ -10,7 +10,7 @@ One entry per significant build choice: what the alternatives were, what we chos
 
 **Alternatives:** (a) one bespoke tool per artifact; (b) a free-form generator that takes any inputs and "figures out" a document; (c) typed schemas + one shared render pipeline.
 
-**Choice:** (c). Brief type #1 ships with an engine whose sections derive from declared schemas and deterministic rules; briefs #2 and #3 will be new schemas on the same engine.
+**Choice:** (c). Brief types register as schemas plus deterministic builders on one dispatcher (`lib/brief.js`): renewal, handoff, and qbr all share the same evidence/rendering contract instead of forking into separate tools.
 
 **Why:** Bespoke tools multiply maintenance and fragment trust. Free-form generation is seductive but untestable — you cannot assert "this sentence is true" against a schema you don't have. Typed schemas make validation, completeness scoring, and citations mechanical, and they turn roadmap items into config-plus-rules instead of rewrites.
 
@@ -22,7 +22,7 @@ One entry per significant build choice: what the alternatives were, what we chos
 
 **Alternatives:** best-effort footnotes; citations only for numbers; trusting the transform layer.
 
-**Choice:** Hard rule — every factual statement carries `file#L<row>` or it is suppressed into the missing-evidence checklist. Unparseable rows are skipped loudly (the warning names their span) and never become facts. Even absence claims ("no meeting/call in 30 days") cite the range that was searched.
+**Choice:** Hard rule — every factual statement carries `file#L<row>` or it is suppressed into the missing-evidence checklist / gap report. Unparseable rows are skipped loudly (the warning names their span) and never become facts. Even absence claims ("no meeting/call in 30 days") cite the range that was searched.
 
 **Why:** Citations convert the brief from "another summary someone wrote" into evidence a CSM can defend. They also discipline the codebase: every renderer feature must answer "which row proves this?" before it can ship. Adoption follows verifiability — people paste into renewal meetings what they can defend line-by-line.
 
@@ -58,7 +58,7 @@ One entry per significant build choice: what the alternatives were, what we chos
 
 **Alternatives:** weighted health score; sentiment estimate; evidence-presence ratio.
 
-**Choice:** A `present/5` ratio over required-evidence units (account name, renewal date, three exports), rendered first, with recommended-field nudges (`owner`, `arr_usd`) in the checklist.
+**Choice:** A present/total ratio over brief-specific required-evidence units, rendered first, with recommended-field nudges after required gaps. Renewal and QBR use five units (account name, renewal date, three exports); handoff uses seven units (account, sending AE, success criteria, stakeholder map, promises register, risks/dependencies, links).
 
 **Why:** Health scores encode opinions and decay trust when wrong ("why did a green account churn?"). Evidence presence encodes facts about the input set — verifiable, actionable (add the missing export), and a data-hygiene trend over time. Rendering it first tells readers exactly how much skepticism the rest of the brief deserves, which paradoxically raises trust in what did render.
 
@@ -70,7 +70,7 @@ One entry per significant build choice: what the alternatives were, what we chos
 
 **Alternatives:** telemetry platform; time-tracking surveys; vanity counters ("briefs generated"); minutes-saved log with an explicit baseline.
 
-**Choice:** `--stats` appends one JSON line per run — inputs, completeness, and `minutes_saved = baseline − measured automated time` — with the baseline defaulting to 75 minutes and configurable via flag or env. `csmkit stats` reads the cumulative story back. Opt-in, file-based, zero infrastructure.
+**Choice:** `--stats` appends one JSON line per run — brief type, inputs, completeness, and `minutes_saved = baseline − measured automated time` — with the baseline defaulting to 75 minutes and configurable via flag or env. `csmkit stats` reads the cumulative story back, including a per-type breakdown; legacy records without `brief_type` are grouped as `unspecified`. Opt-in, file-based, zero infrastructure.
 
 **Why:** The 60–90 min/account manual-prep figure is the documented cost being displaced; 75 (its midpoint) is a visible constant anyone can tighten and re-derive, not hidden magic. Per-run JSONL works offline, composes with git, and *is* the audit trail — no dashboard required. Vanity counters prove activity; hours reclaimed prove impact.
 
@@ -84,7 +84,7 @@ One entry per significant build choice: what the alternatives were, what we chos
 
 **Choice:** Plain markdown to stdout or a file.
 
-**Why:** Markdown pastes everywhere, diffs cleanly in git (briefs become reviewable artifacts with history), renders in every tool CSM-adjacent teams already use, and keeps the project dependency-free. Slides arrive later (v0.3) as another *renderer* over the same structured evidence — not a new format to maintain.
+**Why:** Markdown pastes everywhere, diffs cleanly in git (briefs become reviewable artifacts with history), renders in every tool CSM-adjacent teams already use, and keeps the project dependency-free. The QBR packet keeps that contract as slide-oriented markdown sections, not a separate slide-file format.
 
 > **Pattern:** Ship the most boring format that survives every downstream surface. Format ambition belongs in renderers, not in the core contract.
 
@@ -94,7 +94,7 @@ One entry per significant build choice: what the alternatives were, what we chos
 
 **Alternatives:** embed a full YAML implementation; use JSON instead of YAML; hand-roll a subset with loud failures.
 
-**Choice:** A ~70-line parser for flat `key: value` pairs supporting comments and quotes. Nesting, lists, and multi-line scalars are rejected with span-citing errors. Every key records its source line.
+**Choice:** A small parser for flat `key: value` pairs supporting comments and quotes. It later grew only D12's narrow block-list-of-scalars extension for handoff registers. Nesting, mapping values under keys, anchors, and multi-line scalars are still rejected with span-citing errors. Every key, and every supported list item, records its source line.
 
 **Why:** The schema is deliberately flat (D1), so full YAML expressiveness buys nothing while multiplying edge cases (anchors, merge keys, block scalars) we would test forever. Loud rejection of unsupported syntax honors the citation ethos: the parser refuses ambiguity instead of guessing. Human-friendly enough for a non-programmer to edit, machine-strict enough to cite.
 
@@ -135,3 +135,51 @@ One entry per significant build choice: what the alternatives were, what we chos
 **Why:** A trust-first tool that secretly logs undermines its own thesis. Opt-in keeps the metric honest too: each record represents a deliberate claim of value by the person who ran it, not an inflated passive count. Adoption teams can still aggregate later because the format is plain JSONL.
 
 > **Pattern:** Instrumentation should be a feature the user opts into, never a side effect they discover.
+
+## D12. The handoff schema stays typed: lists of flat scalars, not freeform YAML (v0.2)
+
+**Context:** Brief type #2 needs multi-entry registers (success criteria, stakeholder map, promises, risks, links). A general YAML parser with nested maps would express these "naturally" — and reopen every edge case D8 refused.
+
+**Alternatives:** (a) embed a full YAML implementation now that a schema finally wants nesting; (b) split registers into side-car CSVs; (c) extend the flat subset with exactly one feature: block lists of flat scalars under `key:` (`- item`, each item line-numbered); (d) freeform text sections parsed by heuristics.
+
+**Choice:** (c), plus pipe-delimited register rows inside single scalars (`Name | Role | Handoff role`, `Promise | sold or not_sold | detail`) so one human-editable `handoff.yaml` carries the whole handoff. Everything D8 rejects is still rejected loudly: no nesting, no mapping values, no anchors. Malformed rows are skipped with span-citing warnings, never coerced into facts.
+
+**Why:** Schema-first means the *schema* evolves deliberately while the parsing contract stays small enough to reason about. Lists-of-scalars keep every item citable (`handoff.yaml#L17`) — which is what lets completeness scoring, unproven-promise detection, and the gap report stay mechanical. Freeform input would make "which row proves this?" unanswerable again. Side-car CSVs were rejected because an AE filling out one file is the adoption path; friction at input is friction at adoption.
+
+> **Pattern:** Grow a constrained format by adding the narrowest feature that satisfies the new contract — not by adopting the general tool that satisfies every future one.
+
+## D13. Handoff gaps are addressed back to the AE, as asks for evidence (v0.2)
+
+**Context:** The handoff brief's missing-evidence output could be framed as a neutral scorecard, an audit finding, or requests routed to the receiving CSM.
+
+**Alternatives:** generic checklist like the renewal brief's; a scored "handoff quality grade" sent to CS leadership; gaps logged to a dashboard.
+
+**Choice:** The section is titled **Gap report — for {AE}**, names the sending AE from `ae:` in the YAML, and phrases every line as a specific ask for specific evidence ("Confirm sold status of X — currently unproven", "add a promises register"). Recommended nudges ride along (close_date, week-one questions log).
+
+**Why:** In the handoff workflow, the AE is the only person who can supply what's missing — routing gaps anywhere else guarantees they die. Addressing them to a named person converts a passive score into an actionable request, which mirrors how the discovery evidence describes successful handoffs (enforcement tooling, not blame tooling). It also keeps the citation contract honest: every ask cites the span that exposed the gap, so the AE can verify the claim before fixing it.
+
+> **Pattern:** Point a report at the one person who can act on it, and phrase findings as requests they can say yes to.
+
+## D14. QBR packets stay deterministic; the LLM layer has a named extension point but no key (v0.3)
+
+**Context:** Slide-oriented QBR packets look like the obvious place for generated narrative ("summarize this quarter's wins").
+
+**Alternatives:** ship an optional LLM drafting flag now; wait until the engine has more brief types; hardcode "never".
+
+**Choice:** v0.3 renders slides purely from evaluated rules over the shared pipeline — executive summary, value delivered, open risks, next-quarter plan skeleton all derive deterministically from cited evidence. The LLM layer stays deferred with its seam defined: a future drafting step may sit between evidence assembly and rendering inside `buildQbrBrief`, and per D4/D2 it may arrange prose but every factual sentence must still resolve to a source span or be suppressed.
+
+**Why:** Deterministic-first keeps the packet byte-reproducible (`--as-of`), testable against fixtures, and defensible in the room — the same properties that made the renewal brief trustworthy. Adding generation before the evidence pipeline is proven would couple two risky changes. Naming the extension point (instead of vague "later") makes the deferral a design decision rather than procrastination.
+
+> **Pattern:** Defer a capability by defining exactly where it will plug in and what contract it must obey — not by leaving it out silently.
+
+## D15. Unproven beats both "sold" and silence: UNPROVEN as a first-class state (v0.2)
+
+**Context:** Promise registers record what was sold — but real-world rows arrive blank, typo'd, or ambiguous. Dropping those rows hides risk; defaulting them to sold fabricates commitments.
+
+**Alternatives:** skip unrecognized statuses with a warning (renewal's broken-row precedent); assume sold; render three states.
+
+**Choice:** Three-state status vocabulary: `sold`, `not_sold`, and anything else renders as **UNPROVEN** — in the register table, as a 🟠 risk flag citing the row, and as a confirmation ask in the gap report. Unrecognizable non-empty statuses additionally warn on stderr naming their span.
+
+**Why:** This extends the citation contract's core move (D2: absence claims cite searched ranges) from *facts about data* to *facts about proof*. A promise whose sale can't be evidenced is exactly the kind of silent liability that poisons handoffs, and it deserves louder treatment than suppression — the reader must see that something was claimed without proof. Unproven-state rendering turns "we don't know" into actionable work instead of a hole in the document.
+
+> **Pattern:** When evidence is absent, render the absence of proof itself — labeled, cited, and routed to whoever can cure it.
