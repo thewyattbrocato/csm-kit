@@ -183,3 +183,15 @@ One entry per significant build choice: what the alternatives were, what we chos
 **Why:** This extends the citation contract's core move (D2: absence claims cite searched ranges) from *facts about data* to *facts about proof*. A promise whose sale can't be evidenced is exactly the kind of silent liability that poisons handoffs, and it deserves louder treatment than suppression — the reader must see that something was claimed without proof. Unproven-state rendering turns "we don't know" into actionable work instead of a hole in the document.
 
 > **Pattern:** When evidence is absent, render the absence of proof itself — labeled, cited, and routed to whoever can cure it.
+
+## D16. Hero-first README with hand-built SVG assets, not doc services
+
+**Context:** v0.1 merged on a strong engine, with handoff/QBR landing via a parallel branch, but the README opened with a problem essay — a visitor needed minutes, not seconds, to learn what the tool does and why it matters. It also needed badges and a flow diagram, and the project's ethos forbids external services and network dependencies.
+
+**Alternatives:** (a) keep prose-first README, add shields.io badges and a Mermaid/Cloud-hosted diagram; (b) restructure hero-first with hand-built local SVGs in `docs/assets/`; (c) no visuals at all.
+
+**Choice:** (b). Above the fold, in order: typographic banner (`banner.svg`) → one-paragraph value prop → flow diagram (`how-it-works.svg`, annotating fail-closed + completeness score) → verbatim excerpt of real generated output with inline `file#L<row>` citations → before/after callout (60–90 min manual baseline from the discovery evidence vs `--stats` minutes-saved per run) → badges row (CI, tests, license, node). All existing PM-artifact depth (problem statement, discovery evidence, roadmap) stays intact below the fold. Every image is a hand-built SVG using system monospace font stacks — zero external fonts, images, or services; each badge links to where its claim is verifiable (live Actions runs, in-repo sources).
+
+**Why:** Visitors decide in seconds, and a trust-first tool's best pitch is a real artifact: an excerpt whose citation spans resolve to rows a reader can click is demonstration, not promise. Third-party badge/diagram services would inject exactly the network dependency the project refuses in code — docs should inherit the project's constraints, not exempt themselves — and their static claims go stale unverified. Hand-built SVGs keep the repo self-contained while the links keep claims checkable. The deep problem/discovery material still serves evaluators who scroll past the fold.
+
+> **Pattern:** Lead with demonstrated proof and defer argumentation. Every surface of a trust-first product — including its docs' images — must obey the same constraints it asks the user to accept.
