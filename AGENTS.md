@@ -14,6 +14,8 @@ This file is the project's committed home for project-intrinsic agent knowledge:
 - `npm test` runs `node --test` over `test/*.test.js` (behavior tests: real CLI executions on fixtures under `test/fixtures/`).
 - Syntax gate: `node --check bin/csmkit.js lib/*.js test/*.test.js`.
 - Regenerate all three committed examples after changing rendering: `npm run example` (renewal + handoff + qbr, fixed as-of 2026-08-22), then confirm diffs show only intended changes.
+- `npm run demo` regenerates the Pages artifacts (`docs/demo-static/index.html`, `docs/demo/index.html`, and the `docs/demo.html` compatibility alias) from committed examples, fixture scenarios, and embedded unmodified `lib/*.js`; CI reruns the generator and rejects drift.
+- `test/demo-equivalence.test.js` executes the exact embedded browser runtime in a VM and compares all scenario/type outputs byte-for-byte with the real CLI; `test/demo-network.test.js` guards the no-request contract.
 
 ## Sharp edges learned the hard way
 

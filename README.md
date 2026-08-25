@@ -37,6 +37,10 @@ Verbatim excerpt of [`examples/example-renewal-brief.md`](examples/example-renew
 
 Every span above resolves to a real row in [`examples/acme/`](examples/acme/) — click through and check.
 
+## Try it in your browser
+
+[Open the interactive demo](https://thewyattbrocato.github.io/csm-kit/demo/) - nothing leaves this tab. Switch between renewal, handoff, and QBR briefs, try the full/risky/sparse evidence scenarios, or edit the local source panes. JavaScript-off visitors can use the [static annotated walkthrough](https://thewyattbrocato.github.io/csm-kit/demo-static/).
+
 ## Quickstart
 
 Requires Node ≥ 18 (`node --version` to check). That's the only prerequisite —
