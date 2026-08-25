@@ -56,7 +56,7 @@ function cliArgs(scenario, type) {
 function cliOutput(scenario, type) {
   const result = spawnSync(process.execPath, [CLI, ...cliArgs(scenario, type)], { encoding: 'utf8' });
   assert.strictEqual(result.status, 0, `${scenario}/${type} CLI failed: ${result.stderr}`);
-  return result.stdout.trim();
+  return result.stdout;
 }
 
 test('browser bundle is byte-equivalent to the CLI for every fixture scenario and brief type', () => {
@@ -65,7 +65,7 @@ test('browser bundle is byte-equivalent to the CLI for every fixture scenario an
     for (const type of ['renewal', 'handoff', 'qbr']) {
       const browser = api.generate(scenario, type);
       const cli = cliOutput(scenario, type);
-      assert.strictEqual(browser.markdown.trim(), cli, `${scenario}/${type} differs from CLI`);
+      assert.strictEqual(browser.markdown, cli, `${scenario}/${type} differs from CLI`);
     }
   }
 });
