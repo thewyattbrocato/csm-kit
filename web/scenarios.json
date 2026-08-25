@@ -1,0 +1,65 @@
+{
+  "asOf": "2026-08-22",
+  "scenarios": {
+    "full": {
+      "label": "Full evidence",
+      "description": "All expected exports are present. See the complete brief and its resolved citations.",
+      "types": {
+        "renewal": {
+          "account": "examples/acme/account.yaml",
+          "crm": "examples/acme/crm.csv",
+          "tickets": "examples/acme/tickets.csv",
+          "usage": "examples/acme/usage.csv"
+        },
+        "handoff": {
+          "handoff": "examples/acme/handoff.yaml",
+          "crm": "examples/acme/crm.csv",
+          "questions": "examples/acme/questions.csv"
+        },
+        "qbr": {
+          "account": "examples/acme/account.yaml",
+          "crm": "examples/acme/crm.csv",
+          "tickets": "examples/acme/tickets.csv",
+          "usage": "examples/acme/usage.csv"
+        }
+      }
+    },
+    "risky": {
+      "label": "Risk signals",
+      "description": "The same deterministic rules surface stale activity, an aging ticket, and declining usage.",
+      "types": {
+        "renewal": {
+          "account": "test/fixtures/risky/account.yaml",
+          "crm": "test/fixtures/risky/crm.csv",
+          "tickets": "test/fixtures/risky/tickets.csv",
+          "usage": "test/fixtures/risky/usage.csv"
+        },
+        "handoff": {
+          "handoff": "test/fixtures/handoff/risky/handoff.yaml",
+          "crm": "test/fixtures/handoff/risky/crm.csv"
+        },
+        "qbr": {
+          "account": "test/fixtures/risky/account.yaml",
+          "crm": "test/fixtures/risky/crm.csv",
+          "tickets": "test/fixtures/risky/tickets.csv",
+          "usage": "test/fixtures/risky/usage.csv"
+        }
+      }
+    },
+    "sparse": {
+      "label": "Sparse evidence",
+      "description": "Only identity evidence is supplied. Missing facts stay out of the brief and become explicit asks.",
+      "types": {
+        "renewal": {
+          "account": "test/fixtures/sparse/account.yaml"
+        },
+        "handoff": {
+          "handoff": "test/fixtures/handoff/sparse/handoff.yaml"
+        },
+        "qbr": {
+          "account": "test/fixtures/sparse/account.yaml"
+        }
+      }
+    }
+  }
+}
