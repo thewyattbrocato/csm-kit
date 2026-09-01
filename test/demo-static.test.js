@@ -59,6 +59,15 @@ test('static demo presents cited brief anatomy while preserving raw markdown', (
   assert.match(page, /- Assign an owner and due date to each item above\./);
 });
 
+test('static brief view radios use the shared default, checked, focus, and print states', () => {
+  const page = fs.readFileSync(STATIC_PAGE, 'utf8');
+  assert.match(page, /\.brief-view > input \{ position: absolute; width: 1px; height: 1px; opacity: 0; \}/);
+  assert.match(page, /\.brief-view > input \+ label, \.view-button \{/);
+  assert.match(page, /\.brief-view > input:checked \+ label, \.view-button\[aria-pressed="true"\]/);
+  assert.match(page, /\.brief-view > input:focus-visible \+ label, \.view-button:focus-visible/);
+  assert.match(page, /\.brief-view-switch, \.brief-view > input \+ label \{ display: none !important; \}/);
+});
+
 test('interactive demo carries a no-JS link to the generated static page', () => {
   const page = read('docs/demo/index.html');
   assert.match(page, /<noscript>/);

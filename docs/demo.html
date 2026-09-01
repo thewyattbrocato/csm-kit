@@ -204,8 +204,8 @@
   }
   .brief-view > legend { padding: 0; color: var(--csm-muted); font: var(--csm-weight-body) var(--csm-text-xs)/1.45 var(--csm-code); text-transform: uppercase; letter-spacing: .06em; }
   .brief-view-switch { display: flex; flex-wrap: wrap; gap: 0; margin: 0 0 14px; }
-  .brief-view-switch > input { position: absolute; width: 1px; height: 1px; opacity: 0; }
-  .brief-view-switch > input + label, .view-button {
+  .brief-view > input { position: absolute; width: 1px; height: 1px; opacity: 0; }
+  .brief-view > input + label, .view-button {
     min-height: 36px;
     padding: 9px 12px;
     color: var(--csm-muted);
@@ -213,9 +213,9 @@
     border: 1px solid var(--csm-line);
     font: var(--csm-weight-heading) var(--csm-text-xs)/1.1 var(--csm-code);
   }
-  .brief-view-switch > input + label + input + label { margin-left: -1px; }
-  .brief-view-switch > input:checked + label, .view-button[aria-pressed="true"] { color: var(--csm-indigo); background: var(--csm-indigo-soft); border-color: var(--csm-indigo); }
-  .brief-view-switch > input:focus-visible + label, .view-button:focus-visible { position: relative; z-index: 1; outline: 2px solid var(--csm-focus); outline-offset: 2px; }
+  .brief-view > input + label + input + label { margin-left: -1px; }
+  .brief-view > input:checked + label, .view-button[aria-pressed="true"] { color: var(--csm-indigo); background: var(--csm-indigo-soft); border-color: var(--csm-indigo); }
+  .brief-view > input:focus-visible + label, .view-button:focus-visible { position: relative; z-index: 1; outline: 2px solid var(--csm-focus); outline-offset: 2px; }
   .brief-view > input[value="visual"]:checked ~ .brief-raw-panel { display: none; }
   .brief-view > input[value="raw"]:checked ~ .brief-visual-panel { display: none; }
   .brief-visual-panel, .brief-raw-panel { min-width: 0; }
@@ -361,7 +361,7 @@
   @media print {
     html, body { background: #ffffff; color: #101a33; }
     body { font-size: 11pt; }
-    .skip-link, .top-meta, .setup, .source-panel, .demo-note, .result-footer, .footer, .noscript, .brief-view-switch { display: none !important; }
+    .skip-link, .top-meta, .setup, .source-panel, .demo-note, .result-footer, .footer, .noscript, .brief-view-switch, .brief-view > input + label { display: none !important; }
     .shell { width: 100%; }
     .topbar { min-height: 42px; padding: 8px 0; }
     .hero, .demo-intro { padding: 24px 0 20px; }
