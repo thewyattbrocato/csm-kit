@@ -225,6 +225,8 @@ const TOKENS = `
   .brief-view-switch { display: flex; flex-wrap: wrap; gap: 0; margin: 0 0 14px; }
   .brief-view > input { position: absolute; width: 1px; height: 1px; opacity: 0; }
   .brief-view > input + label, .view-button {
+    display: inline-block;
+    vertical-align: top;
     min-height: 36px;
     padding: 9px 12px;
     color: var(--csm-muted);
@@ -248,7 +250,7 @@ const TOKENS = `
     white-space: pre-wrap;
     overflow-wrap: anywhere;
   }
-  .brief-visual { min-width: 0; color: var(--csm-ink-soft); }
+  .brief-visual { min-width: 0; color: var(--csm-ink-soft); overflow-wrap: anywhere; }
   .brief-presentation-head { display: flex; align-items: end; justify-content: space-between; gap: 18px; padding-bottom: 18px; border-bottom: 1px solid var(--csm-line); }
   .brief-presentation-head h3 { margin: 6px 0 0; color: var(--csm-ink); font-size: 23px; }
   .brief-presentation-head p { max-width: 330px; margin: 0; color: var(--csm-muted); font-size: var(--csm-text-xs); }
@@ -274,11 +276,11 @@ const TOKENS = `
   .brief-content .brief-context { color: var(--csm-muted); font-style: italic; }
   .brief-content ul { margin: 0; padding: 0 0 0 18px; color: var(--csm-ink-soft); }
   .brief-content li { padding: 3px 0; font-size: var(--csm-text-sm); }
-  .brief-visual code { color: var(--csm-citation); font-family: var(--csm-code); font-size: .9em; }
+  .brief-visual code { color: var(--csm-citation); font-family: var(--csm-code); font-size: .9em; overflow-wrap: anywhere; }
   .brief-citation { color: var(--csm-citation); }
   .brief-table-wrap { max-width: 100%; margin: 0 0 12px; overflow-x: auto; }
-  .brief-table { width: 100%; min-width: 420px; border-collapse: collapse; color: var(--csm-ink-soft); font-size: var(--csm-text-xs); }
-  .brief-table th, .brief-table td { padding: 8px 9px; border-bottom: 1px solid var(--csm-line); text-align: left; vertical-align: top; }
+  .brief-table { width: 100%; min-width: 0; table-layout: fixed; border-collapse: collapse; color: var(--csm-ink-soft); font-size: var(--csm-text-xs); }
+  .brief-table th, .brief-table td { padding: 8px 9px; border-bottom: 1px solid var(--csm-line); text-align: left; vertical-align: top; overflow-wrap: anywhere; }
   .brief-table th { color: var(--csm-ink); font-weight: var(--csm-weight-heading); }
   .brief-stat { display: flex; align-items: baseline; flex-wrap: wrap; gap: 12px; margin: 0 0 16px; padding: 10px 0 12px; border-top: 1px solid var(--csm-indigo); border-bottom: 1px solid var(--csm-line); }
   .brief-stat strong { color: var(--csm-ink); font: var(--csm-weight-heading) 30px/1 var(--csm-code); letter-spacing: -.04em; }

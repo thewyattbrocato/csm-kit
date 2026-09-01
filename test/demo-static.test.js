@@ -67,9 +67,18 @@ test('static brief view radios use the shared default, checked, focus, and print
   const page = fs.readFileSync(STATIC_PAGE, 'utf8');
   assert.match(page, /\.brief-view > input \{ position: absolute; width: 1px; height: 1px; opacity: 0; \}/);
   assert.match(page, /\.brief-view > input \+ label, \.view-button \{/);
+  assert.match(page, /display: inline-block;\s+vertical-align: top;\s+min-height: 36px;/);
   assert.match(page, /\.brief-view > input:checked \+ label, \.view-button\[aria-pressed="true"\]/);
   assert.match(page, /\.brief-view > input:focus-visible \+ label, \.view-button:focus-visible/);
   assert.match(page, /\.brief-view-switch, \.brief-view > input \+ label \{ display: none !important; \}/);
+});
+
+test('visual brief content wraps inside narrow frames', () => {
+  const page = fs.readFileSync(STATIC_PAGE, 'utf8');
+  assert.match(page, /\.brief-visual \{ min-width: 0; color: var\(--csm-ink-soft\); overflow-wrap: anywhere; \}/);
+  assert.match(page, /\.brief-visual code \{[^}]*overflow-wrap: anywhere;/);
+  assert.match(page, /\.brief-table \{ width: 100%; min-width: 0; table-layout: fixed;/);
+  assert.match(page, /\.brief-table th, \.brief-table td \{[^}]*overflow-wrap: anywhere;/);
 });
 
 test('interactive demo carries a no-JS link to the generated static page', () => {
