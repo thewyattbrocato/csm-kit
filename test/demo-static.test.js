@@ -63,6 +63,24 @@ test('static demo presents cited brief anatomy while preserving raw markdown', (
   assert.match(page, /- Assign an owner and due date to each item above\./);
 });
 
+test('generated demos explain the CSM journey before optional evidence details', () => {
+  const interactive = read('docs/demo/index.html');
+  const staticPage = fs.readFileSync(STATIC_PAGE, 'utf8');
+
+  for (const page of [interactive, staticPage]) {
+    assert.match(page, /From customer context to your next move/);
+    assert.match(page, /What you bring/);
+    assert.match(page, /What you take/);
+    assert.match(page, /Useful now, intentionally narrow/);
+    assert.match(page, /No opaque health score/);
+    assert.match(page, /--csm-indigo: #533afd/);
+  }
+
+  const interactiveSetup = interactive.indexOf('<section class="setup"');
+  assert.ok(interactiveSetup > 0, 'interactive controls are missing');
+  assert.doesNotMatch(interactive.slice(0, interactiveSetup), /account\.yaml#L|usage\.csv#L|tickets\.csv#L/);
+});
+
 test('static brief view radios use the shared default, checked, focus, and print states', () => {
   const page = fs.readFileSync(STATIC_PAGE, 'utf8');
   assert.match(page, /\.brief-view > input \{ position: absolute; width: 1px; height: 1px; opacity: 0; \}/);
@@ -85,9 +103,10 @@ test('interactive demo carries a no-JS link to the generated static page', () =>
   const page = read('docs/demo/index.html');
   assert.match(page, /<noscript>/);
   assert.match(page, /href="\.\.\/demo-static\/"/);
-  assert.match(page, /Know what to do before your next customer conversation/);
+  assert.match(page, /Turn customer context into your next move/);
   assert.match(page, /Account readout/);
   assert.match(page, /Fill the gaps/);
+  assert.match(page, /What to do next/);
   assert.match(page, /<details class="panel source-panel">/);
   assert.ok(page.indexOf('<article class="panel result-panel">') < page.indexOf('<details class="panel source-panel">'));
 });
