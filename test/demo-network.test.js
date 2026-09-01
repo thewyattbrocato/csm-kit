@@ -133,6 +133,7 @@ function createDocument() {
     'scenario-controls',
     'type-controls',
     'source-list',
+    'brief-visual-output',
     'brief-output',
     'result-status',
     'warning-box',
@@ -140,6 +141,8 @@ function createDocument() {
     'scenario-summary',
     'generate-button',
     'reset-button',
+    'visual-view-button',
+    'raw-view-button',
   ];
   const elements = new Map(ids.map((id) => [id, new Element(id.includes('button') ? 'button' : 'div', id)]));
   return {

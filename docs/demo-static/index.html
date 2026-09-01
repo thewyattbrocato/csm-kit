@@ -150,6 +150,32 @@
   .hero-proof-index { display: block; margin-bottom: 8px; color: var(--csm-muted); font: var(--csm-weight-body) var(--csm-text-xs)/1.4 var(--csm-code); }
   .hero-proof-item strong { display: block; margin-bottom: 4px; color: var(--csm-ink); font-size: var(--csm-text-sm); font-weight: var(--csm-weight-heading); }
   .hero-proof-item p { margin: 0; color: var(--csm-muted); font-size: var(--csm-text-sm); line-height: 1.4; }
+  .product-visual {
+    display: grid;
+    grid-template-columns: minmax(0, .72fr) minmax(0, 1.28fr);
+    gap: 32px;
+    align-items: center;
+    margin: 0 0 var(--csm-section-gap);
+    padding: 28px 0;
+    border-top: 1px solid var(--csm-line);
+    border-bottom: 1px solid var(--csm-line);
+  }
+  .product-visual-copy { max-width: 420px; }
+  .product-visual-copy h2 { margin: 8px 0 10px; font-size: 25px; }
+  .product-visual-copy p { margin: 0; color: var(--csm-ink-soft); }
+  .product-visual-proof { display: flex; flex-wrap: wrap; gap: 18px; margin: 20px 0 0; }
+  .product-visual-proof strong { display: block; color: var(--csm-ink); font: var(--csm-weight-heading) 21px/1.1 var(--csm-code); }
+  .product-visual-proof span { display: block; margin-top: 4px; color: var(--csm-muted); font-size: var(--csm-text-xs); }
+  .flow-figure { min-width: 0; margin: 0; padding: 14px; background: var(--csm-surface); border: 1px solid var(--csm-line); }
+  .evidence-flow { display: block; width: 100%; height: auto; }
+  .evidence-flow .flow-frame { fill: var(--csm-surface); stroke: var(--csm-line); }
+  .evidence-flow .flow-accent { fill: none; stroke: var(--csm-indigo); }
+  .evidence-flow .flow-proof { fill: none; stroke: var(--csm-citation); }
+  .evidence-flow .flow-ink { fill: var(--csm-ink); }
+  .evidence-flow .flow-muted { fill: var(--csm-muted); }
+  .evidence-flow text { font-family: var(--csm-code); font-size: 11px; }
+  .flow-figure figcaption { margin: 10px 2px 0; padding-top: 10px; border-top: 1px solid var(--csm-line); color: var(--csm-muted); font-size: var(--csm-text-xs); }
+  .flow-figure figcaption strong { color: var(--csm-ink); font-weight: var(--csm-weight-heading); }
   .panel {
     background: var(--csm-surface);
     border: 1px solid var(--csm-line);
@@ -161,6 +187,9 @@
   .callout:nth-child(3) { border-top-color: var(--csm-ink); }
   .callout p { margin: 0; color: var(--csm-ink-soft); }
   .callout code, .hero-proof-item code, .mono { color: var(--csm-citation); font-family: var(--csm-code); font-size: .9em; }
+  .callouts { gap: 0; border-top: 1px solid var(--csm-line); border-bottom: 1px solid var(--csm-line); }
+  .callouts .callout { border: 0; border-right: 1px solid var(--csm-line); border-radius: 0; background: transparent; }
+  .callouts .callout:last-child { border-right: 0; }
   .section-head { display: flex; justify-content: space-between; align-items: start; gap: 20px; margin-bottom: 22px; }
   .section-head p { max-width: 280px; margin: 0; color: var(--csm-muted); font-size: var(--csm-text-sm); }
   .brief-list { display: grid; gap: 14px; margin-bottom: var(--csm-section-gap); }
@@ -169,8 +198,29 @@
   details summary::marker { color: var(--csm-indigo); }
   details[open] summary { color: var(--csm-indigo); border-bottom: 1px solid var(--csm-line); }
   .brief-meta { padding: 15px 22px 0; color: var(--csm-muted); font: var(--csm-weight-body) var(--csm-text-xs)/1.5 var(--csm-code); }
-  .brief-output {
+  .brief-view {
+    min-width: 0;
     margin: 15px 22px 22px;
+  }
+  .brief-view > legend { padding: 0; color: var(--csm-muted); font: var(--csm-weight-body) var(--csm-text-xs)/1.45 var(--csm-code); text-transform: uppercase; letter-spacing: .06em; }
+  .brief-view-switch { display: flex; flex-wrap: wrap; gap: 0; margin: 0 0 14px; }
+  .brief-view-switch > input { position: absolute; width: 1px; height: 1px; opacity: 0; }
+  .brief-view-switch > input + label, .view-button {
+    min-height: 36px;
+    padding: 9px 12px;
+    color: var(--csm-muted);
+    background: var(--csm-surface);
+    border: 1px solid var(--csm-line);
+    font: var(--csm-weight-heading) var(--csm-text-xs)/1.1 var(--csm-code);
+  }
+  .brief-view-switch > input + label + input + label { margin-left: -1px; }
+  .brief-view-switch > input:checked + label, .view-button[aria-pressed="true"] { color: var(--csm-indigo); background: var(--csm-indigo-soft); border-color: var(--csm-indigo); }
+  .brief-view-switch > input:focus-visible + label, .view-button:focus-visible { position: relative; z-index: 1; outline: 2px solid var(--csm-focus); outline-offset: 2px; }
+  .brief-view > input[value="visual"]:checked ~ .brief-raw-panel { display: none; }
+  .brief-view > input[value="raw"]:checked ~ .brief-visual-panel { display: none; }
+  .brief-visual-panel, .brief-raw-panel { min-width: 0; }
+  .brief-output {
+    margin: 0;
     padding: 22px;
     overflow: auto;
     color: var(--csm-ink);
@@ -179,6 +229,44 @@
     white-space: pre-wrap;
     overflow-wrap: anywhere;
   }
+  .brief-visual { min-width: 0; color: var(--csm-ink-soft); }
+  .brief-presentation-head { display: flex; align-items: end; justify-content: space-between; gap: 18px; padding-bottom: 18px; border-bottom: 1px solid var(--csm-line); }
+  .brief-presentation-head h3 { margin: 6px 0 0; color: var(--csm-ink); font-size: 23px; }
+  .brief-presentation-head p { max-width: 330px; margin: 0; color: var(--csm-muted); font-size: var(--csm-text-xs); }
+  .brief-identity { margin: 12px 0 0; color: var(--csm-ink-soft); font-size: var(--csm-text-sm); }
+  .brief-identity p { max-width: none; margin: 4px 0 0; }
+  .brief-anatomy { display: grid; grid-template-columns: 150px minmax(0, 1fr); gap: 24px; padding-top: 20px; }
+  .brief-map { min-width: 0; padding-right: 16px; border-right: 1px solid var(--csm-line); }
+  .brief-map ol { margin: 0; padding: 0; list-style: none; }
+  .brief-map li { border-top: 1px solid var(--csm-line); }
+  .brief-map li:last-child { border-bottom: 1px solid var(--csm-line); }
+  .brief-map a { display: block; padding: 10px 0; color: var(--csm-ink-soft); font-size: var(--csm-text-xs); text-decoration: none; }
+  .brief-map a:hover { color: var(--csm-indigo); }
+  .brief-map-index { display: block; margin-bottom: 3px; color: var(--csm-indigo); font: var(--csm-weight-body) var(--csm-text-xs)/1.2 var(--csm-code); }
+  .brief-groups { min-width: 0; }
+  .brief-group + .brief-group { margin-top: 26px; padding-top: 24px; border-top: 1px solid var(--csm-line); }
+  .brief-group-label { display: flex; align-items: baseline; gap: 8px; margin-bottom: 16px; color: var(--csm-muted); font: var(--csm-weight-body) var(--csm-text-xs)/1.3 var(--csm-code); letter-spacing: .05em; text-transform: uppercase; }
+  .brief-group-label span { color: var(--csm-indigo); }
+  .brief-section { min-width: 0; }
+  .brief-section + .brief-section { margin-top: 22px; padding-top: 22px; border-top: 1px solid var(--csm-line); }
+  .brief-section-heading h4 { margin: 5px 0 12px; color: var(--csm-ink); font-size: 18px; font-weight: var(--csm-weight-heading); }
+  .brief-content { min-width: 0; }
+  .brief-content p { margin: 0 0 11px; color: var(--csm-ink-soft); font-size: var(--csm-text-sm); }
+  .brief-content .brief-context { color: var(--csm-muted); font-style: italic; }
+  .brief-content ul { margin: 0; padding: 0 0 0 18px; color: var(--csm-ink-soft); }
+  .brief-content li { padding: 3px 0; font-size: var(--csm-text-sm); }
+  .brief-visual code { color: var(--csm-citation); font-family: var(--csm-code); font-size: .9em; }
+  .brief-citation { color: var(--csm-citation); }
+  .brief-table-wrap { max-width: 100%; margin: 0 0 12px; overflow-x: auto; }
+  .brief-table { width: 100%; min-width: 420px; border-collapse: collapse; color: var(--csm-ink-soft); font-size: var(--csm-text-xs); }
+  .brief-table th, .brief-table td { padding: 8px 9px; border-bottom: 1px solid var(--csm-line); text-align: left; vertical-align: top; }
+  .brief-table th { color: var(--csm-ink); font-weight: var(--csm-weight-heading); }
+  .brief-stat { display: flex; align-items: baseline; flex-wrap: wrap; gap: 12px; margin: 0 0 16px; padding: 10px 0 12px; border-top: 1px solid var(--csm-indigo); border-bottom: 1px solid var(--csm-line); }
+  .brief-stat strong { color: var(--csm-ink); font: var(--csm-weight-heading) 30px/1 var(--csm-code); letter-spacing: -.04em; }
+  .brief-stat span { color: var(--csm-muted); font-size: var(--csm-text-sm); }
+  .brief-stat-citations { flex-basis: 100%; color: var(--csm-muted); font-size: var(--csm-text-xs); }
+  .brief-safe-note { margin: 12px 0 0; padding: 9px 11px; color: var(--csm-muted); background: var(--csm-band); border-left: 2px solid var(--csm-line); font-size: var(--csm-text-xs); }
+  .brief-presentation-fallback { margin: 0; padding: 14px; color: var(--csm-muted); background: var(--csm-band); font-size: var(--csm-text-sm); }
   .footer { padding: 30px 0 58px; border-top: 1px solid var(--csm-line); color: var(--csm-muted); }
   .footer p { margin: 0 0 8px; }
   .footer .mono { color: var(--csm-muted); }
@@ -241,6 +329,9 @@
   .result-status.ok { color: var(--csm-citation); }
   .result-status.error { color: var(--csm-danger); }
   .result-output { min-height: 520px; max-height: 820px; margin-top: 18px; }
+  .result-panel .brief-visual-panel { margin: 18px 22px 22px; }
+  .result-panel .brief-raw-panel { margin: 18px 22px 22px; }
+  .result-panel .brief-output { min-height: 520px; max-height: 820px; }
   .result-output.error { color: var(--csm-danger); background: var(--csm-danger-surface); }
   .result-footer { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 14px 22px; background: var(--csm-band); border-top: 1px solid var(--csm-line); }
   .button-row { display: flex; flex-wrap: wrap; gap: 8px; }
@@ -270,7 +361,7 @@
   @media print {
     html, body { background: #ffffff; color: #101a33; }
     body { font-size: 11pt; }
-    .skip-link, .top-meta, .setup, .source-panel, .demo-note, .result-footer, .footer, .noscript { display: none !important; }
+    .skip-link, .top-meta, .setup, .source-panel, .demo-note, .result-footer, .footer, .noscript, .brief-view-switch { display: none !important; }
     .shell { width: 100%; }
     .topbar { min-height: 42px; padding: 8px 0; }
     .hero, .demo-intro { padding: 24px 0 20px; }
@@ -281,6 +372,9 @@
     .result-panel { border: 0; }
     .panel-heading { padding: 0 0 10px; background: transparent; }
     .result-output { min-height: 0; max-height: none; margin: 12px 0 0; background: transparent; border: 1px solid #d7e0ec; }
+    .brief-visual-panel { display: none !important; }
+    .brief-raw-panel { display: block !important; margin: 12px 0 0 !important; }
+    .product-visual { break-inside: avoid; }
     details { display: block; break-inside: avoid; }
     details > *:not(summary) { display: block; }
     a { color: inherit; text-decoration: none; }
@@ -299,7 +393,10 @@
     .demo-intro { padding: 42px 0 28px; }
     h1, .demo-intro h1 { letter-spacing: -1px; }
     .hero-proof { grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 48px; }
+    .product-visual { grid-template-columns: 1fr; gap: 18px; }
     .callouts, .choice-grid, .demo-grid { grid-template-columns: 1fr; }
+    .callouts .callout { border-right: 0; border-bottom: 1px solid var(--csm-line); }
+    .callouts .callout:last-child { border-bottom: 0; }
     .section-head, .setup-heading { display: block; }
     .section-head p, .setup-heading p { max-width: none; margin-top: 8px; text-align: left; }
     .control-panel { padding: 18px; }
@@ -310,12 +407,18 @@
     .result-status { text-align: left; }
     .button-row { width: 100%; }
     .button { flex: 1 1 auto; }
+    .brief-presentation-head { display: block; }
+    .brief-presentation-head p { max-width: none; margin-top: 10px; }
+    .brief-anatomy { grid-template-columns: 1fr; gap: 18px; }
+    .brief-map { padding: 0 0 12px; border-right: 0; border-bottom: 1px solid var(--csm-line); }
+    .brief-map ol { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0 14px; }
   }
   @media (max-width: 420px) {
     .hero-proof { grid-template-columns: 1fr; }
     .hero-proof-item:nth-child(3) { border-top-color: var(--csm-indigo); }
     .hero-proof-item:nth-child(4) { border-top-color: var(--csm-citation); }
     .panel-heading { align-items: start; flex-direction: column; }
+    .brief-map ol { grid-template-columns: 1fr; }
   }
 </style>
 </head>
@@ -358,6 +461,41 @@
         <strong>Three deterministic briefs</strong>
         <p>Switch renewal, handoff, or QBR with the same shared engine.</p>
       </article></section>
+      <section class="product-visual" aria-labelledby="evidence-flow-heading">
+    <div class="product-visual-copy">
+      <div class="eyebrow">Evidence flow</div>
+      <h2 id="evidence-flow-heading">A source row becomes a cited decision.</h2>
+      <p>csm-kit keeps the path visible: local exports enter, exact source spans travel with the claim, and unsupported conclusions stop at the gap.</p>
+      <div class="product-visual-proof" aria-label="Evidence flow properties">
+        <div><strong>01</strong><span>input row</span></div>
+        <div><strong>02</strong><span>source span</span></div>
+        <div><strong>03</strong><span>brief line</span></div>
+      </div>
+    </div>
+    <figure class="flow-figure">
+      <svg class="evidence-flow" viewBox="0 0 760 220" role="img" aria-labelledby="flow-title flow-description">
+        <title id="flow-title">Evidence flow from local input to cited brief</title>
+        <desc id="flow-description">Three sharp framed views show an input row, its source span, and a generated brief line connected by an evidence path.</desc>
+        <rect class="flow-frame" x="12" y="28" width="206" height="150" />
+        <rect class="flow-frame" x="277" y="28" width="206" height="150" />
+        <rect class="flow-frame" x="542" y="28" width="206" height="150" />
+        <path class="flow-accent" stroke-width="1.5" d="M218 103h59m-8-8 8 8-8 8M483 103h59m-8-8 8 8-8 8" />
+        <path class="flow-accent" stroke-width="1.5" d="M36 62h158M36 78h122M36 94h142" />
+        <path class="flow-proof" stroke-width="1.5" d="M301 62h76m-76 16h128m-128 16h96" />
+        <path class="flow-ink" stroke-width="1.5" d="M566 62h132m-132 16h102m-102 34h132m-132 16h112" />
+        <path class="flow-proof" stroke-width="1.5" d="M566 94h64" />
+        <circle class="flow-proof" stroke-width="1.5" cx="450" cy="145" r="14" />
+        <path class="flow-proof" stroke-width="1.5" d="m443 145 5 5 9-11" />
+        <text class="flow-muted" x="30" y="48">INPUT ROW</text>
+        <text class="flow-muted" x="295" y="48">SOURCE SPAN</text>
+        <text class="flow-muted" x="560" y="48">BRIEF LINE</text>
+        <text class="flow-ink" x="36" y="132">usage.csv</text>
+        <text class="flow-proof" x="301" y="132">#L7</text>
+        <text class="flow-ink" x="566" y="160">cited output</text>
+      </svg>
+      <figcaption><strong>Traceability is the feature.</strong> The visual explains the contract without adding evidence to the generated artifact.</figcaption>
+    </figure>
+  </section>
       <section class="callouts" aria-label="How to read a brief">
       <article class="panel callout">
         <h3>Citations are the proof</h3>
@@ -384,7 +522,14 @@
       <details class="panel" open>
         <summary>Renewal Readiness Brief</summary>
         <p class="brief-meta">A risk-oriented account view with countdown, signals, stakeholders, and a cited checklist. · generated from <span class="mono">examples/example-renewal-brief.md</span> · pinned --as-of 2026-08-22</p>
-        <pre class="brief-output"><code># Renewal Readiness Brief
+        <fieldset class="brief-view">
+          <legend>Brief view</legend>
+          <input id="static-brief-0-visual-toggle" type="radio" name="static-brief-0-view" value="visual" checked>
+          <label for="static-brief-0-visual-toggle">Visual brief</label>
+          <input id="static-brief-0-raw-toggle" type="radio" name="static-brief-0-view" value="raw">
+          <label for="static-brief-0-raw-toggle">Raw Markdown</label>
+          <div id="static-brief-0-visual-panel" class="brief-visual-panel brief-visual"><div class="brief-presentation" data-presentation="visual"><div class="brief-presentation-head"><div><div class="eyebrow">Brief anatomy</div><h3>Renewal Readiness Brief</h3><div class="brief-identity"><p><strong>Acme Manufacturing Co.</strong> — <code class="brief-citation">account.yaml#L3</code></p><p><em>Generated by csm-kit v0.3.0 · as-of 2026-08-22.</em></p><p><em>Every fact below cites its source span (<code class="brief-citation">file#L&lt;row&gt;</code>). Facts that cannot be traced to a span are omitted and listed in the missing-evidence checklist instead.</em></p></div></div><p>Grouped from the generated Markdown. Source-backed lines stay attached to their spans; Raw Markdown remains the exact artifact.</p></div><div class="brief-anatomy"><nav class="brief-map" aria-label="Brief anatomy"><ol><li><a href="#static-brief-0-group-0"><span class="brief-map-index">01</span>Evidence gate</a></li><li><a href="#static-brief-0-group-1"><span class="brief-map-index">02</span>Account readout</a></li><li><a href="#static-brief-0-group-2"><span class="brief-map-index">03</span>Coverage and risk</a></li><li><a href="#static-brief-0-group-3"><span class="brief-map-index">04</span>Follow-through</a></li></ol></nav><div class="brief-groups"><section class="brief-group" id="static-brief-0-group-0"><div class="brief-group-label"><span>01</span><strong>Evidence gate</strong></div><article class="brief-section" id="static-brief-0-section-0"><div class="brief-section-heading"><div class="eyebrow">Generated section</div><h4>Evidence completeness</h4></div><div class="brief-stat"><strong>5/5 (100%)</strong><span>evidence completeness</span><div class="brief-stat-citations">Source spans: <code class="brief-citation">account.yaml#L3</code>, <code class="brief-citation">account.yaml#L7</code>, <code class="brief-citation">crm.csv#L2-L8</code>, <code class="brief-citation">tickets.csv#L2-L5</code>, <code class="brief-citation">usage.csv#L2-L7</code></div></div><div class="brief-content"><div class="brief-table-wrap"><table class="brief-table"><thead><tr><th scope="col">Required evidence</th><th scope="col">Status</th><th scope="col">Detail</th></tr></thead><tbody><tr><td>Account name (account.yaml)</td><td>present</td><td><code class="brief-citation">account.yaml#L3</code></td></tr><tr><td>Renewal date (account.yaml)</td><td>present</td><td><code class="brief-citation">account.yaml#L7</code></td></tr><tr><td>CRM activity export</td><td>present</td><td>7 activities (<code class="brief-citation">crm.csv#L2-L8</code>)</td></tr><tr><td>Ticket export</td><td>present</td><td>4 tickets (<code class="brief-citation">tickets.csv#L2-L5</code>)</td></tr><tr><td>Usage summary</td><td>present</td><td>6 periods (<code class="brief-citation">usage.csv#L2-L7</code>)</td></tr></tbody></table></div></div></article></section><section class="brief-group" id="static-brief-0-group-1"><div class="brief-group-label"><span>02</span><strong>Account readout</strong></div><article class="brief-section" id="static-brief-0-section-1"><div class="brief-section-heading"><div class="eyebrow">Generated section</div><h4>Renewal countdown</h4></div><div class="brief-content"><ul class="brief-items"><li>Renewal date: <strong>2026-10-15</strong> — <strong>54 days away</strong> at as-of 2026-08-22 — <code class="brief-citation">account.yaml#L7</code></li></ul></div></article><article class="brief-section" id="static-brief-0-section-2"><div class="brief-section-heading"><div class="eyebrow">Generated section</div><h4>Signal table</h4></div><div class="brief-content"><div class="brief-table-wrap"><table class="brief-table"><thead><tr><th scope="col">Signal</th><th scope="col">Value</th><th scope="col">Source</th></tr></thead><tbody><tr><td>Last logged activity</td><td>2026-08-10 — email with Jordan Lee</td><td><code class="brief-citation">crm.csv#L8</code></td></tr><tr><td>Activity volume (last 30d / prior 30d)</td><td>1 / 2</td><td><code class="brief-citation">crm.csv#L6,L7,L8</code></td></tr><tr><td>Ticket load</td><td>2 open (0 high · 1 medium · 1 low)</td><td><code class="brief-citation">tickets.csv#L4,L5</code></td></tr><tr><td>Latest usage period (2026-07)</td><td>94 active users · 7,600 events</td><td><code class="brief-citation">usage.csv#L7</code></td></tr><tr><td>Usage trend (active users, 2026-02 → 2026-07)</td><td>-22%</td><td><code class="brief-citation">usage.csv#L2,L7</code></td></tr></tbody></table></div></div></article></section><section class="brief-group" id="static-brief-0-group-2"><div class="brief-group-label"><span>03</span><strong>Coverage and risk</strong></div><article class="brief-section" id="static-brief-0-section-3"><div class="brief-section-heading"><div class="eyebrow">Generated section</div><h4>Risk flags</h4></div><div class="brief-content"><ul class="brief-items"><li>🟠 Usage declining: active users down 22% (2026-02 → 2026-07) — <code class="brief-citation">usage.csv#L2,L7</code></li><li>🔴 Renewal within 60 days but no customer meeting/call in the last 30 days (last: 2026-07-19) — renewal <code class="brief-citation">account.yaml#L7</code>, last meeting <code class="brief-citation">crm.csv#L7</code>, search covered <code class="brief-citation">crm.csv#L2-L8</code></li></ul></div></article><article class="brief-section" id="static-brief-0-section-4"><div class="brief-section-heading"><div class="eyebrow">Generated section</div><h4>Stakeholder map</h4></div><div class="brief-content"><p class="brief-context"><em>Derived from the CRM activity export, most recent touch first.</em></p><div class="brief-table-wrap"><table class="brief-table"><thead><tr><th scope="col">Stakeholder</th><th scope="col">Role</th><th scope="col">Last touch</th><th scope="col">Activities</th><th scope="col">Source</th></tr></thead><tbody><tr><td>Jordan Lee</td><td>VP Operations</td><td>2026-08-10 (email)</td><td>4</td><td><code class="brief-citation">crm.csv#L2,L3,L7,L8</code></td></tr><tr><td>Priya Natarajan</td><td>IT Director</td><td>2026-07-02 (ticket_review)</td><td>2</td><td><code class="brief-citation">crm.csv#L4,L6</code></td></tr><tr><td>Sam Ortiz</td><td>Procurement Lead</td><td>2026-06-11 (call)</td><td>1</td><td><code class="brief-citation">crm.csv#L5</code></td></tr></tbody></table></div></div></article></section><section class="brief-group" id="static-brief-0-group-3"><div class="brief-group-label"><span>04</span><strong>Follow-through</strong></div><article class="brief-section" id="static-brief-0-section-5"><div class="brief-section-heading"><div class="eyebrow">Generated section</div><h4>Missing-evidence checklist</h4></div><div class="brief-content"><ul class="brief-items"><li>[x] All required evidence present and all recommended fields filled — <code class="brief-citation">account.yaml#L3</code>, <code class="brief-citation">account.yaml#L7</code>, <code class="brief-citation">account.yaml#L4</code>, <code class="brief-citation">account.yaml#L6</code>, <code class="brief-citation">crm.csv#L2-L8</code>, <code class="brief-citation">tickets.csv#L2-L5</code>, <code class="brief-citation">usage.csv#L2-L7</code>.</li></ul></div></article></section></div></div></div></div>
+          <div class="brief-raw-panel"><pre class="brief-output"><code># Renewal Readiness Brief
 **Acme Manufacturing Co.** — `account.yaml#L3`
 
 _Generated by csm-kit v0.3.0 · as-of 2026-08-22._
@@ -432,12 +577,20 @@ _Derived from the CRM activity export, most recent touch first._
 ## Missing-evidence checklist
 
 - [x] All required evidence present and all recommended fields filled — `account.yaml#L3`, `account.yaml#L7`, `account.yaml#L4`, `account.yaml#L6`, `crm.csv#L2-L8`, `tickets.csv#L2-L5`, `usage.csv#L2-L7`.
-</code></pre>
+</code></pre></div>
+        </fieldset>
       </details>
       <details class="panel">
         <summary>Handoff Completeness Brief</summary>
         <p class="brief-meta">A sales-to-CS transfer with promised-vs-sold status, stakeholder coverage, and AE-routed gaps. · generated from <span class="mono">examples/example-handoff-brief.md</span> · pinned --as-of 2026-08-22</p>
-        <pre class="brief-output"><code># Sales-to-CS Handoff Completeness Brief
+        <fieldset class="brief-view">
+          <legend>Brief view</legend>
+          <input id="static-brief-1-visual-toggle" type="radio" name="static-brief-1-view" value="visual" checked>
+          <label for="static-brief-1-visual-toggle">Visual brief</label>
+          <input id="static-brief-1-raw-toggle" type="radio" name="static-brief-1-view" value="raw">
+          <label for="static-brief-1-raw-toggle">Raw Markdown</label>
+          <div id="static-brief-1-visual-panel" class="brief-visual-panel brief-visual"><div class="brief-presentation" data-presentation="visual"><div class="brief-presentation-head"><div><div class="eyebrow">Brief anatomy</div><h3>Sales-to-CS Handoff Completeness Brief</h3><div class="brief-identity"><p><strong>Acme Manufacturing Co.</strong> — <code class="brief-citation">handoff.yaml#L2</code></p><p><em>Handoff sent by AE <strong>Morgan Diaz</strong> — <code class="brief-citation">handoff.yaml#L3</code>.</em></p><p><em>Generated by csm-kit v0.3.0 · as-of 2026-08-22.</em></p><p><em>Every fact below cites its source span (<code class="brief-citation">file#L&lt;row&gt;</code>). Facts that cannot be traced to a span are omitted and listed in the gap report instead.</em></p></div></div><p>Grouped from the generated Markdown. Source-backed lines stay attached to their spans; Raw Markdown remains the exact artifact.</p></div><div class="brief-anatomy"><nav class="brief-map" aria-label="Brief anatomy"><ol><li><a href="#static-brief-1-group-0"><span class="brief-map-index">01</span>Evidence gate</a></li><li><a href="#static-brief-1-group-1"><span class="brief-map-index">02</span>Account readout</a></li><li><a href="#static-brief-1-group-2"><span class="brief-map-index">03</span>Coverage and risk</a></li><li><a href="#static-brief-1-group-3"><span class="brief-map-index">04</span>Follow-through</a></li></ol></nav><div class="brief-groups"><section class="brief-group" id="static-brief-1-group-0"><div class="brief-group-label"><span>01</span><strong>Evidence gate</strong></div><article class="brief-section" id="static-brief-1-section-0"><div class="brief-section-heading"><div class="eyebrow">Generated section</div><h4>Evidence completeness</h4></div><div class="brief-stat"><strong>7/7 (100%)</strong><span>evidence completeness</span><div class="brief-stat-citations">Source spans: <code class="brief-citation">handoff.yaml#L2</code>, <code class="brief-citation">handoff.yaml#L3</code>, <code class="brief-citation">handoff.yaml#L7-L9</code>, <code class="brief-citation">handoff.yaml#L12-L14</code>, <code class="brief-citation">handoff.yaml#L17-L19</code>, <code class="brief-citation">handoff.yaml#L22-L23</code>, <code class="brief-citation">handoff.yaml#L26-L27</code></div></div><div class="brief-content"><div class="brief-table-wrap"><table class="brief-table"><thead><tr><th scope="col">Required evidence</th><th scope="col">Status</th><th scope="col">Detail</th></tr></thead><tbody><tr><td>Account name (handoff.yaml)</td><td>present</td><td><code class="brief-citation">handoff.yaml#L2</code></td></tr><tr><td>Sending AE (handoff.yaml)</td><td>present</td><td><code class="brief-citation">handoff.yaml#L3</code></td></tr><tr><td>Goals / success criteria</td><td>present</td><td>3 criteria (<code class="brief-citation">handoff.yaml#L7-L9</code>)</td></tr><tr><td>Stakeholder map</td><td>present</td><td>3 stakeholders (<code class="brief-citation">handoff.yaml#L12-L14</code>)</td></tr><tr><td>Promises register (promised-vs-sold)</td><td>present</td><td>3 promises (<code class="brief-citation">handoff.yaml#L17-L19</code>)</td></tr><tr><td>Risks / dependencies</td><td>present</td><td>2 risks (<code class="brief-citation">handoff.yaml#L22-L23</code>)</td></tr><tr><td>Links (recordings / proposal)</td><td>present</td><td>2 links (<code class="brief-citation">handoff.yaml#L26-L27</code>)</td></tr></tbody></table></div></div></article></section><section class="brief-group" id="static-brief-1-group-1"><div class="brief-group-label"><span>02</span><strong>Account readout</strong></div><article class="brief-section" id="static-brief-1-section-1"><div class="brief-section-heading"><div class="eyebrow">Generated section</div><h4>Promises register (promised-vs-sold)</h4></div><div class="brief-content"><div class="brief-table-wrap"><table class="brief-table"><thead><tr><th scope="col">Promise</th><th scope="col">Status</th><th scope="col">Detail</th><th scope="col">Source</th></tr></thead><tbody><tr><td>Multi-year pricing option</td><td>Sold</td><td>Quoted on the 2026-06-11 call; addendum pending countersignature</td><td><code class="brief-citation">handoff.yaml#L17</code></td></tr><tr><td>Plant-rollout success plan</td><td>Sold</td><td>Success plan attached to proposal v3</td><td><code class="brief-citation">handoff.yaml#L18</code></td></tr><tr><td>Custom dashboard bundle</td><td>Not sold</td><td>Demonstrated on the closing call but excluded from the signed order</td><td><code class="brief-citation">handoff.yaml#L19</code></td></tr></tbody></table></div></div></article><article class="brief-section" id="static-brief-1-section-2"><div class="brief-section-heading"><div class="eyebrow">Generated section</div><h4>Goals / success criteria</h4></div><div class="brief-content"><div class="brief-table-wrap"><table class="brief-table"><thead><tr><th scope="col">#</th><th scope="col">Goal / success criterion</th><th scope="col">Source</th></tr></thead><tbody><tr><td>1</td><td>60 weekly active users across both plants by 2026-11-30</td><td><code class="brief-citation">handoff.yaml#L7</code></td></tr><tr><td>2</td><td>SSO live for the pilot group during kickoff week</td><td><code class="brief-citation">handoff.yaml#L8</code></td></tr><tr><td>3</td><td>First quarterly business review held before 2026-10-15</td><td><code class="brief-citation">handoff.yaml#L9</code></td></tr></tbody></table></div></div></article></section><section class="brief-group" id="static-brief-1-group-2"><div class="brief-group-label"><span>03</span><strong>Coverage and risk</strong></div><article class="brief-section" id="static-brief-1-section-3"><div class="brief-section-heading"><div class="eyebrow">Generated section</div><h4>Stakeholder map</h4></div><div class="brief-content"><p class="brief-context"><em>From the handoff record, enriched with CRM activity where names match.</em></p><div class="brief-table-wrap"><table class="brief-table"><thead><tr><th scope="col">Stakeholder</th><th scope="col">Role</th><th scope="col">Handoff role</th><th scope="col">Last CRM touch</th><th scope="col">Activities</th><th scope="col">Source</th></tr></thead><tbody><tr><td>Jordan Lee</td><td>VP Operations</td><td>executive_sponsor</td><td>2026-08-10 (email)</td><td>4</td><td><code class="brief-citation">handoff.yaml#L12</code> · <code class="brief-citation">crm.csv#L2,L3,L7,L8</code></td></tr><tr><td>Sam Ortiz</td><td>Procurement Lead</td><td>economic_buyer</td><td>2026-06-11 (call)</td><td>1</td><td><code class="brief-citation">handoff.yaml#L13</code> · <code class="brief-citation">crm.csv#L5</code></td></tr><tr><td>Priya Natarajan</td><td>IT Director</td><td>technical_buyer</td><td>2026-07-02 (ticket_review)</td><td>2</td><td><code class="brief-citation">handoff.yaml#L14</code> · <code class="brief-citation">crm.csv#L4,L6</code></td></tr></tbody></table></div></div></article><article class="brief-section" id="static-brief-1-section-4"><div class="brief-section-heading"><div class="eyebrow">Generated section</div><h4>Risks / dependencies</h4></div><div class="brief-content"><ul class="brief-items"><li>Budget freeze rumored on the customer side (2026-07-19 call) — <code class="brief-citation">handoff.yaml#L22</code></li><li>Procurement has not returned the multi-year addendum — <code class="brief-citation">handoff.yaml#L23</code></li></ul></div></article></section><section class="brief-group" id="static-brief-1-group-3"><div class="brief-group-label"><span>04</span><strong>Follow-through</strong></div><article class="brief-section" id="static-brief-1-section-5"><div class="brief-section-heading"><div class="eyebrow">Generated section</div><h4>Links (recordings / proposal)</h4></div><div class="brief-content"><ul class="brief-items"><li>https://example.com/recordings/acme-closing-call — <code class="brief-citation">handoff.yaml#L26</code></li><li>https://example.com/docs/acme-proposal-v3.pdf — <code class="brief-citation">handoff.yaml#L27</code></li></ul></div></article><article class="brief-section" id="static-brief-1-section-6"><div class="brief-section-heading"><div class="eyebrow">Generated section</div><h4>Week-one questions</h4></div><div class="brief-content"><p class="brief-context"><em>Questions asked by the receiving CSM during week one (leading indicator).</em></p><div class="brief-table-wrap"><table class="brief-table"><thead><tr><th scope="col">Date</th><th scope="col">Question</th><th scope="col">Asked by</th><th scope="col">Source</th></tr></thead><tbody><tr><td>2026-08-07</td><td>Which plant onboards first?</td><td>Dana Reyes</td><td><code class="brief-citation">questions.csv#L2</code></td></tr><tr><td>2026-08-10</td><td>Who signs off on the SSO security review?</td><td>Dana Reyes</td><td><code class="brief-citation">questions.csv#L3</code></td></tr><tr><td>2026-08-11</td><td>Is the budget freeze company-wide or department-level?</td><td>Dana Reyes</td><td><code class="brief-citation">questions.csv#L4</code></td></tr></tbody></table></div></div></article><article class="brief-section" id="static-brief-1-section-7"><div class="brief-section-heading"><div class="eyebrow">Generated section</div><h4>Gap report — for Morgan Diaz, AE (<code class="brief-citation">handoff.yaml#L3</code>)</h4></div><div class="brief-content"><ul class="brief-items"><li>[x] All required evidence present — <code class="brief-citation">handoff.yaml#L2</code>, <code class="brief-citation">handoff.yaml#L3</code>, <code class="brief-citation">handoff.yaml#L7-L9</code>, <code class="brief-citation">handoff.yaml#L12-L14</code>, <code class="brief-citation">handoff.yaml#L17-L19</code>, <code class="brief-citation">handoff.yaml#L22-L23</code>, <code class="brief-citation">handoff.yaml#L26-L27</code>, <code class="brief-citation">crm.csv#L2-L8</code>.</li></ul></div></article></section></div></div></div></div>
+          <div class="brief-raw-panel"><pre class="brief-output"><code># Sales-to-CS Handoff Completeness Brief
 **Acme Manufacturing Co.** — `handoff.yaml#L2`
 
 _Handoff sent by AE **Morgan Diaz** — `handoff.yaml#L3`._
@@ -505,12 +658,20 @@ _Questions asked by the receiving CSM during week one (leading indicator)._
 ## Gap report — for Morgan Diaz, AE (`handoff.yaml#L3`)
 
 - [x] All required evidence present — `handoff.yaml#L2`, `handoff.yaml#L3`, `handoff.yaml#L7-L9`, `handoff.yaml#L12-L14`, `handoff.yaml#L17-L19`, `handoff.yaml#L22-L23`, `handoff.yaml#L26-L27`, `crm.csv#L2-L8`.
-</code></pre>
+</code></pre></div>
+        </fieldset>
       </details>
       <details class="panel">
         <summary>QBR Packet</summary>
         <p class="brief-meta">A deterministic, slide-oriented packet reusing the same evidence and risk rules. · generated from <span class="mono">examples/example-qbr-packet.md</span> · pinned --as-of 2026-08-22</p>
-        <pre class="brief-output"><code># QBR Packet
+        <fieldset class="brief-view">
+          <legend>Brief view</legend>
+          <input id="static-brief-2-visual-toggle" type="radio" name="static-brief-2-view" value="visual" checked>
+          <label for="static-brief-2-visual-toggle">Visual brief</label>
+          <input id="static-brief-2-raw-toggle" type="radio" name="static-brief-2-view" value="raw">
+          <label for="static-brief-2-raw-toggle">Raw Markdown</label>
+          <div id="static-brief-2-visual-panel" class="brief-visual-panel brief-visual"><div class="brief-presentation" data-presentation="visual"><div class="brief-presentation-head"><div><div class="eyebrow">Brief anatomy</div><h3>QBR Packet</h3><div class="brief-identity"><p><strong>Acme Manufacturing Co.</strong> — <code class="brief-citation">account.yaml#L3</code></p><p><em>Generated by csm-kit v0.3.0 · as-of 2026-08-22. Deterministic packet — every fact cites its source span (<code class="brief-citation">file#L&lt;row&gt;</code>).</em></p></div></div><p>Grouped from the generated Markdown. Source-backed lines stay attached to their spans; Raw Markdown remains the exact artifact.</p></div><div class="brief-anatomy"><nav class="brief-map" aria-label="Brief anatomy"><ol><li><a href="#static-brief-2-group-0"><span class="brief-map-index">01</span>Evidence gate</a></li><li><a href="#static-brief-2-group-1"><span class="brief-map-index">02</span>Account readout</a></li><li><a href="#static-brief-2-group-2"><span class="brief-map-index">03</span>Coverage and risk</a></li><li><a href="#static-brief-2-group-3"><span class="brief-map-index">04</span>Follow-through</a></li></ol></nav><div class="brief-groups"><section class="brief-group" id="static-brief-2-group-0"><div class="brief-group-label"><span>01</span><strong>Evidence gate</strong></div><article class="brief-section" id="static-brief-2-section-0"><div class="brief-section-heading"><div class="eyebrow">Generated section</div><h4>Evidence completeness</h4></div><div class="brief-stat"><strong>5/5 (100%)</strong><span>evidence completeness</span><div class="brief-stat-citations">Source spans: <code class="brief-citation">account.yaml#L3</code>, <code class="brief-citation">account.yaml#L7</code>, <code class="brief-citation">crm.csv#L2-L8</code>, <code class="brief-citation">tickets.csv#L2-L5</code>, <code class="brief-citation">usage.csv#L2-L7</code></div></div><div class="brief-content"><div class="brief-table-wrap"><table class="brief-table"><thead><tr><th scope="col">Required evidence</th><th scope="col">Status</th><th scope="col">Detail</th></tr></thead><tbody><tr><td>Account name (account.yaml)</td><td>present</td><td><code class="brief-citation">account.yaml#L3</code></td></tr><tr><td>Renewal date (account.yaml)</td><td>present</td><td><code class="brief-citation">account.yaml#L7</code></td></tr><tr><td>CRM activity export</td><td>present</td><td>7 activities (<code class="brief-citation">crm.csv#L2-L8</code>)</td></tr><tr><td>Ticket export</td><td>present</td><td>4 tickets (<code class="brief-citation">tickets.csv#L2-L5</code>)</td></tr><tr><td>Usage summary</td><td>present</td><td>6 periods (<code class="brief-citation">usage.csv#L2-L7</code>)</td></tr></tbody></table></div></div></article></section><section class="brief-group" id="static-brief-2-group-1"><div class="brief-group-label"><span>02</span><strong>Account readout</strong></div><article class="brief-section" id="static-brief-2-section-1"><div class="brief-section-heading"><div class="eyebrow">Generated section</div><h4>Slide: Executive summary</h4></div><div class="brief-content"><ul class="brief-items"><li>Latest usage (2026-07): 94 active users · 7,600 events — <code class="brief-citation">usage.csv#L7</code></li><li>Open tickets: 2 (0 high) — <code class="brief-citation">tickets.csv#L4,L5</code></li><li>Last customer activity: 2026-08-10 (email), 12 days ago — <code class="brief-citation">crm.csv#L8</code></li><li>Renewal: 2026-10-15 (54 days away) — <code class="brief-citation">account.yaml#L7</code></li></ul></div></article><article class="brief-section" id="static-brief-2-section-2"><div class="brief-section-heading"><div class="eyebrow">Generated section</div><h4>Slide: Value delivered</h4></div><div class="brief-content"><ul class="brief-items"><li>Active-user growth: -22% (2026-02 → 2026-07) — <code class="brief-citation">usage.csv#L2,L7</code></li><li>Total events tracked: 53,600 across 6 periods — <code class="brief-citation">usage.csv#L2,L3,L4,L5,L6,L7</code></li><li>Tickets resolved on record: 2 — <code class="brief-citation">tickets.csv#L2,L3</code></li><li>Customer meetings/calls held: 3 — <code class="brief-citation">crm.csv#L3,L5,L7</code></li></ul></div></article></section><section class="brief-group" id="static-brief-2-group-2"><div class="brief-group-label"><span>03</span><strong>Coverage and risk</strong></div><article class="brief-section" id="static-brief-2-section-3"><div class="brief-section-heading"><div class="eyebrow">Generated section</div><h4>Slide: Open risks</h4></div><div class="brief-content"><ul class="brief-items"><li>🟠 Usage declining: active users down 22% (2026-02 → 2026-07) — <code class="brief-citation">usage.csv#L2,L7</code></li><li>🔴 Renewal within 60 days but no customer meeting/call in the last 30 days (last: 2026-07-19) — renewal <code class="brief-citation">account.yaml#L7</code>, last meeting <code class="brief-citation">crm.csv#L7</code>, search covered <code class="brief-citation">crm.csv#L2-L8</code></li></ul></div></article></section><section class="brief-group" id="static-brief-2-group-3"><div class="brief-group-label"><span>04</span><strong>Follow-through</strong></div><article class="brief-section" id="static-brief-2-section-4"><div class="brief-section-heading"><div class="eyebrow">Generated section</div><h4>Slide: Next-quarter plan</h4></div><div class="brief-content"><ul class="brief-items"><li>Reverse the active-user decline (-22%, 2026-02 → 2026-07) — <code class="brief-citation">usage.csv#L2,L7</code></li><li>Confirm renewal timeline and paper process (renewal 2026-10-15, 54 days away) — <code class="brief-citation">account.yaml#L7</code></li></ul><p class="brief-safe-note">1 line stay in Raw Markdown because no source span was available for visual presentation.</p></div></article><article class="brief-section" id="static-brief-2-section-5"><div class="brief-section-heading"><div class="eyebrow">Generated section</div><h4>Missing-evidence checklist</h4></div><div class="brief-content"><ul class="brief-items"><li>[x] All required evidence present and all recommended fields filled — <code class="brief-citation">account.yaml#L3</code>, <code class="brief-citation">account.yaml#L7</code>, <code class="brief-citation">account.yaml#L4</code>, <code class="brief-citation">account.yaml#L6</code>, <code class="brief-citation">crm.csv#L2-L8</code>, <code class="brief-citation">tickets.csv#L2-L5</code>, <code class="brief-citation">usage.csv#L2-L7</code>.</li></ul></div></article></section></div></div></div></div>
+          <div class="brief-raw-panel"><pre class="brief-output"><code># QBR Packet
 **Acme Manufacturing Co.** — `account.yaml#L3`
 
 _Generated by csm-kit v0.3.0 · as-of 2026-08-22. Deterministic packet — every fact cites its source span (`file#L&lt;row&gt;`)._
@@ -553,7 +714,8 @@ _Generated by csm-kit v0.3.0 · as-of 2026-08-22. Deterministic packet — every
 ## Missing-evidence checklist
 
 - [x] All required evidence present and all recommended fields filled — `account.yaml#L3`, `account.yaml#L7`, `account.yaml#L4`, `account.yaml#L6`, `crm.csv#L2-L8`, `tickets.csv#L2-L5`, `usage.csv#L2-L7`.
-</code></pre>
+</code></pre></div>
+        </fieldset>
       </details>
         </div>
       </section>

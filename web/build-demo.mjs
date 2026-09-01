@@ -156,6 +156,32 @@ const TOKENS = `
   .hero-proof-index { display: block; margin-bottom: 8px; color: var(--csm-muted); font: var(--csm-weight-body) var(--csm-text-xs)/1.4 var(--csm-code); }
   .hero-proof-item strong { display: block; margin-bottom: 4px; color: var(--csm-ink); font-size: var(--csm-text-sm); font-weight: var(--csm-weight-heading); }
   .hero-proof-item p { margin: 0; color: var(--csm-muted); font-size: var(--csm-text-sm); line-height: 1.4; }
+  .product-visual {
+    display: grid;
+    grid-template-columns: minmax(0, .72fr) minmax(0, 1.28fr);
+    gap: 32px;
+    align-items: center;
+    margin: 0 0 var(--csm-section-gap);
+    padding: 28px 0;
+    border-top: 1px solid var(--csm-line);
+    border-bottom: 1px solid var(--csm-line);
+  }
+  .product-visual-copy { max-width: 420px; }
+  .product-visual-copy h2 { margin: 8px 0 10px; font-size: 25px; }
+  .product-visual-copy p { margin: 0; color: var(--csm-ink-soft); }
+  .product-visual-proof { display: flex; flex-wrap: wrap; gap: 18px; margin: 20px 0 0; }
+  .product-visual-proof strong { display: block; color: var(--csm-ink); font: var(--csm-weight-heading) 21px/1.1 var(--csm-code); }
+  .product-visual-proof span { display: block; margin-top: 4px; color: var(--csm-muted); font-size: var(--csm-text-xs); }
+  .flow-figure { min-width: 0; margin: 0; padding: 14px; background: var(--csm-surface); border: 1px solid var(--csm-line); }
+  .evidence-flow { display: block; width: 100%; height: auto; }
+  .evidence-flow .flow-frame { fill: var(--csm-surface); stroke: var(--csm-line); }
+  .evidence-flow .flow-accent { fill: none; stroke: var(--csm-indigo); }
+  .evidence-flow .flow-proof { fill: none; stroke: var(--csm-citation); }
+  .evidence-flow .flow-ink { fill: var(--csm-ink); }
+  .evidence-flow .flow-muted { fill: var(--csm-muted); }
+  .evidence-flow text { font-family: var(--csm-code); font-size: 11px; }
+  .flow-figure figcaption { margin: 10px 2px 0; padding-top: 10px; border-top: 1px solid var(--csm-line); color: var(--csm-muted); font-size: var(--csm-text-xs); }
+  .flow-figure figcaption strong { color: var(--csm-ink); font-weight: var(--csm-weight-heading); }
   .panel {
     background: var(--csm-surface);
     border: 1px solid var(--csm-line);
@@ -167,6 +193,9 @@ const TOKENS = `
   .callout:nth-child(3) { border-top-color: var(--csm-ink); }
   .callout p { margin: 0; color: var(--csm-ink-soft); }
   .callout code, .hero-proof-item code, .mono { color: var(--csm-citation); font-family: var(--csm-code); font-size: .9em; }
+  .callouts { gap: 0; border-top: 1px solid var(--csm-line); border-bottom: 1px solid var(--csm-line); }
+  .callouts .callout { border: 0; border-right: 1px solid var(--csm-line); border-radius: 0; background: transparent; }
+  .callouts .callout:last-child { border-right: 0; }
   .section-head { display: flex; justify-content: space-between; align-items: start; gap: 20px; margin-bottom: 22px; }
   .section-head p { max-width: 280px; margin: 0; color: var(--csm-muted); font-size: var(--csm-text-sm); }
   .brief-list { display: grid; gap: 14px; margin-bottom: var(--csm-section-gap); }
@@ -175,8 +204,29 @@ const TOKENS = `
   details summary::marker { color: var(--csm-indigo); }
   details[open] summary { color: var(--csm-indigo); border-bottom: 1px solid var(--csm-line); }
   .brief-meta { padding: 15px 22px 0; color: var(--csm-muted); font: var(--csm-weight-body) var(--csm-text-xs)/1.5 var(--csm-code); }
-  .brief-output {
+  .brief-view {
+    min-width: 0;
     margin: 15px 22px 22px;
+  }
+  .brief-view > legend { padding: 0; color: var(--csm-muted); font: var(--csm-weight-body) var(--csm-text-xs)/1.45 var(--csm-code); text-transform: uppercase; letter-spacing: .06em; }
+  .brief-view-switch { display: flex; flex-wrap: wrap; gap: 0; margin: 0 0 14px; }
+  .brief-view-switch > input { position: absolute; width: 1px; height: 1px; opacity: 0; }
+  .brief-view-switch > input + label, .view-button {
+    min-height: 36px;
+    padding: 9px 12px;
+    color: var(--csm-muted);
+    background: var(--csm-surface);
+    border: 1px solid var(--csm-line);
+    font: var(--csm-weight-heading) var(--csm-text-xs)/1.1 var(--csm-code);
+  }
+  .brief-view-switch > input + label + input + label { margin-left: -1px; }
+  .brief-view-switch > input:checked + label, .view-button[aria-pressed="true"] { color: var(--csm-indigo); background: var(--csm-indigo-soft); border-color: var(--csm-indigo); }
+  .brief-view-switch > input:focus-visible + label, .view-button:focus-visible { position: relative; z-index: 1; outline: 2px solid var(--csm-focus); outline-offset: 2px; }
+  .brief-view > input[value="visual"]:checked ~ .brief-raw-panel { display: none; }
+  .brief-view > input[value="raw"]:checked ~ .brief-visual-panel { display: none; }
+  .brief-visual-panel, .brief-raw-panel { min-width: 0; }
+  .brief-output {
+    margin: 0;
     padding: 22px;
     overflow: auto;
     color: var(--csm-ink);
@@ -185,6 +235,44 @@ const TOKENS = `
     white-space: pre-wrap;
     overflow-wrap: anywhere;
   }
+  .brief-visual { min-width: 0; color: var(--csm-ink-soft); }
+  .brief-presentation-head { display: flex; align-items: end; justify-content: space-between; gap: 18px; padding-bottom: 18px; border-bottom: 1px solid var(--csm-line); }
+  .brief-presentation-head h3 { margin: 6px 0 0; color: var(--csm-ink); font-size: 23px; }
+  .brief-presentation-head p { max-width: 330px; margin: 0; color: var(--csm-muted); font-size: var(--csm-text-xs); }
+  .brief-identity { margin: 12px 0 0; color: var(--csm-ink-soft); font-size: var(--csm-text-sm); }
+  .brief-identity p { max-width: none; margin: 4px 0 0; }
+  .brief-anatomy { display: grid; grid-template-columns: 150px minmax(0, 1fr); gap: 24px; padding-top: 20px; }
+  .brief-map { min-width: 0; padding-right: 16px; border-right: 1px solid var(--csm-line); }
+  .brief-map ol { margin: 0; padding: 0; list-style: none; }
+  .brief-map li { border-top: 1px solid var(--csm-line); }
+  .brief-map li:last-child { border-bottom: 1px solid var(--csm-line); }
+  .brief-map a { display: block; padding: 10px 0; color: var(--csm-ink-soft); font-size: var(--csm-text-xs); text-decoration: none; }
+  .brief-map a:hover { color: var(--csm-indigo); }
+  .brief-map-index { display: block; margin-bottom: 3px; color: var(--csm-indigo); font: var(--csm-weight-body) var(--csm-text-xs)/1.2 var(--csm-code); }
+  .brief-groups { min-width: 0; }
+  .brief-group + .brief-group { margin-top: 26px; padding-top: 24px; border-top: 1px solid var(--csm-line); }
+  .brief-group-label { display: flex; align-items: baseline; gap: 8px; margin-bottom: 16px; color: var(--csm-muted); font: var(--csm-weight-body) var(--csm-text-xs)/1.3 var(--csm-code); letter-spacing: .05em; text-transform: uppercase; }
+  .brief-group-label span { color: var(--csm-indigo); }
+  .brief-section { min-width: 0; }
+  .brief-section + .brief-section { margin-top: 22px; padding-top: 22px; border-top: 1px solid var(--csm-line); }
+  .brief-section-heading h4 { margin: 5px 0 12px; color: var(--csm-ink); font-size: 18px; font-weight: var(--csm-weight-heading); }
+  .brief-content { min-width: 0; }
+  .brief-content p { margin: 0 0 11px; color: var(--csm-ink-soft); font-size: var(--csm-text-sm); }
+  .brief-content .brief-context { color: var(--csm-muted); font-style: italic; }
+  .brief-content ul { margin: 0; padding: 0 0 0 18px; color: var(--csm-ink-soft); }
+  .brief-content li { padding: 3px 0; font-size: var(--csm-text-sm); }
+  .brief-visual code { color: var(--csm-citation); font-family: var(--csm-code); font-size: .9em; }
+  .brief-citation { color: var(--csm-citation); }
+  .brief-table-wrap { max-width: 100%; margin: 0 0 12px; overflow-x: auto; }
+  .brief-table { width: 100%; min-width: 420px; border-collapse: collapse; color: var(--csm-ink-soft); font-size: var(--csm-text-xs); }
+  .brief-table th, .brief-table td { padding: 8px 9px; border-bottom: 1px solid var(--csm-line); text-align: left; vertical-align: top; }
+  .brief-table th { color: var(--csm-ink); font-weight: var(--csm-weight-heading); }
+  .brief-stat { display: flex; align-items: baseline; flex-wrap: wrap; gap: 12px; margin: 0 0 16px; padding: 10px 0 12px; border-top: 1px solid var(--csm-indigo); border-bottom: 1px solid var(--csm-line); }
+  .brief-stat strong { color: var(--csm-ink); font: var(--csm-weight-heading) 30px/1 var(--csm-code); letter-spacing: -.04em; }
+  .brief-stat span { color: var(--csm-muted); font-size: var(--csm-text-sm); }
+  .brief-stat-citations { flex-basis: 100%; color: var(--csm-muted); font-size: var(--csm-text-xs); }
+  .brief-safe-note { margin: 12px 0 0; padding: 9px 11px; color: var(--csm-muted); background: var(--csm-band); border-left: 2px solid var(--csm-line); font-size: var(--csm-text-xs); }
+  .brief-presentation-fallback { margin: 0; padding: 14px; color: var(--csm-muted); background: var(--csm-band); font-size: var(--csm-text-sm); }
   .footer { padding: 30px 0 58px; border-top: 1px solid var(--csm-line); color: var(--csm-muted); }
   .footer p { margin: 0 0 8px; }
   .footer .mono { color: var(--csm-muted); }
@@ -247,6 +335,9 @@ const TOKENS = `
   .result-status.ok { color: var(--csm-citation); }
   .result-status.error { color: var(--csm-danger); }
   .result-output { min-height: 520px; max-height: 820px; margin-top: 18px; }
+  .result-panel .brief-visual-panel { margin: 18px 22px 22px; }
+  .result-panel .brief-raw-panel { margin: 18px 22px 22px; }
+  .result-panel .brief-output { min-height: 520px; max-height: 820px; }
   .result-output.error { color: var(--csm-danger); background: var(--csm-danger-surface); }
   .result-footer { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 14px 22px; background: var(--csm-band); border-top: 1px solid var(--csm-line); }
   .button-row { display: flex; flex-wrap: wrap; gap: 8px; }
@@ -276,7 +367,7 @@ const TOKENS = `
   @media print {
     html, body { background: #ffffff; color: #101a33; }
     body { font-size: 11pt; }
-    .skip-link, .top-meta, .setup, .source-panel, .demo-note, .result-footer, .footer, .noscript { display: none !important; }
+    .skip-link, .top-meta, .setup, .source-panel, .demo-note, .result-footer, .footer, .noscript, .brief-view-switch { display: none !important; }
     .shell { width: 100%; }
     .topbar { min-height: 42px; padding: 8px 0; }
     .hero, .demo-intro { padding: 24px 0 20px; }
@@ -287,6 +378,9 @@ const TOKENS = `
     .result-panel { border: 0; }
     .panel-heading { padding: 0 0 10px; background: transparent; }
     .result-output { min-height: 0; max-height: none; margin: 12px 0 0; background: transparent; border: 1px solid #d7e0ec; }
+    .brief-visual-panel { display: none !important; }
+    .brief-raw-panel { display: block !important; margin: 12px 0 0 !important; }
+    .product-visual { break-inside: avoid; }
     details { display: block; break-inside: avoid; }
     details > *:not(summary) { display: block; }
     a { color: inherit; text-decoration: none; }
@@ -305,7 +399,10 @@ const TOKENS = `
     .demo-intro { padding: 42px 0 28px; }
     h1, .demo-intro h1 { letter-spacing: -1px; }
     .hero-proof { grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 48px; }
+    .product-visual { grid-template-columns: 1fr; gap: 18px; }
     .callouts, .choice-grid, .demo-grid { grid-template-columns: 1fr; }
+    .callouts .callout { border-right: 0; border-bottom: 1px solid var(--csm-line); }
+    .callouts .callout:last-child { border-bottom: 0; }
     .section-head, .setup-heading { display: block; }
     .section-head p, .setup-heading p { max-width: none; margin-top: 8px; text-align: left; }
     .control-panel { padding: 18px; }
@@ -316,12 +413,18 @@ const TOKENS = `
     .result-status { text-align: left; }
     .button-row { width: 100%; }
     .button { flex: 1 1 auto; }
+    .brief-presentation-head { display: block; }
+    .brief-presentation-head p { max-width: none; margin-top: 10px; }
+    .brief-anatomy { grid-template-columns: 1fr; gap: 18px; }
+    .brief-map { padding: 0 0 12px; border-right: 0; border-bottom: 1px solid var(--csm-line); }
+    .brief-map ol { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0 14px; }
   }
   @media (max-width: 420px) {
     .hero-proof { grid-template-columns: 1fr; }
     .hero-proof-item:nth-child(3) { border-top-color: var(--csm-indigo); }
     .hero-proof-item:nth-child(4) { border-top-color: var(--csm-citation); }
     .panel-heading { align-items: start; flex-direction: column; }
+    .brief-map ol { grid-template-columns: 1fr; }
   }
 `;
 
@@ -400,6 +503,183 @@ function htmlEscape(value) {
     .replace(/"/g, '&quot;');
 }
 
+function renderBriefPresentation(markdown, prefix = 'brief') {
+  try {
+    const source = String(markdown);
+    const idPrefix = String(prefix).replace(/[^a-z0-9_-]/gi, '-');
+    const escape = (value) => String(value)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+    const citationMatches = (value) => [...String(value).matchAll(/[\w./-]+#L\d+(?:[-,]L?\d+)*/g)].map((match) => match[0]);
+    const uniqueCitations = (lines) => [...new Set(lines.flatMap((line) => citationMatches(line)))];
+    const inline = (value) => escape(value)
+      .replace(/`([^`]+)`/g, '<code class="brief-citation">$1</code>')
+      .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
+      .replace(/_([^_]+)_/g, '<em>$1</em>');
+    const citationHtml = (values) => values.map((value) => `<code class="brief-citation">${escape(value)}</code>`).join(', ');
+    const tableCells = (line) => {
+      const trimmed = line.trim();
+      const inner = trimmed.startsWith('|') ? trimmed.slice(1) : trimmed;
+      const withoutTrailing = inner.endsWith('|') ? inner.slice(0, -1) : inner;
+      return withoutTrailing.split('|').map((cell) => cell.trim());
+    };
+    const renderTable = (lines) => {
+      const rows = lines.map(tableCells);
+      const headers = rows[0] || [];
+      const bodyRows = rows.slice(2);
+      const citedRows = bodyRows.filter((row) => row.some((cell) => citationMatches(cell).length > 0));
+      const omitted = bodyRows.length - citedRows.length;
+      const headerHtml = headers.map((cell) => `<th scope="col">${inline(cell)}</th>`).join('');
+      const bodyHtml = citedRows.map((row) => `<tr>${headers.map((_, index) => `<td>${inline(row[index] || '')}</td>`).join('')}</tr>`).join('');
+      return {
+        html: `<div class="brief-table-wrap"><table class="brief-table"><thead><tr>${headerHtml}</tr></thead><tbody>${bodyHtml}</tbody></table></div>`,
+        omitted,
+      };
+    };
+    const renderList = (lines) => {
+      const citedLines = lines.filter((line) => citationMatches(line).length > 0);
+      return {
+        html: citedLines.length ? `<ul class="brief-items">${citedLines.map((line) => `<li>${inline(line.replace(/^\s*-\s+/, ''))}</li>`).join('')}</ul>` : '',
+        omitted: lines.length - citedLines.length,
+      };
+    };
+    const renderContent = (lines) => {
+      const blocks = [];
+      let omitted = 0;
+      let index = 0;
+      while (index < lines.length) {
+        const line = lines[index];
+        if (!line.trim()) {
+          index++;
+          continue;
+        }
+        if (/^\s*\|/.test(line)) {
+          const tableLines = [];
+          while (index < lines.length && /^\s*\|/.test(lines[index])) tableLines.push(lines[index++]);
+          if (tableLines.length > 1) {
+            const table = renderTable(tableLines);
+            blocks.push(table.html);
+            omitted += table.omitted;
+          } else {
+            omitted++;
+          }
+          continue;
+        }
+        if (/^\s*-\s+/.test(line)) {
+          const listLines = [];
+          while (index < lines.length && /^\s*-\s+/.test(lines[index])) listLines.push(lines[index++]);
+          const list = renderList(listLines);
+          if (list.html) blocks.push(list.html);
+          omitted += list.omitted;
+          continue;
+        }
+        if (/^\s*_.*_\s*$/.test(line)) {
+          blocks.push(`<p class="brief-context">${inline(line)}</p>`);
+        } else if (citationMatches(line).length > 0) {
+          blocks.push(`<p>${inline(line)}</p>`);
+        } else {
+          omitted++;
+        }
+        index++;
+      }
+      return { html: blocks.join(''), omitted };
+    };
+    const groupFor = (heading) => {
+      const value = heading.toLowerCase();
+      if (value.startsWith('evidence completeness')) return 'Evidence gate';
+      if (/risk|stakeholder/.test(value)) return 'Coverage and risk';
+      if (/missing|gap report|next-quarter|week-one|links/.test(value)) return 'Follow-through';
+      return 'Account readout';
+    };
+    const lines = source.replace(/\r\n/g, '\n').split('\n');
+    const titleLine = lines.find((line) => /^#\s+/.test(line));
+    const title = titleLine ? titleLine.replace(/^#\s+/, '') : 'Generated brief';
+    const firstSection = lines.findIndex((line) => /^##\s+/.test(line));
+    const introLines = lines
+      .slice(titleLine ? lines.indexOf(titleLine) + 1 : 0, firstSection < 0 ? lines.length : firstSection)
+      .filter((line) => line.trim());
+    const sections = [];
+    let current;
+    for (const line of lines) {
+      if (/^##\s+/.test(line)) {
+        current = { heading: line.replace(/^##\s+/, ''), lines: [] };
+        sections.push(current);
+      } else if (current) {
+        current.lines.push(line);
+      }
+    }
+    if (!sections.length) throw new Error('no brief sections');
+
+    const grouped = [];
+    for (const section of sections) {
+      const name = groupFor(section.heading);
+      const group = grouped[grouped.length - 1];
+      if (!group || group.name !== name) grouped.push({ name, sections: [] });
+      grouped[grouped.length - 1].sections.push(section);
+    }
+    const sectionHtml = (section, sectionIndex) => {
+      const content = renderContent(section.lines);
+      const score = section.heading.match(/^Evidence completeness:\s*(.+)$/i);
+      const spans = uniqueCitations(section.lines);
+      const sectionTitle = score ? 'Evidence completeness' : section.heading;
+      const stat = score
+        ? `<div class="brief-stat"><strong>${inline(score[1])}</strong><span>evidence completeness</span>${spans.length ? `<div class="brief-stat-citations">Source spans: ${citationHtml(spans)}</div>` : ''}</div>`
+        : '';
+      const safeNote = content.omitted
+        ? `<p class="brief-safe-note">${content.omitted} line${content.omitted === 1 ? '' : 's'} stay in Raw Markdown because no source span was available for visual presentation.</p>`
+        : '';
+      return `<article class="brief-section" id="${idPrefix}-section-${sectionIndex}"><div class="brief-section-heading"><div class="eyebrow">Generated section</div><h4>${inline(sectionTitle)}</h4></div>${stat}<div class="brief-content">${content.html}${safeNote}</div></article>`;
+    };
+    const groupsHtml = grouped.map((group, groupIndex) => `<section class="brief-group" id="${idPrefix}-group-${groupIndex}"><div class="brief-group-label"><span>${String(groupIndex + 1).padStart(2, '0')}</span><strong>${escape(group.name)}</strong></div>${group.sections.map((section, sectionIndex) => sectionHtml(section, sections.indexOf(section))).join('')}</section>`).join('');
+    const mapHtml = grouped.map((group, groupIndex) => `<li><a href="#${idPrefix}-group-${groupIndex}"><span class="brief-map-index">${String(groupIndex + 1).padStart(2, '0')}</span>${escape(group.name)}</a></li>`).join('');
+    const identityHtml = introLines.map((line) => `<p>${inline(line)}</p>`).join('');
+    return `<div class="brief-presentation" data-presentation="visual"><div class="brief-presentation-head"><div><div class="eyebrow">Brief anatomy</div><h3>${inline(title)}</h3><div class="brief-identity">${identityHtml}</div></div><p>Grouped from the generated Markdown. Source-backed lines stay attached to their spans; Raw Markdown remains the exact artifact.</p></div><div class="brief-anatomy"><nav class="brief-map" aria-label="Brief anatomy"><ol>${mapHtml}</ol></nav><div class="brief-groups">${groupsHtml}</div></div></div>`;
+  } catch {
+    return '<p class="brief-presentation-fallback">Visual presentation unavailable. Raw Markdown remains available unchanged.</p>';
+  }
+}
+
+function buildEvidenceFlowVisual() {
+  return `<section class="product-visual" aria-labelledby="evidence-flow-heading">
+    <div class="product-visual-copy">
+      <div class="eyebrow">Evidence flow</div>
+      <h2 id="evidence-flow-heading">A source row becomes a cited decision.</h2>
+      <p>csm-kit keeps the path visible: local exports enter, exact source spans travel with the claim, and unsupported conclusions stop at the gap.</p>
+      <div class="product-visual-proof" aria-label="Evidence flow properties">
+        <div><strong>01</strong><span>input row</span></div>
+        <div><strong>02</strong><span>source span</span></div>
+        <div><strong>03</strong><span>brief line</span></div>
+      </div>
+    </div>
+    <figure class="flow-figure">
+      <svg class="evidence-flow" viewBox="0 0 760 220" role="img" aria-labelledby="flow-title flow-description">
+        <title id="flow-title">Evidence flow from local input to cited brief</title>
+        <desc id="flow-description">Three sharp framed views show an input row, its source span, and a generated brief line connected by an evidence path.</desc>
+        <rect class="flow-frame" x="12" y="28" width="206" height="150" />
+        <rect class="flow-frame" x="277" y="28" width="206" height="150" />
+        <rect class="flow-frame" x="542" y="28" width="206" height="150" />
+        <path class="flow-accent" stroke-width="1.5" d="M218 103h59m-8-8 8 8-8 8M483 103h59m-8-8 8 8-8 8" />
+        <path class="flow-accent" stroke-width="1.5" d="M36 62h158M36 78h122M36 94h142" />
+        <path class="flow-proof" stroke-width="1.5" d="M301 62h76m-76 16h128m-128 16h96" />
+        <path class="flow-ink" stroke-width="1.5" d="M566 62h132m-132 16h102m-102 34h132m-132 16h112" />
+        <path class="flow-proof" stroke-width="1.5" d="M566 94h64" />
+        <circle class="flow-proof" stroke-width="1.5" cx="450" cy="145" r="14" />
+        <path class="flow-proof" stroke-width="1.5" d="m443 145 5 5 9-11" />
+        <text class="flow-muted" x="30" y="48">INPUT ROW</text>
+        <text class="flow-muted" x="295" y="48">SOURCE SPAN</text>
+        <text class="flow-muted" x="560" y="48">BRIEF LINE</text>
+        <text class="flow-ink" x="36" y="132">usage.csv</text>
+        <text class="flow-proof" x="301" y="132">#L7</text>
+        <text class="flow-ink" x="566" y="160">cited output</text>
+      </svg>
+      <figcaption><strong>Traceability is the feature.</strong> The visual explains the contract without adding evidence to the generated artifact.</figcaption>
+    </figure>
+  </section>`;
+}
+
 function jsonForScript(value) {
   return JSON.stringify(value).replace(/<\//g, '<\\/');
 }
@@ -453,7 +733,15 @@ function buildStaticPage() {
       <details class="panel"${brief.index === 0 ? ' open' : ''}>
         <summary>${htmlEscape(brief.title)}</summary>
         <p class="brief-meta">${htmlEscape(brief.description)} · generated from <span class="mono">${htmlEscape(brief.file)}</span> · pinned --as-of ${AS_OF}</p>
-        <pre class="brief-output"><code>${htmlEscape(brief.markdown)}</code></pre>
+        <fieldset class="brief-view">
+          <legend>Brief view</legend>
+          <input id="static-brief-${brief.index}-visual-toggle" type="radio" name="static-brief-${brief.index}-view" value="visual" checked>
+          <label for="static-brief-${brief.index}-visual-toggle">Visual brief</label>
+          <input id="static-brief-${brief.index}-raw-toggle" type="radio" name="static-brief-${brief.index}-view" value="raw">
+          <label for="static-brief-${brief.index}-raw-toggle">Raw Markdown</label>
+          <div id="static-brief-${brief.index}-visual-panel" class="brief-visual-panel brief-visual">${renderBriefPresentation(brief.markdown, `static-brief-${brief.index}`)}</div>
+          <div class="brief-raw-panel"><pre class="brief-output"><code>${htmlEscape(brief.markdown)}</code></pre></div>
+        </fieldset>
       </details>`,
   ).join('');
 
@@ -485,6 +773,7 @@ function buildStaticPage() {
         </div>
       </section>
       ${buildTrustRail()}
+      ${buildEvidenceFlowVisual()}
       <section class="callouts" aria-label="How to read a brief">${callouts}
       </section>
       <section aria-labelledby="samples-heading">
@@ -686,6 +975,7 @@ const UI_SCRIPT = String.raw`(() => {
   const scenarioControls = document.getElementById('scenario-controls');
   const typeControls = document.getElementById('type-controls');
   const sourceList = document.getElementById('source-list');
+  const visualOutput = document.getElementById('brief-visual-output');
   const output = document.getElementById('brief-output');
   const status = document.getElementById('result-status');
   const warnings = document.getElementById('warning-box');
@@ -693,6 +983,11 @@ const UI_SCRIPT = String.raw`(() => {
   const scenarioSummary = document.getElementById('scenario-summary');
   const generateButton = document.getElementById('generate-button');
   const resetButton = document.getElementById('reset-button');
+  const visualViewButton = document.getElementById('visual-view-button');
+  const rawViewButton = document.getElementById('raw-view-button');
+  let briefView = 'visual';
+
+  const renderBriefPresentation = ${renderBriefPresentation.toString()};
 
   function button(label, className, attributes = {}) {
     const element = document.createElement('button');
@@ -777,12 +1072,22 @@ const UI_SCRIPT = String.raw`(() => {
     return overrides;
   }
 
+  function setBriefView(view) {
+    briefView = view === 'raw' ? 'raw' : 'visual';
+    const visual = briefView === 'visual';
+    visualOutput.hidden = !visual;
+    output.hidden = visual;
+    visualViewButton.setAttribute('aria-pressed', String(visual));
+    rawViewButton.setAttribute('aria-pressed', String(!visual));
+  }
+
   function renderBrief() {
     const started = performance.now();
     output.classList.remove('error');
     try {
       const result = api.generate(state.scenario, state.type, collectOverrides());
       output.textContent = result.markdown;
+      visualOutput.innerHTML = renderBriefPresentation(result.markdown, 'interactive-brief');
       const elapsed = Math.max(0, performance.now() - started).toFixed(1);
       const score = result.completeness;
       status.className = 'result-status ok';
@@ -792,11 +1097,13 @@ const UI_SCRIPT = String.raw`(() => {
         ? ''
         : result.warnings.length + ' input warning' + (result.warnings.length === 1 ? '' : 's') + ' · invalid rows stay out of the brief.';
     } catch (error) {
+      visualOutput.innerHTML = '';
       output.classList.add('error');
       output.textContent = 'The engine stopped safely:\n\n' + error.message;
       status.className = 'result-status error';
       status.textContent = 'input error · no brief rendered';
       warnings.hidden = true;
+      setBriefView('raw');
     }
   }
 
@@ -816,6 +1123,9 @@ const UI_SCRIPT = String.raw`(() => {
     renderSources();
     renderBrief();
   });
+  visualViewButton.addEventListener('click', () => setBriefView('visual'));
+  rawViewButton.addEventListener('click', () => setBriefView('raw'));
+  setBriefView(briefView);
   render();
   app.dataset.ready = 'true';
 })();
@@ -867,6 +1177,7 @@ function buildInteractivePage({ directoryLayout = true } = {}) {
         </div>
       </section>
       ${buildTrustRail()}
+      ${buildEvidenceFlowVisual()}
       <section class="setup" aria-labelledby="setup-heading">
         <div class="setup-heading">
           <div>
@@ -910,7 +1221,12 @@ function buildInteractivePage({ directoryLayout = true } = {}) {
             <div id="result-status" class="result-status" aria-live="polite">waiting for runtime</div>
           </div>
           <div id="warning-box" class="warning-box" role="status" hidden></div>
-          <pre id="brief-output" class="brief-output result-output" aria-label="Generated markdown brief" aria-live="polite"></pre>
+          <div class="brief-view-switch" role="group" aria-label="Generated brief view">
+            <button id="visual-view-button" class="view-button" type="button" aria-pressed="true" aria-controls="brief-visual-output">Visual brief</button>
+            <button id="raw-view-button" class="view-button" type="button" aria-pressed="false" aria-controls="brief-output">Raw Markdown</button>
+          </div>
+          <div id="brief-visual-output" class="brief-visual-panel brief-visual" aria-live="polite" hidden></div>
+          <div class="brief-raw-panel"><pre id="brief-output" class="brief-output result-output" aria-label="Raw generated markdown brief" aria-live="polite"></pre></div>
           <div class="result-footer">
             <div class="button-row">
               <button id="generate-button" class="button" type="button">Generate brief</button>
