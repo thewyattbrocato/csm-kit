@@ -2,8 +2,8 @@
   "asOf": "2026-08-22",
   "scenarios": {
     "full": {
-      "label": "Full evidence",
-      "description": "All expected exports are present. See the complete brief and its resolved citations.",
+      "label": "Ready to review",
+      "description": "Most inputs are present. See a complete account readout with source-backed signals.",
       "types": {
         "renewal": {
           "account": "examples/acme/account.yaml",
@@ -25,8 +25,8 @@
       }
     },
     "risky": {
-      "label": "Risk signals",
-      "description": "The same deterministic rules surface stale activity, an aging ticket, and declining usage.",
+      "label": "Needs attention",
+      "description": "Usage, support, or relationship signals are under pressure. Find the next conversation to have.",
       "types": {
         "renewal": {
           "account": "test/fixtures/risky/account.yaml",
@@ -47,8 +47,8 @@
       }
     },
     "sparse": {
-      "label": "Sparse evidence",
-      "description": "Only identity evidence is supplied. Missing facts stay out of the brief and become explicit asks.",
+      "label": "Fill the gaps",
+      "description": "Some inputs are missing. See what is safe to say and what to ask for next.",
       "types": {
         "renewal": {
           "account": "test/fixtures/sparse/account.yaml"

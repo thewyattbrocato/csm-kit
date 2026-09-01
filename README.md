@@ -4,11 +4,17 @@
   <img src="docs/assets/banner.svg" alt="csm-kit — Evidence-cited CS briefs from exports you already have" width="720">
 </div>
 
-csm-kit is a CLI that assembles Customer Success briefs from the plain CSV exports your CRM, ticketing, and usage systems already produce — plus one small YAML file. Every factual line in the generated brief carries a citation (`file.csv#L42`); a fact that cannot be traced to a source span **does not render**, failing closed into a missing-evidence checklist or gap report instead. One shared engine renders three brief types: renewal readiness, handoff completeness, and QBR packets. No dependencies, no integrations, no LLM calls, no network calls.
+csm-kit helps frontline CSMs walk into renewal, handoff, and QBR conversations with a clear account story: what changed, who matters, what is at risk, and what to do next. It turns the plain CSV exports your CRM, ticketing, and usage systems already produce — plus one small YAML file — into a brief you can defend in the room. Every factual line carries a citation (`file.csv#L42`); a fact that cannot be traced to a source span **does not render**, failing closed into a missing-evidence checklist or gap report instead. No dependencies, integrations, LLM calls, or network calls.
 
 <div align="center">
   <img src="docs/assets/how-it-works.svg" alt="account.yaml plus CRM/tickets/usage CSVs flow through the shared brief engine (schema, validate, render) into a markdown brief where every line cites file#row. Fail-closed: facts without a span go to the missing-evidence checklist. A completeness score renders first." width="720">
 </div>
+
+## Try the interactive demo
+
+[Open the interactive CSM demo](https://wcbrocato.gitlab.io/csm-kit/demo/) to see renewal timing, account health signals, stakeholder coverage, support load, risks, and next actions in one offline readout. Switch between renewal, handoff, and QBR, try a complete or risky account, or remove evidence to see the safe follow-up appear.
+
+Prefer a JavaScript-free path? Read the [static annotated walkthrough](https://wcbrocato.gitlab.io/csm-kit/demo-static/) for the same generated examples and source citations.
 
 ## Real output
 
@@ -36,10 +42,6 @@ Verbatim excerpt of [`examples/example-renewal-brief.md`](examples/example-renew
 ````
 
 Every span above resolves to a real row in [`examples/acme/`](examples/acme/) — click through and check.
-
-## Try it in your browser
-
-[Open the interactive demo](https://wcbrocato.gitlab.io/csm-kit/demo/) - nothing leaves this tab. Switch between renewal, handoff, and QBR briefs, try the full/risky/sparse evidence scenarios, or edit the local source panes. JavaScript-off visitors can use the [static annotated walkthrough](https://wcbrocato.gitlab.io/csm-kit/demo-static/).
 
 ## Quickstart
 

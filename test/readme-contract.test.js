@@ -100,3 +100,18 @@ test('README points to the GitLab Pages demo', () => {
   assert.match(readme, /https:\/\/wcbrocato\.gitlab\.io\/csm-kit\/demo\//);
   assert.match(readme, /https:\/\/wcbrocato\.gitlab\.io\/csm-kit\/demo-static\//);
 });
+
+test('README puts the interactive invitation between the workflow image and Real output', () => {
+  const readme = readRelative('README.md');
+  const workflow = readme.indexOf('docs/assets/how-it-works.svg');
+  const workflowEnd = readme.indexOf('</div>', workflow);
+  const invitation = readme.indexOf('## Try the interactive demo');
+  const realOutput = readme.indexOf('## Real output');
+
+  assert.ok(workflow >= 0, 'README is missing the workflow image');
+  assert.ok(workflowEnd >= 0, 'README workflow image wrapper is not closed');
+  assert.strictEqual(readme.slice(workflowEnd + '</div>'.length, invitation), '\n\n');
+  assert.ok(invitation < realOutput, 'interactive invitation must precede Real output');
+  assert.match(readme.slice(invitation, realOutput), /Open the interactive CSM demo/);
+  assert.match(readme.slice(invitation, realOutput), /static annotated walkthrough/);
+});

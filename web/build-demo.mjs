@@ -14,25 +14,27 @@ const PACKAGE = JSON.parse(fs.readFileSync(path.join(ROOT, 'package.json'), 'utf
 const TOKENS = `
   :root {
     color-scheme: light;
-    --csm-canvas: #f6f8fc;
+    --csm-canvas: #f7f9fc;
     --csm-surface: #ffffff;
-    --csm-band: #edf1f7;
-    --csm-line: #d7e0ec;
-    --csm-ink: #101a33;
-    --csm-ink-soft: #34445f;
-    --csm-muted: #5c6c86;
-    --csm-indigo: #4c45d6;
-    --csm-indigo-hover: #3934b4;
-    --csm-indigo-soft: #e9eaff;
-    --csm-indigo-line: #b9b9ed;
-    --csm-citation: #176f4d;
-    --csm-warning: #855b12;
-    --csm-warning-surface: #fff6df;
-    --csm-danger: #a33d47;
-    --csm-danger-surface: #fff0f1;
+    --csm-band: #f1f5f9;
+    --csm-line: #d8e2ed;
+    --csm-line-strong: #c1cfde;
+    --csm-ink: #102a43;
+    --csm-ink-soft: #486581;
+    --csm-muted: #627d98;
+    --csm-indigo: #5b5bd6;
+    --csm-indigo-hover: #4848b6;
+    --csm-indigo-soft: #eff0ff;
+    --csm-indigo-line: #b9bbf1;
+    --csm-citation: #167d55;
+    --csm-warning: #8d6618;
+    --csm-warning-surface: #fff8e7;
+    --csm-danger: #b23a48;
+    --csm-danger-surface: #fff1f2;
     --csm-action-text: #ffffff;
-    --csm-focus: #4c45d6;
-    --csm-ui: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    --csm-focus: #5b5bd6;
+    --csm-shadow: rgba(16, 42, 67, .08);
+    --csm-ui: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
     --csm-code: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
     --csm-weight-body: 400;
     --csm-weight-heading: 500;
@@ -51,24 +53,26 @@ const TOKENS = `
   @media (prefers-color-scheme: dark) {
     :root {
       color-scheme: dark;
-      --csm-canvas: #101625;
-      --csm-surface: #151d2d;
-      --csm-band: #1b2639;
-      --csm-line: #34425b;
-      --csm-ink: #f2f5ff;
-      --csm-ink-soft: #d0d9ea;
-      --csm-muted: #aebbd0;
-      --csm-indigo: #aaa7ff;
-      --csm-indigo-hover: #c3c0ff;
-      --csm-indigo-soft: #2a2c58;
-      --csm-indigo-line: #7776c9;
-      --csm-citation: #78d8a2;
-      --csm-warning: #f1c26d;
-      --csm-warning-surface: #332c1e;
-      --csm-danger: #ff9a9f;
-      --csm-danger-surface: #38242b;
-      --csm-action-text: #101625;
-      --csm-focus: #c3c0ff;
+      --csm-canvas: #0c1728;
+      --csm-surface: #111f33;
+      --csm-band: #17283f;
+      --csm-line: #30445f;
+      --csm-line-strong: #47617e;
+      --csm-ink: #f4f7fb;
+      --csm-ink-soft: #d6e1ef;
+      --csm-muted: #9aacc2;
+      --csm-indigo: #a7a6ff;
+      --csm-indigo-hover: #c1c0ff;
+      --csm-indigo-soft: #2b2d5a;
+      --csm-indigo-line: #8181d6;
+      --csm-citation: #75d9a3;
+      --csm-warning: #f1c775;
+      --csm-warning-surface: #342d20;
+      --csm-danger: #ff9ea5;
+      --csm-danger-surface: #3a232c;
+      --csm-action-text: #0c1728;
+      --csm-focus: #c1c0ff;
+      --csm-shadow: rgba(0, 0, 0, .24);
     }
   }
 
@@ -76,7 +80,7 @@ const TOKENS = `
   html { background: var(--csm-canvas); }
   body {
     margin: 0;
-    background: var(--csm-canvas);
+    background: linear-gradient(180deg, var(--csm-canvas) 0%, var(--csm-canvas) 72%, var(--csm-band) 100%);
     color: var(--csm-ink);
     font: var(--csm-weight-body) var(--csm-text-body)/1.5 var(--csm-ui);
     font-variant-numeric: tabular-nums;
@@ -98,7 +102,7 @@ const TOKENS = `
     transform: translateY(-150%);
   }
   .skip-link:focus { transform: translateY(0); }
-  .shell { width: min(var(--csm-page-max), calc(100% - 48px)); margin: 0 auto; }
+  .shell { width: min(var(--csm-page-max), calc(100% - 48px)); min-width: 0; margin: 0 auto; }
   .topbar {
     display: flex;
     align-items: center;
@@ -115,7 +119,7 @@ const TOKENS = `
     text-decoration: none;
   }
   .wordmark::before { content: ">_"; color: var(--csm-citation); margin-right: 8px; }
-  .top-meta { color: var(--csm-muted); font: var(--csm-weight-body) var(--csm-text-xs)/1.45 var(--csm-code); letter-spacing: .04em; text-align: right; }
+  .top-meta { min-width: 0; color: var(--csm-muted); font: var(--csm-weight-body) var(--csm-text-xs)/1.45 var(--csm-code); letter-spacing: .04em; text-align: right; overflow-wrap: anywhere; }
   .hero { max-width: 900px; padding: 68px 0 48px; }
   .eyebrow {
     color: var(--csm-muted);
@@ -166,14 +170,15 @@ const TOKENS = `
     border-top: 1px solid var(--csm-line);
     border-bottom: 1px solid var(--csm-line);
   }
-  .product-visual-copy { max-width: 430px; }
+  .product-visual-copy { min-width: 0; max-width: 430px; }
   .product-visual-copy h2 { margin: 8px 0 10px; font-size: 25px; }
-  .product-visual-copy p { margin: 0; color: var(--csm-ink-soft); }
+  .product-visual-copy p { margin: 0; color: var(--csm-ink-soft); overflow-wrap: anywhere; }
   .product-visual-proof { display: flex; flex-wrap: wrap; gap: 18px; margin: 20px 0 0; }
+  .product-visual-proof > div { min-width: 0; flex: 1 1 110px; }
   .product-visual-proof strong { display: block; color: var(--csm-ink); font: var(--csm-weight-heading) 21px/1.1 var(--csm-code); }
-  .product-visual-proof span { display: block; margin-top: 4px; color: var(--csm-muted); font-size: var(--csm-text-xs); }
-  .product-visual-proof code { display: block; margin-top: 3px; color: var(--csm-citation); font: var(--csm-weight-body) 10px/1.3 var(--csm-code); }
-  .pulse-figure { min-width: 0; margin: 0; padding: 14px; background: var(--csm-surface); border: 1px solid var(--csm-line); }
+  .product-visual-proof span { display: block; margin-top: 4px; color: var(--csm-muted); font-size: var(--csm-text-xs); overflow-wrap: anywhere; }
+  .product-visual-proof code { display: block; max-width: 100%; margin-top: 3px; color: var(--csm-citation); font: var(--csm-weight-body) 10px/1.3 var(--csm-code); overflow-wrap: anywhere; }
+  .pulse-figure { min-width: 0; margin: 0; padding: 14px; background: var(--csm-surface); border: 1px solid var(--csm-line); border-radius: var(--csm-control-radius); box-shadow: 0 2px 10px var(--csm-shadow); }
   .account-pulse { display: block; width: 100%; height: auto; }
   .account-pulse .pulse-shell { fill: var(--csm-surface); stroke: var(--csm-line); }
   .account-pulse .pulse-band { fill: var(--csm-band); }
@@ -196,24 +201,26 @@ const TOKENS = `
   .pulse-figure figcaption { margin: 10px 2px 0; padding-top: 10px; border-top: 1px solid var(--csm-line); color: var(--csm-muted); font-size: var(--csm-text-xs); }
   .pulse-figure figcaption strong { color: var(--csm-ink); font-weight: var(--csm-weight-heading); }
   .panel {
+    min-width: 0;
     background: var(--csm-surface);
     border: 1px solid var(--csm-line);
     border-radius: var(--csm-control-radius);
+    box-shadow: 0 2px 10px var(--csm-shadow);
   }
-  .callouts { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin: 0 0 var(--csm-section-gap); }
-  .callout { padding: 22px; background: var(--csm-band); border-top: 2px solid var(--csm-indigo); }
+  .callouts { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0; margin: 0 0 var(--csm-section-gap); border-top: 1px solid var(--csm-line); border-bottom: 1px solid var(--csm-line); }
+  .callout { min-width: 0; padding: 22px 18px; background: transparent; border-top: 2px solid var(--csm-indigo); }
   .callout:nth-child(2) { border-top-color: var(--csm-citation); }
   .callout:nth-child(3) { border-top-color: var(--csm-ink); }
   .callout p { margin: 0; color: var(--csm-ink-soft); }
   .callout code, .hero-proof-item code, .mono { color: var(--csm-citation); font-family: var(--csm-code); font-size: .9em; }
-  .callouts { gap: 0; border-top: 1px solid var(--csm-line); border-bottom: 1px solid var(--csm-line); }
-  .callouts .callout { border: 0; border-right: 1px solid var(--csm-line); border-radius: 0; background: transparent; }
+  .callouts .callout { border-right: 1px solid var(--csm-line); border-radius: 0; }
   .callouts .callout:last-child { border-right: 0; }
   .section-head { display: flex; justify-content: space-between; align-items: start; gap: 20px; margin-bottom: 22px; }
-  .section-head p { max-width: 280px; margin: 0; color: var(--csm-muted); font-size: var(--csm-text-sm); }
+  .section-head > * { min-width: 0; }
+  .section-head p { max-width: 280px; margin: 0; color: var(--csm-muted); font-size: var(--csm-text-sm); overflow-wrap: anywhere; }
   .brief-list { display: grid; gap: 14px; margin-bottom: var(--csm-section-gap); }
   details { overflow: hidden; }
-  details summary { padding: 19px 22px; color: var(--csm-ink); cursor: pointer; font-size: var(--csm-text-body); font-weight: var(--csm-weight-heading); }
+  details summary { padding: 19px 22px; color: var(--csm-ink); cursor: pointer; font-size: var(--csm-text-body); font-weight: var(--csm-weight-heading); overflow-wrap: anywhere; }
   details summary::marker { color: var(--csm-indigo); }
   details[open] summary { color: var(--csm-indigo); border-bottom: 1px solid var(--csm-line); }
   .brief-meta { padding: 15px 22px 0; color: var(--csm-muted); font: var(--csm-weight-body) var(--csm-text-xs)/1.5 var(--csm-code); }
@@ -239,8 +246,9 @@ const TOKENS = `
   .brief-view > input:focus-visible + label, .view-button:focus-visible { position: relative; z-index: 1; outline: 2px solid var(--csm-focus); outline-offset: 2px; }
   .brief-view > input[value="visual"]:checked ~ .brief-raw-panel { display: none; }
   .brief-view > input[value="raw"]:checked ~ .brief-visual-panel { display: none; }
-  .brief-visual-panel, .brief-raw-panel { min-width: 0; }
+  .brief-visual-panel, .brief-raw-panel { min-width: 0; max-width: 100%; }
   .brief-output {
+    max-width: 100%;
     margin: 0;
     padding: 22px;
     overflow: auto;
@@ -252,21 +260,22 @@ const TOKENS = `
   }
   .brief-visual { min-width: 0; color: var(--csm-ink-soft); overflow-wrap: anywhere; }
   .brief-presentation-head { display: flex; align-items: end; justify-content: space-between; gap: 18px; padding-bottom: 18px; border-bottom: 1px solid var(--csm-line); }
-  .brief-presentation-head h3 { margin: 6px 0 0; color: var(--csm-ink); font-size: 23px; }
-  .brief-presentation-head p { max-width: 330px; margin: 0; color: var(--csm-muted); font-size: var(--csm-text-xs); }
-  .brief-identity { margin: 12px 0 0; color: var(--csm-ink-soft); font-size: var(--csm-text-sm); }
+  .brief-presentation-head > * { min-width: 0; }
+  .brief-presentation-head h3 { margin: 6px 0 0; color: var(--csm-ink); font-size: 23px; overflow-wrap: anywhere; }
+  .brief-presentation-head p { max-width: 330px; margin: 0; color: var(--csm-muted); font-size: var(--csm-text-xs); overflow-wrap: anywhere; }
+  .brief-identity { min-width: 0; margin: 12px 0 0; color: var(--csm-ink-soft); font-size: var(--csm-text-sm); overflow-wrap: anywhere; }
   .brief-identity p { max-width: none; margin: 4px 0 0; }
   .brief-anatomy { display: grid; grid-template-columns: 150px minmax(0, 1fr); gap: 24px; padding-top: 20px; }
   .brief-map { min-width: 0; padding-right: 16px; border-right: 1px solid var(--csm-line); }
   .brief-map ol { margin: 0; padding: 0; list-style: none; }
   .brief-map li { border-top: 1px solid var(--csm-line); }
   .brief-map li:last-child { border-bottom: 1px solid var(--csm-line); }
-  .brief-map a { display: block; padding: 10px 0; color: var(--csm-ink-soft); font-size: var(--csm-text-xs); text-decoration: none; }
+  .brief-map a { display: block; padding: 10px 0; color: var(--csm-ink-soft); font-size: var(--csm-text-xs); text-decoration: none; overflow-wrap: anywhere; }
   .brief-map a:hover { color: var(--csm-indigo); }
   .brief-map-index { display: block; margin-bottom: 3px; color: var(--csm-indigo); font: var(--csm-weight-body) var(--csm-text-xs)/1.2 var(--csm-code); }
   .brief-groups { min-width: 0; }
   .brief-group + .brief-group { margin-top: 26px; padding-top: 24px; border-top: 1px solid var(--csm-line); }
-  .brief-group-label { display: flex; align-items: baseline; gap: 8px; margin-bottom: 16px; color: var(--csm-muted); font: var(--csm-weight-body) var(--csm-text-xs)/1.3 var(--csm-code); letter-spacing: .05em; text-transform: uppercase; }
+  .brief-group-label { display: flex; align-items: baseline; flex-wrap: wrap; gap: 8px; min-width: 0; margin-bottom: 16px; color: var(--csm-muted); font: var(--csm-weight-body) var(--csm-text-xs)/1.3 var(--csm-code); letter-spacing: .05em; text-transform: uppercase; overflow-wrap: anywhere; }
   .brief-group-label span { color: var(--csm-indigo); }
   .brief-section { min-width: 0; }
   .brief-section + .brief-section { margin-top: 22px; padding-top: 22px; border-top: 1px solid var(--csm-line); }
@@ -275,7 +284,7 @@ const TOKENS = `
   .brief-content p { margin: 0 0 11px; color: var(--csm-ink-soft); font-size: var(--csm-text-sm); }
   .brief-content .brief-context { color: var(--csm-muted); font-style: italic; }
   .brief-content ul { margin: 0; padding: 0 0 0 18px; color: var(--csm-ink-soft); }
-  .brief-content li { padding: 3px 0; font-size: var(--csm-text-sm); }
+  .brief-content li { padding: 3px 0; font-size: var(--csm-text-sm); overflow-wrap: anywhere; }
   .brief-visual code { color: var(--csm-citation); font-family: var(--csm-code); font-size: .9em; overflow-wrap: anywhere; }
   .brief-citation { color: var(--csm-citation); }
   .brief-table-wrap { max-width: 100%; margin: 0 0 12px; overflow-x: auto; }
@@ -283,31 +292,33 @@ const TOKENS = `
   .brief-table th, .brief-table td { padding: 8px 9px; border-bottom: 1px solid var(--csm-line); text-align: left; vertical-align: top; overflow-wrap: anywhere; }
   .brief-table th { color: var(--csm-ink); font-weight: var(--csm-weight-heading); }
   .brief-stat { display: flex; align-items: baseline; flex-wrap: wrap; gap: 12px; margin: 0 0 16px; padding: 10px 0 12px; border-top: 1px solid var(--csm-indigo); border-bottom: 1px solid var(--csm-line); }
-  .brief-stat strong { color: var(--csm-ink); font: var(--csm-weight-heading) 30px/1 var(--csm-code); letter-spacing: -.04em; }
-  .brief-stat span { color: var(--csm-muted); font-size: var(--csm-text-sm); }
-  .brief-stat-citations { flex-basis: 100%; color: var(--csm-muted); font-size: var(--csm-text-xs); }
-  .brief-safe-note { margin: 12px 0 0; padding: 9px 11px; color: var(--csm-muted); background: var(--csm-band); border-left: 2px solid var(--csm-line); font-size: var(--csm-text-xs); }
-  .brief-presentation-fallback { margin: 0; padding: 14px; color: var(--csm-muted); background: var(--csm-band); font-size: var(--csm-text-sm); }
+  .brief-stat strong { min-width: 0; color: var(--csm-ink); font: var(--csm-weight-heading) 30px/1 var(--csm-code); letter-spacing: -.04em; overflow-wrap: anywhere; }
+  .brief-stat span { min-width: 0; color: var(--csm-muted); font-size: var(--csm-text-sm); overflow-wrap: anywhere; }
+  .brief-stat-citations { flex-basis: 100%; min-width: 0; color: var(--csm-muted); font-size: var(--csm-text-xs); overflow-wrap: anywhere; }
+  .brief-safe-note { margin: 12px 0 0; padding: 9px 11px; color: var(--csm-muted); background: var(--csm-band); border-left: 2px solid var(--csm-line); font-size: var(--csm-text-xs); overflow-wrap: anywhere; }
+  .brief-presentation-fallback { margin: 0; padding: 14px; color: var(--csm-muted); background: var(--csm-band); font-size: var(--csm-text-sm); overflow-wrap: anywhere; }
   .footer { padding: 30px 0 58px; border-top: 1px solid var(--csm-line); color: var(--csm-muted); }
   .footer p { margin: 0 0 8px; }
   .footer .mono { color: var(--csm-muted); }
 
   /* Interactive controls */
   .demo-app { padding-bottom: var(--csm-section-gap); }
-  .demo-intro { padding: 54px 0 34px; }
-  .demo-intro h1 { max-width: 760px; margin-bottom: 18px; font-size: clamp(40px, 5.4vw, 50px); }
-  .demo-intro p { max-width: 740px; margin: 0; color: var(--csm-ink-soft); font-size: var(--csm-text-lead); line-height: 1.45; }
+  .demo-intro { max-width: 850px; padding: 60px 0 34px; }
+  .demo-intro h1 { max-width: 820px; margin-bottom: 18px; font-size: clamp(40px, 5.4vw, 52px); }
+  .demo-intro p { max-width: 760px; margin: 0; color: var(--csm-ink-soft); font-size: var(--csm-text-lead); line-height: 1.5; }
   .setup { margin-bottom: 16px; }
   .setup-heading { display: flex; align-items: end; justify-content: space-between; gap: 16px; margin-bottom: 14px; }
+  .setup-heading > * { min-width: 0; }
   .setup-heading h2 { margin: 4px 0 0; font-size: 23px; letter-spacing: -.3px; }
-  .setup-heading p { max-width: 380px; margin: 0; color: var(--csm-muted); font-size: var(--csm-text-sm); text-align: right; }
+  .setup-heading p { max-width: 380px; margin: 0; color: var(--csm-muted); font-size: var(--csm-text-sm); text-align: right; overflow-wrap: anywhere; }
   .setup-grid { display: grid; grid-template-columns: minmax(0, 1.35fr) minmax(260px, .65fr); gap: 16px; }
   .control-panel { min-width: 0; padding: var(--csm-panel-pad); }
   fieldset { min-width: 0; margin: 0; padding: 0; border: 0; }
   legend { margin-bottom: 14px; color: var(--csm-ink); font-size: var(--csm-text-body); font-weight: var(--csm-weight-heading); }
-  .choice-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  .choice-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
   .choice, .type-choice {
     width: 100%;
+    min-width: 0;
     min-height: 44px;
     padding: 14px;
     color: var(--csm-ink-soft);
@@ -315,23 +326,33 @@ const TOKENS = `
     background: var(--csm-surface);
     border: 1px solid var(--csm-line);
     border-radius: var(--csm-control-radius);
+    overflow-wrap: anywhere;
+    white-space: normal;
   }
   .choice:hover, .type-choice:hover { color: var(--csm-ink); background: var(--csm-indigo-soft); border-color: var(--csm-indigo); }
   .choice[aria-pressed="true"], .type-choice[aria-pressed="true"] { color: var(--csm-ink); background: var(--csm-indigo-soft); border-color: var(--csm-indigo); }
   .choice strong { display: block; margin-bottom: 5px; color: var(--csm-indigo); font-weight: var(--csm-weight-heading); }
   .choice small { display: block; color: var(--csm-muted); line-height: 1.4; }
-  .type-row { display: grid; gap: 8px; }
-  .type-choice { padding: 12px 14px; font: var(--csm-weight-heading) var(--csm-text-sm)/1.35 var(--csm-code); }
+  .type-row { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+  .type-choice { padding: 12px 14px; font: var(--csm-weight-heading) var(--csm-text-sm)/1.35 var(--csm-ui); }
+  .type-choice strong { display: block; margin-bottom: 4px; color: var(--csm-indigo); font-weight: var(--csm-weight-heading); }
+  .type-choice small { display: block; color: var(--csm-muted); font: var(--csm-weight-body) var(--csm-text-xs)/1.4 var(--csm-ui); }
   .type-choice[aria-pressed="true"] { color: var(--csm-indigo); }
-  .demo-grid { display: grid; grid-template-columns: minmax(280px, .82fr) minmax(0, 1.6fr); gap: 16px; margin-top: 16px; align-items: start; }
+  .demo-grid { display: grid; grid-template-columns: minmax(0, 1fr); gap: 16px; margin-top: 16px; align-items: start; }
   .source-panel, .result-panel { min-width: 0; }
-  .panel-heading { display: flex; justify-content: space-between; gap: 12px; padding: 18px 22px; background: var(--csm-band); border-bottom: 1px solid var(--csm-line); }
-  .panel-heading h2 { margin: 0; font-size: 21px; letter-spacing: -.3px; }
-  .panel-heading p { margin: 4px 0 0; color: var(--csm-muted); font-size: var(--csm-text-xs); }
+  .panel-heading { display: flex; align-items: start; justify-content: space-between; gap: 12px; min-width: 0; padding: 18px 22px; background: var(--csm-band); border-bottom: 1px solid var(--csm-line); }
+  .panel-heading > * { min-width: 0; }
+  .panel-heading h2 { margin: 0; font-size: 21px; letter-spacing: -.3px; overflow-wrap: anywhere; }
+  .panel-heading p { margin: 4px 0 0; color: var(--csm-muted); font-size: var(--csm-text-xs); overflow-wrap: anywhere; }
+  .source-panel > summary.panel-heading { list-style: none; cursor: pointer; }
+  .source-panel > summary.panel-heading::-webkit-details-marker { display: none; }
+  .source-panel > summary.panel-heading::after { content: '+'; flex: 0 0 auto; color: var(--csm-indigo); font: var(--csm-weight-heading) 21px/1 var(--csm-code); }
+  .source-panel[open] > summary.panel-heading::after { content: '\\2212'; }
+  .source-panel[open] > summary.panel-heading { color: var(--csm-indigo); }
   .source-list { padding: 22px; }
   .source-card { margin-bottom: 22px; }
   .source-card:last-child { margin-bottom: 0; }
-  .source-card label { display: block; margin: 0 0 7px; color: var(--csm-citation); font: var(--csm-weight-body) var(--csm-text-xs)/1.45 var(--csm-code); }
+  .source-card label { display: block; margin: 0 0 7px; color: var(--csm-citation); font: var(--csm-weight-body) var(--csm-text-xs)/1.45 var(--csm-code); overflow-wrap: anywhere; }
   .source-card textarea {
     display: block;
     width: 100%;
@@ -343,10 +364,11 @@ const TOKENS = `
     border: 1px solid var(--csm-line);
     border-radius: var(--csm-control-radius);
     font: var(--csm-weight-body) var(--csm-text-xs)/1.55 var(--csm-code);
+    overflow-wrap: anywhere;
   }
   .source-card textarea:focus { border-color: var(--csm-indigo); outline: 2px solid var(--csm-focus); outline-offset: 0; }
   .empty-source { margin: 0; padding: 16px; color: var(--csm-muted); font-size: var(--csm-text-sm); }
-  .result-status { color: var(--csm-muted); font: var(--csm-weight-body) var(--csm-text-xs)/1.45 var(--csm-code); text-align: right; }
+  .result-status { min-width: 0; max-width: 340px; color: var(--csm-muted); font: var(--csm-weight-body) var(--csm-text-xs)/1.45 var(--csm-code); text-align: right; overflow-wrap: anywhere; }
   .result-status.ok { color: var(--csm-citation); }
   .result-status.error { color: var(--csm-danger); }
   .result-output { min-height: 520px; max-height: 820px; margin-top: 18px; }
@@ -354,9 +376,11 @@ const TOKENS = `
   .result-panel .brief-raw-panel { margin: 18px 22px 22px; }
   .result-panel .brief-output { min-height: 520px; max-height: 820px; }
   .result-output.error { color: var(--csm-danger); background: var(--csm-danger-surface); }
-  .result-footer { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 14px 22px; background: var(--csm-band); border-top: 1px solid var(--csm-line); }
-  .button-row { display: flex; flex-wrap: wrap; gap: 8px; }
+  .result-footer { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-width: 0; padding: 14px 22px; background: var(--csm-band); border-top: 1px solid var(--csm-line); }
+  .result-footer > * { min-width: 0; overflow-wrap: anywhere; }
+  .button-row { display: flex; flex-wrap: wrap; gap: 8px; min-width: 0; }
   .button {
+    min-width: 0;
     min-height: 44px;
     padding: 11px 16px;
     color: var(--csm-action-text);
@@ -364,13 +388,15 @@ const TOKENS = `
     border: 1px solid var(--csm-indigo);
     border-radius: var(--csm-control-radius);
     font: var(--csm-weight-heading) var(--csm-text-sm)/1.1 var(--csm-ui);
+    overflow-wrap: anywhere;
+    white-space: normal;
   }
   .button:hover { background: var(--csm-indigo-hover); border-color: var(--csm-indigo-hover); }
   .button.secondary { color: var(--csm-indigo); background: transparent; border-color: var(--csm-indigo-line); }
   .button.secondary:hover { color: var(--csm-indigo-hover); background: var(--csm-indigo-soft); border-color: var(--csm-indigo); }
-  .warning-box { margin: 14px 16px 0; padding: 11px 13px; color: var(--csm-warning); background: var(--csm-warning-surface); border: 1px solid var(--csm-warning); border-radius: var(--csm-control-radius); font: var(--csm-weight-body) var(--csm-text-xs)/1.5 var(--csm-code); }
+  .warning-box { margin: 14px 16px 0; padding: 11px 13px; color: var(--csm-warning); background: var(--csm-warning-surface); border: 1px solid var(--csm-warning); border-radius: var(--csm-control-radius); font: var(--csm-weight-body) var(--csm-text-xs)/1.5 var(--csm-code); overflow-wrap: anywhere; }
   .warning-box[hidden] { display: none; }
-  .demo-note { margin-top: 16px; padding: 17px 21px; color: var(--csm-ink-soft); background: var(--csm-band); border-left: 3px solid var(--csm-citation); font-size: var(--csm-text-sm); }
+  .demo-note { margin-top: 16px; padding: 17px 21px; color: var(--csm-ink-soft); background: var(--csm-band); border-left: 3px solid var(--csm-citation); font-size: var(--csm-text-sm); overflow-wrap: anywhere; }
   .demo-note strong { color: var(--csm-ink); font-weight: var(--csm-weight-heading); }
   .noscript { max-width: 720px; margin: 64px auto; padding: var(--csm-panel-pad); }
   .noscript h1 { font-size: 38px; letter-spacing: -1px; }
@@ -380,7 +406,7 @@ const TOKENS = `
   }
 
   @media print {
-    html, body { background: #ffffff; color: #101a33; }
+    html, body { background: #ffffff; color: #102a43; }
     body { font-size: 11pt; }
     .skip-link, .top-meta, .setup, .source-panel, .demo-note, .result-footer, .footer, .noscript, .brief-view-switch, .brief-view > input + label { display: none !important; }
     .shell { width: 100%; }
@@ -401,9 +427,11 @@ const TOKENS = `
     a { color: inherit; text-decoration: none; }
   }
 
+  @media (max-width: 1080px) {
+    .setup-grid { grid-template-columns: 1fr; }
+  }
   @media (max-width: 880px) {
     .hero-proof { grid-template-columns: repeat(2, 1fr); }
-    .setup-grid { grid-template-columns: 1fr; }
     .type-row { grid-template-columns: repeat(3, 1fr); }
   }
   @media (max-width: 760px) {
@@ -445,16 +473,16 @@ const TOKENS = `
 
 const STATIC_ANNOTATIONS = [
   {
-    title: 'Citations are the proof',
-    body: 'Every factual line carries a source span such as `account.yaml#L7`. The span is the exact row a reader can inspect, not a footnote invented after the fact.',
+    title: 'Start with what changed',
+    body: 'Read renewal timing, usage, support, and stakeholder signals together before deciding what to ask the customer next.',
   },
   {
-    title: 'Completeness is evidence presence',
-    body: 'The score reports how much of the required input set was present. It is not a health score, and it appears before the brief so the reader knows how much trust to place in the rest.',
+    title: 'Evidence coverage sets context',
+    body: 'The score reports how much of the required input set was present. It is not a health score; it tells you how much context the readout has.',
   },
   {
-    title: 'Fail closed, then ask',
-    body: 'When a fact has no source span, it does not render. csm-kit keeps the claim out and turns the gap into a specific checklist or handoff ask instead.',
+    title: 'No proof, no claim',
+    body: 'When a fact has no source span, it stays out of the readout. The gap becomes a specific follow-up ask instead.',
   },
 ];
 
@@ -462,45 +490,45 @@ const STATIC_BRIEFS = [
   {
     title: 'Renewal Readiness Brief',
     file: 'examples/example-renewal-brief.md',
-    description: 'A risk-oriented account view with countdown, signals, stakeholders, and a cited checklist.',
+    description: 'A pre-meeting account readout with renewal timing, signals, stakeholders, risks, and next actions.',
   },
   {
     title: 'Handoff Completeness Brief',
     file: 'examples/example-handoff-brief.md',
-    description: 'A sales-to-CS transfer with promised-vs-sold status, stakeholder coverage, and AE-routed gaps.',
+    description: 'A sales-to-CS transfer with promised scope, stakeholder coverage, and gaps to close.',
   },
   {
     title: 'QBR Packet',
     file: 'examples/example-qbr-packet.md',
-    description: 'A deterministic, slide-oriented packet reusing the same evidence and risk rules.',
+    description: 'A meeting-ready packet with value delivered, open risks, and next-quarter prompts.',
   },
 ];
 
 const TRUST_POINTS = [
   {
-    index: '01 / Your inputs',
-    title: 'Existing exports',
-    body: 'CRM, ticket, and usage files are enough to start.',
+    index: '01 / See what changed',
+    title: 'Account health at a glance',
+    body: 'Renewal, usage, support, and relationship signals in one readout.',
   },
   {
-    index: '02 / Your proof',
-    title: 'See where it came from',
-    body: 'Every signal points back to the source row behind it.',
+    index: '02 / Know who matters',
+    title: 'Stakeholders in context',
+    body: 'See the people to involve and when the account last heard from you.',
   },
   {
-    index: '03 / Your guardrail',
-    title: 'No invented account story',
-    body: 'Missing proof becomes a specific follow-up ask.',
+    index: '03 / Find the risk',
+    title: 'Risks you can explain',
+    body: 'Every signal keeps its source row so the conversation stays grounded.',
   },
   {
-    index: '04 / Your output',
-    title: 'Ready for the next conversation',
-    body: 'Renewal, handoff, or QBR in one shared engine.',
+    index: '04 / Leave with a move',
+    title: 'A clear next action',
+    body: 'Turn an account readout into the next question, owner, or follow-up.',
   },
 ];
 
 function buildTrustRail() {
-  return `<section class="hero-proof" aria-label="csm-kit trust properties">${TRUST_POINTS.map(
+  return `<section class="hero-proof" aria-label="frontline CSM readout benefits">${TRUST_POINTS.map(
     (point) => `
       <article class="hero-proof-item">
         <span class="hero-proof-index">${htmlEscape(point.index)}</span>
@@ -602,6 +630,25 @@ function renderBriefPresentation(markdown, prefix = 'brief') {
       }
       return { html: blocks.join(''), omitted };
     };
+    const friendlySection = (heading) => {
+      const value = String(heading);
+      if (/^Evidence completeness:/i.test(value)) return 'Evidence check';
+      if (value === 'Renewal countdown') return 'Renewal timing';
+      if (value === 'Signal table') return 'Account signals';
+      if (value === 'Risk flags' || value === 'Slide: Open risks') return 'Risks to discuss';
+      if (value === 'Stakeholder map') return 'People to know';
+      if (value === 'Missing-evidence checklist') return 'Next actions';
+      if (value.startsWith('Promises register')) return 'What was promised';
+      if (value === 'Goals / success criteria') return 'Success goals';
+      if (value === 'Risks / dependencies') return 'Risks and dependencies';
+      if (value.startsWith('Links')) return 'Reference links';
+      if (value.startsWith('Gap report')) return 'Open asks';
+      if (value === 'Slide: Executive summary') return 'Executive snapshot';
+      if (value === 'Slide: Value delivered') return 'Value delivered';
+      if (value === 'Slide: Next-quarter plan') return 'Next-quarter plan';
+      if (value === 'Week-one questions') return 'Week-one questions';
+      return value;
+    };
     const groupFor = (heading) => {
       const value = heading.toLowerCase();
       if (value.startsWith('evidence completeness')) return 'Evidence gate';
@@ -609,6 +656,12 @@ function renderBriefPresentation(markdown, prefix = 'brief') {
       if (/missing|gap report|next-quarter|week-one|links/.test(value)) return 'Follow-through';
       return 'Account readout';
     };
+    const friendlyGroup = (name) => ({
+      'Evidence gate': 'Evidence check',
+      'Account readout': 'Account health',
+      'Coverage and risk': 'People and risk',
+      'Follow-through': 'Next actions',
+    }[name] || name);
     const lines = source.replace(/\r\n/g, '\n').split('\n');
     const titleLine = lines.find((line) => /^#\s+/.test(line));
     const title = titleLine ? titleLine.replace(/^#\s+/, '') : 'Generated brief';
@@ -639,19 +692,19 @@ function renderBriefPresentation(markdown, prefix = 'brief') {
       const content = renderContent(section.lines);
       const score = section.heading.match(/^Evidence completeness:\s*(.+)$/i);
       const spans = uniqueCitations(section.lines);
-      const sectionTitle = score ? 'Evidence completeness' : section.heading;
+      const sectionTitle = score ? 'Evidence check' : friendlySection(section.heading);
       const stat = score
-        ? `<div class="brief-stat"><strong>${inline(score[1])}</strong><span>evidence completeness</span>${spans.length ? `<div class="brief-stat-citations">Source spans: ${citationHtml(spans)}</div>` : ''}</div>`
+        ? `<div class="brief-stat"><strong>${inline(score[1])}</strong><span>evidence covered</span>${spans.length ? `<div class="brief-stat-citations">Source spans: ${citationHtml(spans)}</div>` : ''}</div>`
         : '';
       const safeNote = content.omitted
-        ? `<p class="brief-safe-note">${content.omitted} line${content.omitted === 1 ? '' : 's'} stay in Raw Markdown because no source span was available for visual presentation.</p>`
+        ? `<p class="brief-safe-note">${content.omitted} line${content.omitted === 1 ? '' : 's'} stay in Raw Markdown so this readout does not guess without source evidence.</p>`
         : '';
-      return `<article class="brief-section" id="${idPrefix}-section-${sectionIndex}"><div class="brief-section-heading"><div class="eyebrow">Generated section</div><h4>${inline(sectionTitle)}</h4></div>${stat}<div class="brief-content">${content.html}${safeNote}</div></article>`;
+      return `<article class="brief-section" id="${idPrefix}-section-${sectionIndex}"><div class="brief-section-heading"><div class="eyebrow">What this tells you</div><h4>${inline(sectionTitle)}</h4></div>${stat}<div class="brief-content">${content.html}${safeNote}</div></article>`;
     };
-    const groupsHtml = grouped.map((group, groupIndex) => `<section class="brief-group" id="${idPrefix}-group-${groupIndex}"><div class="brief-group-label"><span>${String(groupIndex + 1).padStart(2, '0')}</span><strong>${escape(group.name)}</strong></div>${group.sections.map((section, sectionIndex) => sectionHtml(section, sections.indexOf(section))).join('')}</section>`).join('');
-    const mapHtml = grouped.map((group, groupIndex) => `<li><a href="#${idPrefix}-group-${groupIndex}"><span class="brief-map-index">${String(groupIndex + 1).padStart(2, '0')}</span>${escape(group.name)}</a></li>`).join('');
+    const groupsHtml = grouped.map((group, groupIndex) => `<section class="brief-group" id="${idPrefix}-group-${groupIndex}"><div class="brief-group-label"><span>${String(groupIndex + 1).padStart(2, '0')}</span><strong>${escape(friendlyGroup(group.name))}</strong></div>${group.sections.map((section, sectionIndex) => sectionHtml(section, sections.indexOf(section))).join('')}</section>`).join('');
+    const mapHtml = grouped.map((group, groupIndex) => `<li><a href="#${idPrefix}-group-${groupIndex}"><span class="brief-map-index">${String(groupIndex + 1).padStart(2, '0')}</span>${escape(friendlyGroup(group.name))}</a></li>`).join('');
     const identityHtml = introLines.map((line) => `<p>${inline(line)}</p>`).join('');
-    return `<div class="brief-presentation" data-presentation="visual"><div class="brief-presentation-head"><div><div class="eyebrow">Brief anatomy</div><h3>${inline(title)}</h3><div class="brief-identity">${identityHtml}</div></div><p>Grouped from the generated Markdown. Source-backed lines stay attached to their spans; Raw Markdown remains the exact artifact.</p></div><div class="brief-anatomy"><nav class="brief-map" aria-label="Brief anatomy"><ol>${mapHtml}</ol></nav><div class="brief-groups">${groupsHtml}</div></div></div>`;
+    return `<div class="brief-presentation" data-presentation="visual"><div class="brief-presentation-head"><div><div class="eyebrow">Account readout</div><h3>${inline(title)}</h3><div class="brief-identity">${identityHtml}</div></div><p>Start with the readout. Each signal keeps its source span; open Raw Markdown when you need the exact artifact.</p></div><div class="brief-anatomy"><nav class="brief-map" aria-label="Readout sections"><ol>${mapHtml}</ol></nav><div class="brief-groups">${groupsHtml}</div></div></div>`;
   } catch {
     return '<p class="brief-presentation-fallback">Visual presentation unavailable. Raw Markdown remains available unchanged.</p>';
   }
@@ -660,29 +713,29 @@ function renderBriefPresentation(markdown, prefix = 'brief') {
 function buildAccountPulseVisual() {
   return `<section class="product-visual account-pulse-visual" aria-labelledby="account-pulse-heading">
     <div class="product-visual-copy">
-      <div class="eyebrow">For the CSM in the room</div>
-      <h2 id="account-pulse-heading">See the account story before the meeting.</h2>
-      <p>Turn the exports your team already has into a renewal, handoff, or QBR brief that shows what changed, what is at risk, and what to ask next.</p>
+      <div class="eyebrow">A frontline CSM readout</div>
+      <h2 id="account-pulse-heading">Know what to do before you walk in.</h2>
+      <p>See renewal timing, usage, support, stakeholders, and risk together, then leave with a grounded next action for the customer conversation.</p>
       <div class="product-visual-proof" aria-label="Example account signals">
-        <div><strong>54d</strong><span>to renewal</span><code>account.yaml#L7</code></div>
-        <div><strong>-22%</strong><span>usage trend</span><code>usage.csv#L2,L7</code></div>
-        <div><strong>3</strong><span>briefs for the moments that matter</span><code>renewal &#183; handoff &#183; QBR</code></div>
+        <div><strong>54d</strong><span>renewal window</span><code>account.yaml#L7</code></div>
+        <div><strong>-22%</strong><span>usage change</span><code>usage.csv#L2,L7</code></div>
+        <div><strong>2</strong><span>open support tickets</span><code>tickets.csv#L4,L5</code></div>
       </div>
     </div>
     <figure class="pulse-figure">
       <svg class="account-pulse" viewBox="0 0 760 408" role="img" aria-labelledby="account-pulse-title account-pulse-description">
-        <title id="account-pulse-title">Customer Success account pulse for Acme Manufacturing Co.</title>
-        <desc id="account-pulse-description">An example renewal brief shows 54 days to renewal, usage down 22 percent, two open tickets, and three cited next-conversation prompts.</desc>
+        <title id="account-pulse-title">Frontline CSM account health snapshot for Acme Manufacturing Co.</title>
+        <desc id="account-pulse-description">An example account readout shows a renewal in 54 days, active users down 22 percent, two open support tickets, and three cited next actions.</desc>
         <rect class="pulse-shell" x="1" y="1" width="758" height="406" rx="7" stroke-width="1.5" />
         <rect class="pulse-band" x="2" y="2" width="756" height="52" />
-        <text class="pulse-muted pulse-label" x="24" y="24">CSM ACCOUNT PULSE</text>
+        <text class="pulse-muted pulse-label" x="24" y="24">ACCOUNT HEALTH SNAPSHOT</text>
         <text class="pulse-ink" x="24" y="43" font-size="13">ACME MANUFACTURING CO.</text>
         <text class="pulse-muted pulse-label" x="736" y="32" text-anchor="end">AS-OF 2026-08-22</text>
         <line class="pulse-rule" x1="2" y1="54" x2="758" y2="54" />
 
         <rect class="pulse-card" x="24" y="72" width="220" height="120" rx="4" />
         <rect class="pulse-indigo" x="24" y="72" width="4" height="120" />
-        <text class="pulse-muted pulse-label" x="40" y="94">RENEWAL COUNTDOWN</text>
+        <text class="pulse-muted pulse-label" x="40" y="94">RENEWAL WINDOW</text>
         <text class="pulse-ink pulse-number" x="40" y="130">54 days</text>
         <text class="pulse-citation" x="40" y="153">account.yaml#L7</text>
         <rect class="pulse-tag" x="159" y="83" width="67" height="24" rx="12" />
@@ -690,9 +743,10 @@ function buildAccountPulseVisual() {
 
         <rect class="pulse-card" x="268" y="72" width="220" height="120" rx="4" />
         <rect class="pulse-citation" x="268" y="72" width="4" height="120" />
-        <text class="pulse-muted pulse-label" x="284" y="94">USAGE TREND</text>
+        <text class="pulse-muted pulse-label" x="284" y="94">USAGE</text>
         <text class="pulse-warning pulse-number" x="284" y="130">-22%</text>
-        <text class="pulse-citation" x="284" y="153">usage.csv#L2,L7</text>
+        <text class="pulse-soft" x="284" y="153">active users, trending down</text>
+        <text class="pulse-citation" x="284" y="174">usage.csv#L2,L7</text>
         <path class="pulse-citation-stroke" stroke-width="1.5" d="M424 113l8 8 16-18 12 7" />
         <circle class="pulse-dot" cx="424" cy="113" r="3" />
         <circle class="pulse-dot" cx="448" cy="103" r="3" />
@@ -700,10 +754,10 @@ function buildAccountPulseVisual() {
 
         <rect class="pulse-card" x="512" y="72" width="224" height="120" rx="4" />
         <rect class="pulse-indigo" x="512" y="72" width="4" height="120" />
-        <text class="pulse-muted pulse-label" x="528" y="94">OPEN TICKETS</text>
+        <text class="pulse-muted pulse-label" x="528" y="94">SUPPORT</text>
         <text class="pulse-ink pulse-number" x="528" y="130">2 open</text>
-        <text class="pulse-citation" x="528" y="153">tickets.csv#L4,L5</text>
-        <text class="pulse-muted" x="528" y="175">last touch &#183; crm.csv#L8</text>
+        <text class="pulse-soft" x="528" y="153">1 medium &#183; 1 low</text>
+        <text class="pulse-citation" x="528" y="174">tickets.csv#L4,L5</text>
 
         <rect class="pulse-card" x="24" y="212" width="464" height="172" rx="4" />
         <text class="pulse-muted pulse-label" x="40" y="235">ADOPTION / ACTIVE USERS</text>
@@ -731,7 +785,7 @@ function buildAccountPulseVisual() {
 
         <rect class="pulse-card" x="512" y="212" width="224" height="172" rx="4" />
         <rect class="pulse-citation" x="512" y="212" width="4" height="172" />
-        <text class="pulse-muted pulse-label" x="528" y="235">NEXT CONVERSATION</text>
+        <text class="pulse-muted pulse-label" x="528" y="235">NEXT ACTIONS</text>
         <circle class="pulse-indigo" cx="531" cy="261" r="3" />
         <text class="pulse-soft" x="542" y="265">Reconnect before renewal</text>
         <text class="pulse-citation" x="542" y="282" font-size="10">account.yaml#L7 &#183; crm.csv#L2-L8</text>
@@ -742,7 +796,7 @@ function buildAccountPulseVisual() {
         <text class="pulse-soft" x="542" y="357">Confirm ticket owners</text>
         <text class="pulse-citation" x="542" y="374" font-size="10">tickets.csv#L4,L5</text>
       </svg>
-      <figcaption><strong>Start with the account story.</strong> Timing, adoption, risk, and the next conversation stay together, with the source row visible beside each signal.</figcaption>
+      <figcaption><strong>Start with the account story.</strong> The readout leads with what changed and what to do next; source rows stay visible for a defensible conversation.</figcaption>
     </figure>
   </section>`;
 }
@@ -830,13 +884,13 @@ function buildStaticPage() {
     </header>
     <main id="static-main">
       <section class="hero">
-        <div class="eyebrow">For customer success teams</div>
+        <div class="eyebrow">Static CSM walkthrough</div>
         <h1>Walk into the next customer conversation ready.</h1>
-        <p class="lede">csm-kit turns the CRM, ticket, and usage exports you already have into renewal, handoff, and QBR briefs: a clear account story, the evidence behind it, and the gaps to close before the meeting.</p>
+        <p class="lede">Start with a clear account story: renewal timing, usage, support, stakeholders, risks, and the next question to take into the meeting. The proof stays attached when you need to check it.</p>
         <div class="chip-row">
           <span class="chip">renewal + QBR + handoff</span>
-          <span class="chip">every signal cited</span>
-          <span class="chip success">no network calls</span>
+          <span class="chip">source-backed signals</span>
+          <span class="chip success">works offline</span>
         </div>
       </section>
       ${buildTrustRail()}
@@ -847,7 +901,7 @@ function buildStaticPage() {
         <div class="section-head">
           <div>
             <div class="eyebrow">Generated samples</div>
-            <h2 id="samples-heading">Start with a real account story.</h2>
+           <h2 id="samples-heading">Review the account story and proof.</h2>
           </div>
           <p>Read the visual brief first, then open Raw Markdown to inspect every cited line.</p>
         </div>
@@ -856,7 +910,7 @@ function buildStaticPage() {
       </section>
     </main>
     <footer class="footer">
-      <p><a href="../demo/">Try the interactive demo</a> to switch scenarios, edit inputs locally, and watch missing evidence fail closed.</p>
+       <p><a href="../demo/">Open the interactive demo</a> to choose a situation, test a local change, and see the next follow-up appear.</p>
       <p class="mono">Generated by web/build-demo.mjs · csm-kit v${htmlEscape(PACKAGE.version)} · source examples are the contract.</p>
     </footer>
   </div>
@@ -1053,6 +1107,11 @@ const UI_SCRIPT = String.raw`(() => {
   const visualViewButton = document.getElementById('visual-view-button');
   const rawViewButton = document.getElementById('raw-view-button');
   let briefView = 'visual';
+  const typeDetails = {
+    renewal: { label: 'Renewal prep', description: 'Timing, account health, risks, and who to call.' },
+    handoff: { label: 'Sales handoff', description: 'Promises, stakeholders, and gaps to close.' },
+    qbr: { label: 'QBR prep', description: 'Value delivered, risks, and the next-quarter plan.' },
+  };
 
   const renderBriefPresentation = ${renderBriefPresentation.toString()};
 
@@ -1093,8 +1152,13 @@ const UI_SCRIPT = String.raw`(() => {
   function renderTypeControls() {
     typeControls.replaceChildren();
     for (const type of ['renewal', 'handoff', 'qbr']) {
-      const label = type === 'qbr' ? 'QBR packet' : type === 'handoff' ? 'Handoff brief' : 'Renewal brief';
-      const item = button(label, 'type-choice', { 'aria-pressed': String(type === state.type) });
+      const detail = typeDetails[type];
+      const item = button('', 'type-choice', { 'aria-pressed': String(type === state.type) });
+      const strong = document.createElement('strong');
+      strong.textContent = detail.label;
+      const small = document.createElement('small');
+      small.textContent = detail.description;
+      item.append(strong, small);
       item.addEventListener('click', () => {
         state.type = type;
         render();
@@ -1107,11 +1171,11 @@ const UI_SCRIPT = String.raw`(() => {
     sourceList.replaceChildren();
     const definition = currentDefinition();
     const entries = Object.entries(definition.inputs);
-    sourceSummary.textContent = entries.length + ' source file' + (entries.length === 1 ? '' : 's') + ' · edits stay in this tab';
+    sourceSummary.textContent = entries.length + ' evidence file' + (entries.length === 1 ? '' : 's') + ' · edits stay in this tab';
     if (entries.length === 0) {
       const empty = document.createElement('p');
       empty.className = 'empty-source';
-      empty.textContent = 'No source files selected for this brief type.';
+      empty.textContent = 'No evidence files are selected for this readout.';
       sourceList.append(empty);
       return;
     }
@@ -1149,16 +1213,14 @@ const UI_SCRIPT = String.raw`(() => {
   }
 
   function renderBrief() {
-    const started = performance.now();
     output.classList.remove('error');
     try {
       const result = api.generate(state.scenario, state.type, collectOverrides());
       output.textContent = result.markdown;
       visualOutput.innerHTML = renderBriefPresentation(result.markdown, 'interactive-brief');
-      const elapsed = Math.max(0, performance.now() - started).toFixed(1);
       const score = result.completeness;
       status.className = 'result-status ok';
-      status.textContent = 'generated in ' + elapsed + ' ms · completeness ' + score.present + '/' + score.total + ' (' + score.pct + '%)';
+      status.textContent = 'ready · evidence ' + score.present + '/' + score.total + ' (' + score.pct + '%)';
       warnings.hidden = result.warnings.length === 0;
       warnings.textContent = result.warnings.length === 0
         ? ''
@@ -1177,7 +1239,7 @@ const UI_SCRIPT = String.raw`(() => {
   function render() {
     const scenario = api.SCENARIOS[state.scenario];
     state.type = api.SCENARIOS[state.scenario].types[state.type] ? state.type : 'renewal';
-    scenarioSummary.textContent = scenario.label + ' · pinned --as-of ' + api.AS_OF;
+    scenarioSummary.textContent = scenario.label + ' · snapshot ' + api.AS_OF;
     renderScenarioControls();
     renderTypeControls();
     renderSources();
@@ -1214,7 +1276,7 @@ function buildInteractivePage({ directoryLayout = true } = {}) {
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="Run the csm-kit evidence-cited brief engine in this tab. Nothing leaves the browser.">
+  <meta name="description" content="Explore a CSM-first account readout for renewal, usage, stakeholders, support, risks, and next actions. Nothing leaves the browser.">
   <title>csm-kit · Interactive demo</title>
   <style>${TOKENS}</style>
 </head>
@@ -1229,18 +1291,18 @@ function buildInteractivePage({ directoryLayout = true } = {}) {
       <div class="panel noscript">
         <div class="eyebrow">JavaScript is off</div>
         <h1>Read the generated account briefs instead.</h1>
-        <p>This interactive demo runs the stdlib-only engine in your tab. With JavaScript disabled, use the <a href="${staticHref}">static annotated walkthrough</a>; no data is sent anywhere.</p>
+        <p>This interactive readout runs locally in your tab. With JavaScript disabled, use the <a href="${staticHref}">static annotated walkthrough</a>; no data is sent anywhere.</p>
       </div>
     </noscript>
     <main id="demo-app" class="demo-app">
       <section class="demo-intro">
-        <div class="eyebrow">Use it before the customer meeting</div>
-        <h1>Your next customer conversation, already briefed.</h1>
-        <p>Start with the exports your team already has. csm-kit assembles a cited renewal, handoff, or QBR brief in this tab, so you can focus on the conversation instead of reconstructing the account.</p>
+        <div class="eyebrow">Frontline CSM workspace</div>
+        <h1>Know what to do before your next customer conversation.</h1>
+        <p>Get a plain-language account readout for renewal timing, usage, stakeholder coverage, support load, risks, and next actions. Start with the files you already have; open the proof when you need it.</p>
         <div class="chip-row">
-          <span class="chip success">offline runtime</span>
+          <span class="chip success">works offline</span>
           <span class="chip">renewal + QBR + handoff</span>
-          <span class="chip">fixed --as-of ${AS_OF}</span>
+          <span class="chip">source-backed signals</span>
         </div>
       </section>
       ${buildTrustRail()}
@@ -1248,44 +1310,34 @@ function buildInteractivePage({ directoryLayout = true } = {}) {
       <section class="setup" aria-labelledby="setup-heading">
         <div class="setup-heading">
           <div>
-            <div class="eyebrow">Build a brief</div>
-            <h2 id="setup-heading">Set the account context.</h2>
+            <div class="eyebrow">Start with a situation</div>
+            <h2 id="setup-heading">Choose the account story you need.</h2>
           </div>
-          <p>Choose the situation and brief type, then edit the local source panes to test a gap.</p>
+          <p>Pick a sample account, then choose the kind of customer conversation you are preparing for.</p>
         </div>
         <div class="setup-grid">
           <section class="panel control-panel" aria-labelledby="scenario-heading">
             <fieldset>
-              <legend id="scenario-heading">01 / Choose the evidence shape</legend>
+              <legend id="scenario-heading">01 / Choose a situation</legend>
               <div id="scenario-controls" class="choice-grid"></div>
             </fieldset>
           </section>
           <section class="panel control-panel" aria-labelledby="type-heading">
             <fieldset>
-              <legend id="type-heading">02 / Choose the artifact</legend>
+              <legend id="type-heading">02 / Choose your conversation</legend>
               <div id="type-controls" class="type-row"></div>
             </fieldset>
           </section>
         </div>
       </section>
-      <section class="demo-grid" aria-label="Local inputs and generated brief">
-        <article class="panel source-panel">
-          <div class="panel-heading">
-            <div>
-              <h2>Your source exports</h2>
-              <p id="source-summary">Local-only input editors</p>
-            </div>
-            <span class="mono">in memory</span>
-          </div>
-          <div id="source-list" class="source-list"></div>
-        </article>
+      <section class="demo-grid" aria-label="Account readout and optional source evidence">
         <article class="panel result-panel">
           <div class="panel-heading">
             <div>
-              <h2>Your customer brief</h2>
-              <p id="scenario-summary">Pinned scenario</p>
+              <h2>Account readout</h2>
+              <p id="scenario-summary">Preparing your snapshot</p>
             </div>
-            <div id="result-status" class="result-status" aria-live="polite">waiting for runtime</div>
+            <div id="result-status" class="result-status" aria-live="polite">preparing your readout</div>
           </div>
           <div id="warning-box" class="warning-box" role="status" hidden></div>
           <div class="brief-view-switch" role="group" aria-label="Generated brief view">
@@ -1296,19 +1348,29 @@ function buildInteractivePage({ directoryLayout = true } = {}) {
           <div class="brief-raw-panel"><pre id="brief-output" class="brief-output result-output" aria-label="Raw generated markdown brief" aria-live="polite"></pre></div>
           <div class="result-footer">
             <div class="button-row">
-              <button id="generate-button" class="button" type="button">Generate brief</button>
-              <button id="reset-button" class="button secondary" type="button">Reset inputs</button>
+              <button id="generate-button" class="button" type="button">Update readout</button>
+              <button id="reset-button" class="button secondary" type="button">Reset edits</button>
             </div>
-            <span class="mono">same inputs + same as-of = same bytes</span>
+            <span class="mono">same inputs + same snapshot = same readout</span>
           </div>
         </article>
+        <details class="panel source-panel">
+          <summary class="panel-heading">
+            <div>
+              <h2>Inspect the evidence</h2>
+              <p id="source-summary">Edit local files only when you want to test a gap.</p>
+            </div>
+            <span class="mono">optional</span>
+          </summary>
+          <div id="source-list" class="source-list"></div>
+        </details>
       </section>
       <aside class="panel demo-note">
-        <strong>Try a sparse account:</strong> choose Sparse evidence to see missing facts become specific follow-up asks. Delete a required line in a source pane and regenerate; the brief keeps the unsupported claim out.
+        <strong>What to do next:</strong> choose Needs attention to practice a risk conversation, or Fill the gaps to see unsupported facts become specific follow-up asks. Open Inspect the evidence only when you want to test the proof.
       </aside>
     </main>
     <footer class="footer">
-      <p><a href="${staticHref}">Read the annotated static samples</a> · inputs stay in memory and are never submitted.</p>
+      <p><a href="${staticHref}">Read the annotated static samples</a> · source edits stay in memory and are never submitted.</p>
       <p class="mono">Generated by web/build-demo.mjs · csm-kit v${htmlEscape(PACKAGE.version)}.</p>
     </footer>
   </div>

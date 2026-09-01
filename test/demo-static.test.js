@@ -37,22 +37,22 @@ test('static demo contains every committed example verbatim after HTML escaping'
 
 test('static demo has the annotated trust walkthrough and interactive fallback link', () => {
   const page = fs.readFileSync(STATIC_PAGE, 'utf8');
-  assert.match(page, /Citations are the proof/);
-  assert.match(page, /Completeness is evidence presence/);
-  assert.match(page, /Fail closed, then ask/);
+  assert.match(page, /Start with what changed/);
+  assert.match(page, /Evidence coverage sets context/);
+  assert.match(page, /No proof, no claim/);
   assert.match(page, /pinned --as-of 2026-08-22/);
   assert.match(page, /href="\.\.\/demo\/"/);
 });
 
 test('static demo presents cited brief anatomy while preserving raw markdown', () => {
   const page = fs.readFileSync(STATIC_PAGE, 'utf8');
-  assert.match(page, /For customer success teams/);
-  assert.match(page, /See the account story before the meeting/);
-  assert.match(page, /Customer Success account pulse for Acme Manufacturing Co/);
-  assert.match(page, /NEXT CONVERSATION/);
-  assert.match(page, /Start with a real account story/);
+  assert.match(page, /Static CSM walkthrough/);
+  assert.match(page, /Know what to do before you walk in/);
+  assert.match(page, /Frontline CSM account health snapshot for Acme Manufacturing Co/);
+  assert.match(page, /NEXT ACTIONS/);
+  assert.match(page, /Review the account story and proof/);
   assert.match(page, /data-presentation="visual"/);
-  assert.match(page, /Brief anatomy/);
+  assert.match(page, /Account readout/);
   assert.match(page, /Source spans:/);
   assert.match(page, /Visual brief/);
   assert.match(page, /Raw Markdown/);
@@ -85,7 +85,9 @@ test('interactive demo carries a no-JS link to the generated static page', () =>
   const page = read('docs/demo/index.html');
   assert.match(page, /<noscript>/);
   assert.match(page, /href="\.\.\/demo-static\/"/);
-  assert.match(page, /Your next customer conversation, already briefed/);
-  assert.match(page, /Your customer brief/);
-  assert.match(page, /Try a sparse account/);
+  assert.match(page, /Know what to do before your next customer conversation/);
+  assert.match(page, /Account readout/);
+  assert.match(page, /Fill the gaps/);
+  assert.match(page, /<details class="panel source-panel">/);
+  assert.ok(page.indexOf('<article class="panel result-panel">') < page.indexOf('<details class="panel source-panel">'));
 });
