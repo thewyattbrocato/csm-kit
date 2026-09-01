@@ -154,28 +154,41 @@
     display: grid;
     grid-template-columns: minmax(0, .72fr) minmax(0, 1.28fr);
     gap: 32px;
-    align-items: center;
+    align-items: start;
     margin: 0 0 var(--csm-section-gap);
     padding: 28px 0;
     border-top: 1px solid var(--csm-line);
     border-bottom: 1px solid var(--csm-line);
   }
-  .product-visual-copy { max-width: 420px; }
+  .product-visual-copy { max-width: 430px; }
   .product-visual-copy h2 { margin: 8px 0 10px; font-size: 25px; }
   .product-visual-copy p { margin: 0; color: var(--csm-ink-soft); }
   .product-visual-proof { display: flex; flex-wrap: wrap; gap: 18px; margin: 20px 0 0; }
   .product-visual-proof strong { display: block; color: var(--csm-ink); font: var(--csm-weight-heading) 21px/1.1 var(--csm-code); }
   .product-visual-proof span { display: block; margin-top: 4px; color: var(--csm-muted); font-size: var(--csm-text-xs); }
-  .flow-figure { min-width: 0; margin: 0; padding: 14px; background: var(--csm-surface); border: 1px solid var(--csm-line); }
-  .evidence-flow { display: block; width: 100%; height: auto; }
-  .evidence-flow .flow-frame { fill: var(--csm-surface); stroke: var(--csm-line); }
-  .evidence-flow .flow-accent { fill: none; stroke: var(--csm-indigo); }
-  .evidence-flow .flow-proof { fill: none; stroke: var(--csm-citation); }
-  .evidence-flow .flow-ink { fill: var(--csm-ink); }
-  .evidence-flow .flow-muted { fill: var(--csm-muted); }
-  .evidence-flow text { font-family: var(--csm-code); font-size: 11px; }
-  .flow-figure figcaption { margin: 10px 2px 0; padding-top: 10px; border-top: 1px solid var(--csm-line); color: var(--csm-muted); font-size: var(--csm-text-xs); }
-  .flow-figure figcaption strong { color: var(--csm-ink); font-weight: var(--csm-weight-heading); }
+  .product-visual-proof code { display: block; margin-top: 3px; color: var(--csm-citation); font: var(--csm-weight-body) 10px/1.3 var(--csm-code); }
+  .pulse-figure { min-width: 0; margin: 0; padding: 14px; background: var(--csm-surface); border: 1px solid var(--csm-line); }
+  .account-pulse { display: block; width: 100%; height: auto; }
+  .account-pulse .pulse-shell { fill: var(--csm-surface); stroke: var(--csm-line); }
+  .account-pulse .pulse-band { fill: var(--csm-band); }
+  .account-pulse .pulse-card { fill: var(--csm-surface); stroke: var(--csm-line); }
+  .account-pulse .pulse-rule { fill: none; stroke: var(--csm-line); }
+  .account-pulse .pulse-indigo-stroke { fill: none; stroke: var(--csm-indigo); }
+  .account-pulse .pulse-citation-stroke { fill: none; stroke: var(--csm-citation); }
+  .account-pulse .pulse-area { fill: var(--csm-indigo-soft); opacity: .8; }
+  .account-pulse .pulse-dot { fill: var(--csm-citation); }
+  .account-pulse .pulse-ink { fill: var(--csm-ink); }
+  .account-pulse .pulse-soft { fill: var(--csm-ink-soft); }
+  .account-pulse .pulse-muted { fill: var(--csm-muted); }
+  .account-pulse .pulse-indigo { fill: var(--csm-indigo); }
+  .account-pulse .pulse-citation { fill: var(--csm-citation); }
+  .account-pulse .pulse-warning { fill: var(--csm-warning); }
+  .account-pulse .pulse-tag { fill: var(--csm-warning-surface); stroke: var(--csm-warning); }
+  .account-pulse text { font-family: var(--csm-code); font-size: 11px; }
+  .account-pulse .pulse-label { font-size: 10px; letter-spacing: .05em; }
+  .account-pulse .pulse-number { font-size: 27px; font-weight: var(--csm-weight-heading); }
+  .pulse-figure figcaption { margin: 10px 2px 0; padding-top: 10px; border-top: 1px solid var(--csm-line); color: var(--csm-muted); font-size: var(--csm-text-xs); }
+  .pulse-figure figcaption strong { color: var(--csm-ink); font-weight: var(--csm-weight-heading); }
   .panel {
     background: var(--csm-surface);
     border: 1px solid var(--csm-line);
@@ -431,69 +444,121 @@
     </header>
     <main id="static-main">
       <section class="hero">
-        <div class="eyebrow">See it before you install it</div>
-        <h1>Briefs you can defend line by line.</h1>
-        <p class="lede">Three real outputs from the zero-dependency engine. Each one is generated from committed fixtures, pinned to <strong>2026-08-22</strong>, and annotated so you can follow the evidence contract before touching a terminal.</p>
+        <div class="eyebrow">For customer success teams</div>
+        <h1>Walk into the next customer conversation ready.</h1>
+        <p class="lede">csm-kit turns the CRM, ticket, and usage exports you already have into renewal, handoff, and QBR briefs: a clear account story, the evidence behind it, and the gaps to close before the meeting.</p>
         <div class="chip-row">
+          <span class="chip">renewal + QBR + handoff</span>
+          <span class="chip">every signal cited</span>
           <span class="chip success">no network calls</span>
-          <span class="chip">markdown output</span>
-          <span class="chip">byte-deterministic</span>
         </div>
       </section>
       <section class="hero-proof" aria-label="csm-kit trust properties">
       <article class="hero-proof-item">
-        <span class="hero-proof-index">01 / Inputs</span>
-        <strong>CSV + YAML exports</strong>
-        <p>Use the files your CRM, ticketing, and usage systems already produce.</p>
+        <span class="hero-proof-index">01 / Your inputs</span>
+        <strong>Existing exports</strong>
+        <p>CRM, ticket, and usage files are enough to start.</p>
       </article>
       <article class="hero-proof-item">
-        <span class="hero-proof-index">02 / Proof</span>
-        <strong>Every fact gets a span</strong>
-        <p>A citation like <code>crm.csv#L8</code> points back to the row behind the claim.</p>
+        <span class="hero-proof-index">02 / Your proof</span>
+        <strong>See where it came from</strong>
+        <p>Every signal points back to the source row behind it.</p>
       </article>
       <article class="hero-proof-item">
-        <span class="hero-proof-index">03 / Guardrail</span>
-        <strong>Fail closed, never guess</strong>
-        <p>Missing proof becomes a visible checklist item or handoff ask.</p>
+        <span class="hero-proof-index">03 / Your guardrail</span>
+        <strong>No invented account story</strong>
+        <p>Missing proof becomes a specific follow-up ask.</p>
       </article>
       <article class="hero-proof-item">
-        <span class="hero-proof-index">04 / Output</span>
-        <strong>Three deterministic briefs</strong>
-        <p>Switch renewal, handoff, or QBR with the same shared engine.</p>
+        <span class="hero-proof-index">04 / Your output</span>
+        <strong>Ready for the next conversation</strong>
+        <p>Renewal, handoff, or QBR in one shared engine.</p>
       </article></section>
-      <section class="product-visual" aria-labelledby="evidence-flow-heading">
+      <section class="product-visual account-pulse-visual" aria-labelledby="account-pulse-heading">
     <div class="product-visual-copy">
-      <div class="eyebrow">Evidence flow</div>
-      <h2 id="evidence-flow-heading">A source row becomes a cited decision.</h2>
-      <p>csm-kit keeps the path visible: local exports enter, exact source spans travel with the claim, and unsupported conclusions stop at the gap.</p>
-      <div class="product-visual-proof" aria-label="Evidence flow properties">
-        <div><strong>01</strong><span>input row</span></div>
-        <div><strong>02</strong><span>source span</span></div>
-        <div><strong>03</strong><span>brief line</span></div>
+      <div class="eyebrow">For the CSM in the room</div>
+      <h2 id="account-pulse-heading">See the account story before the meeting.</h2>
+      <p>Turn the exports your team already has into a renewal, handoff, or QBR brief that shows what changed, what is at risk, and what to ask next.</p>
+      <div class="product-visual-proof" aria-label="Example account signals">
+        <div><strong>54d</strong><span>to renewal</span><code>account.yaml#L7</code></div>
+        <div><strong>-22%</strong><span>usage trend</span><code>usage.csv#L2,L7</code></div>
+        <div><strong>3</strong><span>briefs for the moments that matter</span><code>renewal &#183; handoff &#183; QBR</code></div>
       </div>
     </div>
-    <figure class="flow-figure">
-      <svg class="evidence-flow" viewBox="0 0 760 220" role="img" aria-labelledby="flow-title flow-description">
-        <title id="flow-title">Evidence flow from local input to cited brief</title>
-        <desc id="flow-description">Three sharp framed views show an input row, its source span, and a generated brief line connected by an evidence path.</desc>
-        <rect class="flow-frame" x="12" y="28" width="206" height="150" />
-        <rect class="flow-frame" x="277" y="28" width="206" height="150" />
-        <rect class="flow-frame" x="542" y="28" width="206" height="150" />
-        <path class="flow-accent" stroke-width="1.5" d="M218 103h59m-8-8 8 8-8 8M483 103h59m-8-8 8 8-8 8" />
-        <path class="flow-accent" stroke-width="1.5" d="M36 62h158M36 78h122M36 94h142" />
-        <path class="flow-proof" stroke-width="1.5" d="M301 62h76m-76 16h128m-128 16h96" />
-        <path class="flow-ink" stroke-width="1.5" d="M566 62h132m-132 16h102m-102 34h132m-132 16h112" />
-        <path class="flow-proof" stroke-width="1.5" d="M566 94h64" />
-        <circle class="flow-proof" stroke-width="1.5" cx="450" cy="145" r="14" />
-        <path class="flow-proof" stroke-width="1.5" d="m443 145 5 5 9-11" />
-        <text class="flow-muted" x="30" y="48">INPUT ROW</text>
-        <text class="flow-muted" x="295" y="48">SOURCE SPAN</text>
-        <text class="flow-muted" x="560" y="48">BRIEF LINE</text>
-        <text class="flow-ink" x="36" y="132">usage.csv</text>
-        <text class="flow-proof" x="301" y="132">#L7</text>
-        <text class="flow-ink" x="566" y="160">cited output</text>
+    <figure class="pulse-figure">
+      <svg class="account-pulse" viewBox="0 0 760 408" role="img" aria-labelledby="account-pulse-title account-pulse-description">
+        <title id="account-pulse-title">Customer Success account pulse for Acme Manufacturing Co.</title>
+        <desc id="account-pulse-description">An example renewal brief shows 54 days to renewal, usage down 22 percent, two open tickets, and three cited next-conversation prompts.</desc>
+        <rect class="pulse-shell" x="1" y="1" width="758" height="406" rx="7" stroke-width="1.5" />
+        <rect class="pulse-band" x="2" y="2" width="756" height="52" />
+        <text class="pulse-muted pulse-label" x="24" y="24">CSM ACCOUNT PULSE</text>
+        <text class="pulse-ink" x="24" y="43" font-size="13">ACME MANUFACTURING CO.</text>
+        <text class="pulse-muted pulse-label" x="736" y="32" text-anchor="end">AS-OF 2026-08-22</text>
+        <line class="pulse-rule" x1="2" y1="54" x2="758" y2="54" />
+
+        <rect class="pulse-card" x="24" y="72" width="220" height="120" rx="4" />
+        <rect class="pulse-indigo" x="24" y="72" width="4" height="120" />
+        <text class="pulse-muted pulse-label" x="40" y="94">RENEWAL COUNTDOWN</text>
+        <text class="pulse-ink pulse-number" x="40" y="130">54 days</text>
+        <text class="pulse-citation" x="40" y="153">account.yaml#L7</text>
+        <rect class="pulse-tag" x="159" y="83" width="67" height="24" rx="12" />
+        <text class="pulse-warning pulse-label" x="192" y="99" text-anchor="middle">WATCH</text>
+
+        <rect class="pulse-card" x="268" y="72" width="220" height="120" rx="4" />
+        <rect class="pulse-citation" x="268" y="72" width="4" height="120" />
+        <text class="pulse-muted pulse-label" x="284" y="94">USAGE TREND</text>
+        <text class="pulse-warning pulse-number" x="284" y="130">-22%</text>
+        <text class="pulse-citation" x="284" y="153">usage.csv#L2,L7</text>
+        <path class="pulse-citation-stroke" stroke-width="1.5" d="M424 113l8 8 16-18 12 7" />
+        <circle class="pulse-dot" cx="424" cy="113" r="3" />
+        <circle class="pulse-dot" cx="448" cy="103" r="3" />
+        <circle class="pulse-dot" cx="460" cy="110" r="3" />
+
+        <rect class="pulse-card" x="512" y="72" width="224" height="120" rx="4" />
+        <rect class="pulse-indigo" x="512" y="72" width="4" height="120" />
+        <text class="pulse-muted pulse-label" x="528" y="94">OPEN TICKETS</text>
+        <text class="pulse-ink pulse-number" x="528" y="130">2 open</text>
+        <text class="pulse-citation" x="528" y="153">tickets.csv#L4,L5</text>
+        <text class="pulse-muted" x="528" y="175">last touch &#183; crm.csv#L8</text>
+
+        <rect class="pulse-card" x="24" y="212" width="464" height="172" rx="4" />
+        <text class="pulse-muted pulse-label" x="40" y="235">ADOPTION / ACTIVE USERS</text>
+        <text class="pulse-citation pulse-label" x="472" y="235" text-anchor="end">usage.csv#L2-L7</text>
+        <line class="pulse-rule" stroke-width=".75" x1="40" y1="274" x2="472" y2="274" />
+        <line class="pulse-rule" stroke-width=".75" x1="40" y1="297" x2="472" y2="297" />
+        <line class="pulse-rule" stroke-width=".75" x1="40" y1="320" x2="472" y2="320" />
+        <line class="pulse-rule" stroke-width=".75" x1="40" y1="343" x2="472" y2="343" />
+        <path class="pulse-area" d="M40 274L124 282L208 290L292 304L376 318L460 330L460 343L40 343Z" />
+        <path class="pulse-indigo-stroke" stroke-width="2" d="M40 274L124 282L208 290L292 304L376 318L460 330" />
+        <circle class="pulse-dot" cx="40" cy="274" r="3" />
+        <circle class="pulse-dot" cx="124" cy="282" r="3" />
+        <circle class="pulse-dot" cx="208" cy="290" r="3" />
+        <circle class="pulse-dot" cx="292" cy="304" r="3" />
+        <circle class="pulse-dot" cx="376" cy="318" r="3" />
+        <circle class="pulse-dot" cx="460" cy="330" r="3" />
+        <text class="pulse-soft" x="40" y="264">120</text>
+        <text class="pulse-soft" x="460" y="342" text-anchor="end">94</text>
+        <text class="pulse-muted pulse-label" x="40" y="367">FEB</text>
+        <text class="pulse-muted pulse-label" x="124" y="367" text-anchor="middle">MAR</text>
+        <text class="pulse-muted pulse-label" x="208" y="367" text-anchor="middle">APR</text>
+        <text class="pulse-muted pulse-label" x="292" y="367" text-anchor="middle">MAY</text>
+        <text class="pulse-muted pulse-label" x="376" y="367" text-anchor="middle">JUN</text>
+        <text class="pulse-muted pulse-label" x="460" y="367" text-anchor="end">JUL</text>
+
+        <rect class="pulse-card" x="512" y="212" width="224" height="172" rx="4" />
+        <rect class="pulse-citation" x="512" y="212" width="4" height="172" />
+        <text class="pulse-muted pulse-label" x="528" y="235">NEXT CONVERSATION</text>
+        <circle class="pulse-indigo" cx="531" cy="261" r="3" />
+        <text class="pulse-soft" x="542" y="265">Reconnect before renewal</text>
+        <text class="pulse-citation" x="542" y="282" font-size="10">account.yaml#L7 &#183; crm.csv#L2-L8</text>
+        <circle class="pulse-indigo" cx="531" cy="307" r="3" />
+        <text class="pulse-soft" x="542" y="311">Address declining usage</text>
+        <text class="pulse-citation" x="542" y="328" font-size="10">usage.csv#L2,L7</text>
+        <circle class="pulse-indigo" cx="531" cy="353" r="3" />
+        <text class="pulse-soft" x="542" y="357">Confirm ticket owners</text>
+        <text class="pulse-citation" x="542" y="374" font-size="10">tickets.csv#L4,L5</text>
       </svg>
-      <figcaption><strong>Traceability is the feature.</strong> The visual explains the contract without adding evidence to the generated artifact.</figcaption>
+      <figcaption><strong>Start with the account story.</strong> Timing, adoption, risk, and the next conversation stay together, with the source row visible beside each signal.</figcaption>
     </figure>
   </section>
       <section class="callouts" aria-label="How to read a brief">
@@ -514,9 +579,9 @@
         <div class="section-head">
           <div>
             <div class="eyebrow">Generated samples</div>
-            <h2 id="samples-heading">The artifact is the demo.</h2>
+            <h2 id="samples-heading">Start with a real account story.</h2>
           </div>
-          <p>Open each panel to inspect the exact markdown.</p>
+          <p>Read the visual brief first, then open Raw Markdown to inspect every cited line.</p>
         </div>
         <div class="brief-list">
       <details class="panel" open>

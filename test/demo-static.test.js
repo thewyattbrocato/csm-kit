@@ -46,7 +46,11 @@ test('static demo has the annotated trust walkthrough and interactive fallback l
 
 test('static demo presents cited brief anatomy while preserving raw markdown', () => {
   const page = fs.readFileSync(STATIC_PAGE, 'utf8');
-  assert.match(page, /Evidence flow from local input to cited brief/);
+  assert.match(page, /For customer success teams/);
+  assert.match(page, /See the account story before the meeting/);
+  assert.match(page, /Customer Success account pulse for Acme Manufacturing Co/);
+  assert.match(page, /NEXT CONVERSATION/);
+  assert.match(page, /Start with a real account story/);
   assert.match(page, /data-presentation="visual"/);
   assert.match(page, /Brief anatomy/);
   assert.match(page, /Source spans:/);
@@ -72,4 +76,7 @@ test('interactive demo carries a no-JS link to the generated static page', () =>
   const page = read('docs/demo/index.html');
   assert.match(page, /<noscript>/);
   assert.match(page, /href="\.\.\/demo-static\/"/);
+  assert.match(page, /Your next customer conversation, already briefed/);
+  assert.match(page, /Your customer brief/);
+  assert.match(page, /Try a sparse account/);
 });
