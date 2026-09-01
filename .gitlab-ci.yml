@@ -1,0 +1,13 @@
+image: busybox
+
+pages:
+  stage: deploy
+  environment: production
+  script:
+    - mkdir -p public
+    - cp -r docs/. public/
+  artifacts:
+    paths:
+      - public
+  rules:
+    - if: '$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'

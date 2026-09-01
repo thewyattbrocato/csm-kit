@@ -94,3 +94,9 @@ test('README Quickstart reuses detailed type commands byte-for-byte', () => {
     commandBlock(consoleBlocks(qbr), '$ csmkit brief --type qbr \\'),
   );
 });
+
+test('README points to the GitLab Pages demo', () => {
+  const readme = readRelative('README.md');
+  assert.match(readme, /https:\/\/wcbrocato\.gitlab\.io\/csm-kit\/demo\//);
+  assert.match(readme, /https:\/\/wcbrocato\.gitlab\.io\/csm-kit\/demo-static\//);
+});

@@ -39,7 +39,7 @@ Every span above resolves to a real row in [`examples/acme/`](examples/acme/) â€
 
 ## Try it in your browser
 
-[Open the interactive demo](https://thewyattbrocato.github.io/csm-kit/demo/) - nothing leaves this tab. Switch between renewal, handoff, and QBR briefs, try the full/risky/sparse evidence scenarios, or edit the local source panes. JavaScript-off visitors can use the [static annotated walkthrough](https://thewyattbrocato.github.io/csm-kit/demo-static/).
+[Open the interactive demo](https://wcbrocato.gitlab.io/csm-kit/demo/) - nothing leaves this tab. Switch between renewal, handoff, and QBR briefs, try the full/risky/sparse evidence scenarios, or edit the local source panes. JavaScript-off visitors can use the [static annotated walkthrough](https://wcbrocato.gitlab.io/csm-kit/demo-static/).
 
 ## Quickstart
 
