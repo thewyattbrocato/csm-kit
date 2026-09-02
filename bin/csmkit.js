@@ -190,9 +190,9 @@ function cmdBrief(argv) {
       const crm = loadCrm(args.values.crm, labels.crm);
       const questions = loadQuestions(args.values.questions, labels.questions);
       warnings.push(
-        ...handoff.warnings.map((w) => ({ src: handoff.source, msg: w })),
-        ...(crm.warnings ?? []).map((w) => ({ src: crm.source, msg: w })),
-        ...(questions.warnings ?? []).map((w) => ({ src: questions.source, msg: w }))
+        ...handoff.warnings,
+        ...(crm.warnings ?? []),
+        ...(questions.warnings ?? [])
       );
       briefInputs = { handoff, crm, questions };
     } else {
@@ -201,20 +201,24 @@ function cmdBrief(argv) {
       const tickets = loadTickets(args.values.tickets, labels.tickets);
       const usage = loadUsage(args.values.usage, labels.usage);
       warnings.push(
-        ...account.warnings.map((w) => ({ src: account.file, msg: w })),
-        ...(crm.warnings ?? []).map((w) => ({ src: crm.source, msg: w })),
-        ...(tickets.warnings ?? []).map((w) => ({ src: tickets.source, msg: w })),
-        ...(usage.warnings ?? []).map((w) => ({ src: usage.source, msg: w }))
+        ...account.warnings,
+        ...(crm.warnings ?? []),
+        ...(tickets.warnings ?? []),
+        ...(usage.warnings ?? [])
       );
       briefInputs = { account, crm, tickets, usage };
     }
-    for (const w of warnings) process.stderr.write(`warning: ${w.msg}\n`);
+    for (const warning of warnings) process.stderr.write(`warning: ${warning}\n`);
 
     const { markdown, completeness, statsContext } = buildBrief({ type, ...briefInputs, asOfDt });
 
     if (args.values.out) {
-      fs.mkdirSync(path.dirname(path.resolve(args.values.out)), { recursive: true });
-      fs.writeFileSync(args.values.out, markdown.endsWith('\n') ? markdown : markdown + '\n', 'utf8');
+      try {
+        fs.mkdirSync(path.dirname(path.resolve(args.values.out)), { recursive: true });
+        fs.writeFileSync(args.values.out, markdown.endsWith('\n') ? markdown : markdown + '\n', 'utf8');
+      } catch (err) {
+        fail(`cannot write output file "${args.values.out}": ${err.message}`);
+      }
       process.stdout.write(
         `wrote ${args.values.out} (${completeness.present}/${completeness.total} evidence, ${completeness.pct}%)\n`
       );
@@ -226,17 +230,21 @@ function cmdBrief(argv) {
       const automatedMinutes =
         Math.round((Number(process.hrtime.bigint() - startedAtNs) / 1e9 / 60) * 100) / 100;
       const minutesSaved = Math.round((baselineMinutes - automatedMinutes) * 100) / 100;
-      appendStats(args.values['stats-file'], {
-        ts: new Date().toISOString(),
-        tool: pkg.name,
-        version: pkg.version,
-        run: 'brief',
-        brief_type: type,
-        ...statsContext,
-        baseline_manual_minutes: baselineMinutes,
-        automated_minutes: automatedMinutes,
-        minutes_saved: minutesSaved,
-      });
+      try {
+        appendStats(args.values['stats-file'], {
+          ts: new Date().toISOString(),
+          tool: pkg.name,
+          version: pkg.version,
+          run: 'brief',
+          brief_type: type,
+          ...statsContext,
+          baseline_manual_minutes: baselineMinutes,
+          automated_minutes: automatedMinutes,
+          minutes_saved: minutesSaved,
+        });
+      } catch (err) {
+        fail(`cannot write stats file "${args.values['stats-file']}": ${err.message}`);
+      }
       process.stderr.write(
         `stats: appended minutes-saved record to ${args.values['stats-file']} (est. ${minutesSaved} min saved this run)\n`
       );
@@ -259,7 +267,12 @@ function cmdStats(argv) {
     fail(err.message);
   }
   const file = args.values['stats-file'];
-  const entries = readStats(file);
+  let entries;
+  try {
+    entries = readStats(file);
+  } catch (err) {
+    fail(`cannot read stats file "${file}": ${err.message}`);
+  }
   if (entries === null) {
     process.stdout.write(`No stats recorded yet (nothing at ${file}).\nRun \`csmkit brief ... --stats\` to start the impact log.\n`);
     return;

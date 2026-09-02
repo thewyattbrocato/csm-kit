@@ -1,5 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="102" height="26" viewBox="0 0 102 26" role="img" aria-label="CI: passing">
-  <!-- Hand-built house-style badge. No external fonts or services. Status verifiable at the linked Actions page. -->
+  <!-- Hand-built house-style badge. No external fonts or services. Status verifiable at the linked GitLab pipelines page. -->
   <rect x="0.5" y="0.5" width="101" height="25" rx="5" fill="#0d1117" stroke="#30363d"/>
   <rect x="0.5" y="0.5" width="35.5" height="25" rx="5" fill="#21262d"/>
   <rect x="28" y="0.5" width="8" height="25" fill="#21262d"/>

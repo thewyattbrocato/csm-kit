@@ -49,7 +49,7 @@ Requires Node ≥ 18 (`node --version` to check). That's the only prerequisite �
 zero dependencies, no network calls, nothing else to install.
 
 ```console
-$ git clone https://github.com/thewyattbrocato/csm-kit && cd csm-kit
+$ git clone https://gitlab.com/wcbrocato/csm-kit.git && cd csm-kit
 $ npm install -g .        # exposes the `csmkit` binary (may need sudo on system-managed Node)
 ```
 
@@ -106,10 +106,10 @@ Details: [Input schemas](#input-schemas).
 > **⚡ After:** one offline CLI run. Pass `--stats` and the tool logs the difference itself — e.g. `"minutes_saved":74.95` on the example account — against a baseline constant (**75 min**, midpoint of the documented range) that is visible and configurable (`--baseline-minutes`), never auto-inflated. See [Success metrics](#success-metrics).
 
 <p align="center">
-  <a href="https://github.com/thewyattbrocato/csm-kit/actions/workflows/ci.yml"><img src="docs/assets/badge-ci.svg" alt="CI: passing"></a>
-  <a href="https://github.com/thewyattbrocato/csm-kit/actions/workflows/ci.yml"><img src="docs/assets/badge-tests.svg" alt="tests: passing"></a>
-  <a href="https://github.com/thewyattbrocato/csm-kit/blob/main/package.json"><img src="docs/assets/badge-license.svg" alt="license: MIT"></a>
-  <a href="https://github.com/thewyattbrocato/csm-kit/blob/main/package.json"><img src="docs/assets/badge-node.svg" alt="node &gt;= 18"></a>
+  <a href="https://gitlab.com/wcbrocato/csm-kit/-/pipelines"><img src="docs/assets/badge-ci.svg" alt="CI: passing"></a>
+  <a href="https://gitlab.com/wcbrocato/csm-kit/-/pipelines"><img src="docs/assets/badge-tests.svg" alt="tests: passing"></a>
+  <a href="https://gitlab.com/wcbrocato/csm-kit/-/blob/main/package.json"><img src="docs/assets/badge-license.svg" alt="license: MIT"></a>
+  <a href="https://gitlab.com/wcbrocato/csm-kit/-/blob/main/package.json"><img src="docs/assets/badge-node.svg" alt="node &gt;= 18"></a>
 </p>
 
 ---

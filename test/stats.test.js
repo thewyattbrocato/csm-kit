@@ -132,6 +132,47 @@ test('csmkit stats summarizes the log; friendly message when empty', () => {
   assert.ok(avg > 74.5 && avg <= 75, `unexpected avg minutes saved ${avg}`);
 });
 
+test('stats filesystem failures use the CLI error protocol', () => {
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'csmkit-stats-error-'));
+  const blocked = path.join(tmp, 'blocked');
+  fs.writeFileSync(blocked, 'not a directory');
+
+  const brief = runSafe([
+    ...briefArgs(tmp, 'brief.md', ['--stats', '--stats-file', path.join(blocked, 'impact.jsonl')]),
+  ]);
+  assert.strictEqual(brief.code, 2);
+  assert.match(brief.stderr, /error: cannot write stats file/);
+  assert.doesNotMatch(brief.stderr, /\n\s+at /);
+
+  const stats = runSafe(['stats', '--stats-file', tmp]);
+  assert.strictEqual(stats.code, 2);
+  assert.match(stats.stderr, /error: cannot read stats file/);
+  assert.doesNotMatch(stats.stderr, /\n\s+at /);
+});
+
+test('stats summary ignores JSON values that are not stats records', () => {
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'csmkit-stats-malformed-'));
+  const statsFile = path.join(tmp, 'impact.jsonl');
+  fs.writeFileSync(
+    statsFile,
+    [
+      JSON.stringify({ ts: '2026-01-01T00:00:00.000Z', account: 'Valid Co.', minutes_saved: 10 }),
+      JSON.stringify([]),
+      JSON.stringify({ account: 'Missing metric' }),
+      'not json',
+      '',
+    ].join('\n')
+  );
+
+  const summary = run(['stats', '--stats-file', statsFile]).stdout;
+
+  assert.match(summary, /runs: 1/);
+  assert.match(summary, /accounts covered: 1/);
+  assert.match(summary, /total minutes saved \(est\.\): 10\.00/);
+  assert.match(summary, /unspecified: 1 run, 10\.00 min saved/);
+  assert.doesNotMatch(summary, /unspecified: [23] runs/);
+});
+
 test('stats summary breaks minutes saved down by brief type', () => {
   const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'csmkit-stats-types-'));
   const statsFile = path.join(tmp, 'impact.jsonl');

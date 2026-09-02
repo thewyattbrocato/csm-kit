@@ -166,6 +166,23 @@ test('complete QBR with no plan priorities cites checked evidence', () => {
   );
 });
 
+test('QBR renewal countdown uses singular day wording', () => {
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'csmkit-qbr-countdown-'));
+  const accountFile = path.join(tmp, 'account.yaml');
+
+  for (const [renewalDate, phrase] of [
+    ['2026-08-23', '1 day away'],
+    ['2026-08-21', 'passed 1 day ago'],
+  ]) {
+    fs.writeFileSync(
+      accountFile,
+      ['name: Countdown Wording', `renewal_date: ${renewalDate}`, ''].join('\n')
+    );
+    const out = run(['brief', '--type', 'qbr', '--account', accountFile, ...AS_OF]);
+    assert.match(out, new RegExp(`Renewal: ${renewalDate} \\(${phrase}\\)`));
+  }
+});
+
 test('every factual QBR table row carries a source span', () => {
   const out = run(qbrArgs('full'));
   for (const line of out.split('\n')) {

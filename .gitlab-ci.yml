@@ -1,8 +1,25 @@
-image: busybox
+stages:
+  - verify
+  - deploy
+
+verify:
+  image: node:22
+  stage: verify
+  script:
+    - node --check bin/csmkit.js
+    - node --check web/build-demo.mjs
+    - for file in lib/*.js test/*.test.js; do node --check "$file"; done
+    - npm run example
+    - npm run demo
+    - git diff --exit-code -- examples/example-renewal-brief.md examples/example-handoff-brief.md examples/example-qbr-packet.md docs/demo-static/index.html docs/demo/index.html docs/demo.html
+    - npm test
 
 pages:
+  image: busybox
   stage: deploy
   environment: production
+  needs:
+    - verify
   script:
     - mkdir -p public
     - cp -r docs/. public/

@@ -237,6 +237,70 @@ test('week-one questions log skips invalid dates and empty questions', () => {
   assert.ok(!res.stdout.includes('Empty question row'));
 });
 
+test('week-one questions honor the pinned as-of date', () => {
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'csmkit-handoff-questions-asof-'));
+  const handoffFile = path.join(tmp, 'handoff.yaml');
+  const questionsFile = path.join(tmp, 'questions.csv');
+  const outFile = path.join(tmp, 'handoff.md');
+  const statsFile = path.join(tmp, 'impact.jsonl');
+  fs.writeFileSync(
+    handoffFile,
+    [
+      'account: Questions As Of Co.',
+      'ae: Casey Vaughn',
+      'success_criteria:',
+      '- Kickoff within two weeks',
+      '',
+    ].join('\n')
+  );
+  fs.writeFileSync(
+    questionsFile,
+    [
+      'date,question,asked_by',
+      '2026-08-01,What changed before the snapshot?,Dana Reyes',
+      '2026-08-25,This question is after the snapshot,Dana Reyes',
+      '',
+    ].join('\n')
+  );
+
+  const res = runSafe([
+    'brief', '--type', 'handoff',
+    '--handoff', handoffFile,
+    '--questions', questionsFile,
+    ...AS_OF,
+    '--out', outFile,
+    '--stats', '--stats-file', statsFile,
+  ]);
+
+  assert.strictEqual(res.code, 0);
+  const out = fs.readFileSync(outFile, 'utf8');
+  assert.match(out, /What changed before the snapshot\?/);
+  assert.doesNotMatch(out, /This question is after the snapshot/);
+  assert.strictEqual(JSON.parse(fs.readFileSync(statsFile, 'utf8').trim()).inputs.questions, 1);
+});
+
+test('quoted-empty handoff list items do not become evidence', () => {
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'csmkit-handoff-quoted-empty-'));
+  const handoffFile = path.join(tmp, 'handoff.yaml');
+  fs.writeFileSync(
+    handoffFile,
+    [
+      'account: Quoted Empty Co.',
+      'ae: Casey Vaughn',
+      'success_criteria:',
+      '- ""',
+      '',
+    ].join('\n')
+  );
+
+  const res = runSafe(['brief', '--type', 'handoff', '--handoff', handoffFile, ...AS_OF]);
+
+  assert.strictEqual(res.code, 0);
+  assert.match(res.stderr, /handoff\.yaml#L4: list item with no value/);
+  assert.match(res.stdout, /\| Goals \/ success criteria \| MISSING \| no entries \(`handoff\.yaml#L3`\) \|/);
+  assert.doesNotMatch(res.stdout, /## Goals \/ success criteria/);
+});
+
 test('handoff without a CRM export renders the plain stakeholder map', () => {
   const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'csmkit-handoff-nocrm-'));
   const handoffFile = path.join(tmp, 'handoff.yaml');

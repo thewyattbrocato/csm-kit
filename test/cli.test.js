@@ -336,6 +336,30 @@ test('quoted CSV fields with commas stay in one field', () => {
   assert.match(out, /\| Lee, Jordan \| VP Ops \| 2026-08-01 \(call\) \| 1 \| `crm\.csv#L2` \|/);
 });
 
+test('quoted CSV fields preserve embedded newlines and escaped quotes', () => {
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'csmkit-multiline-csv-'));
+  const accountFile = path.join(tmp, 'account.yaml');
+  const crmFile = path.join(tmp, 'crm.csv');
+  fs.writeFileSync(
+    accountFile,
+    ['name: Multiline CSV', 'renewal_date: 2026-12-01', 'owner: Rae', 'arr_usd: 1000', ''].join('\n')
+  );
+  fs.writeFileSync(
+    crmFile,
+    [
+      'date,type,contact,role,summary',
+      '2026-08-01,call,"Lee, ""Jordan""',
+      'Team",VP Ops,Renewal call',
+      '',
+    ].join('\r\n')
+  );
+
+  const out = run(['brief', '--account', accountFile, '--crm', crmFile, ...AS_OF]);
+
+  assert.match(out, /\| Last logged activity \| 2026-08-01 — call with Lee, "Jordan" Team \| `crm\.csv#L2-L3` \|/);
+  assert.match(out, /\| Lee, "Jordan" Team \| VP Ops \| 2026-08-01 \(call\) \| 1 \| `crm\.csv#L2-L3` \|/);
+});
+
 test('unterminated quoted CSV records are skipped with a source warning', () => {
   const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'csmkit-unterminated-csv-'));
   const accountFile = path.join(tmp, 'account.yaml');
@@ -476,6 +500,48 @@ test('empty account fields render cited empty-value findings', () => {
   assert.doesNotMatch(res.stdout, /## Renewal countdown/);
 });
 
+test('quoted-empty YAML values fail closed as empty evidence', () => {
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'csmkit-quoted-empty-yaml-'));
+  const accountFile = path.join(tmp, 'account.yaml');
+  fs.writeFileSync(
+    accountFile,
+    ['name: ""', "renewal_date: ''", 'owner: "  "', 'arr_usd: ""', ''].join('\n')
+  );
+
+  const res = runSafe(['brief', '--account', accountFile, ...AS_OF]);
+
+  assert.strictEqual(res.code, 0);
+  assert.match(res.stderr, /empty value for "name"/);
+  assert.match(res.stderr, /empty value for "renewal_date"/);
+  assert.match(res.stderr, /empty value for "owner"/);
+  assert.match(res.stderr, /empty value for "arr_usd"/);
+  assert.match(res.stdout, /## Evidence completeness: 0\/5 \(0%\)/);
+  assert.match(res.stdout, /\| Account name \(account\.yaml\) \| MISSING \| empty value \(`account\.yaml#L1`\) \|/);
+  assert.match(res.stdout, /\| Renewal date \(account\.yaml\) \| MISSING \| empty value \(`account\.yaml#L2`\) \|/);
+  assert.doesNotMatch(res.stdout, /\*\*\*\* —/);
+  assert.doesNotMatch(res.stdout, /## Renewal countdown/);
+});
+
+test('duplicate YAML keys are reported with both source locations', () => {
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'csmkit-duplicate-yaml-'));
+  const accountFile = path.join(tmp, 'account.yaml');
+  fs.writeFileSync(
+    accountFile,
+    [
+      'name: First Name',
+      'name: Final Name',
+      'renewal_date: 2026-12-01',
+      '',
+    ].join('\n')
+  );
+
+  const res = runSafe(['brief', '--account', accountFile, ...AS_OF]);
+
+  assert.strictEqual(res.code, 0);
+  assert.match(res.stderr, /account\.yaml#L2: duplicate key "name" \(previous value at account\.yaml#L1\); later value wins/);
+  assert.match(res.stdout, /\*\*Final Name\*\* — `account\.yaml#L2`/);
+});
+
 test('account YAML warnings use the resolved source label', () => {
   const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'csmkit-account-label-'));
   const accountFile = path.join(tmp, 'acme.yml');
@@ -564,6 +630,31 @@ test('future CRM activity does not hide stale as-of relationship facts', () => {
   assert.match(out, /Relationship going quiet: last logged activity was 82 days ago \(2026-06-01\) — `crm\.csv#L2`/);
   assert.match(out, /\| Alice Rivera \| CFO \| 2026-06-01 \(call\) \| 1 \| `crm\.csv#L2` \|/);
   assert.doesNotMatch(out, /Bob Stone/);
+});
+
+test('renewal stakeholder activity matches contact names case-insensitively', () => {
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'csmkit-stakeholder-case-'));
+  const accountFile = path.join(tmp, 'account.yaml');
+  const crmFile = path.join(tmp, 'crm.csv');
+  fs.writeFileSync(
+    accountFile,
+    ['name: Stakeholder Case', 'renewal_date: 2026-12-01', 'owner: Rae', 'arr_usd: 1000', ''].join('\n')
+  );
+  fs.writeFileSync(
+    crmFile,
+    [
+      'date,type,contact,role,summary',
+      '2026-08-01,email,Alice Rivera,CFO,Initial touch',
+      '2026-08-10,call,alice rivera,,Follow-up',
+      '',
+    ].join('\n')
+  );
+
+  const out = run(['brief', '--account', accountFile, '--crm', crmFile, ...AS_OF]);
+
+  assert.match(out, /\| Alice Rivera \| CFO \| 2026-08-10 \(call\) \| 2 \| `crm\.csv#L2,L3` \|/);
+  assert.strictEqual((out.match(/\| Alice Rivera \|/g) || []).length, 1);
+  assert.doesNotMatch(out, /\| alice rivera \|/);
 });
 
 test('rendered input values stay single-line and table-safe with citations', () => {
@@ -1083,4 +1174,27 @@ test('--out writes the brief to a file', () => {
   assert.match(written, /# Renewal Readiness Brief/);
   assert.match(written, /\*\*Northwind Logistics Inc\.\*\* — `account\.yaml#L2`/);
   assert.match(written, /`account\.yaml#L6`/);
+});
+
+test('output filesystem failures use the CLI error protocol', () => {
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'csmkit-output-error-'));
+  const blocked = path.join(tmp, 'blocked');
+  fs.writeFileSync(blocked, 'not a directory');
+
+  const res = runSafe([
+    ...fullArgs(),
+    '--out', path.join(blocked, 'brief.md'),
+  ]);
+
+  assert.strictEqual(res.code, 2);
+  assert.match(res.stderr, /error: cannot write output file/);
+  assert.doesNotMatch(res.stderr, /\n\s+at /);
+});
+
+test('brief command rejects inherited object property names', () => {
+  for (const type of ['constructor', 'toString', '__proto__']) {
+    const res = runSafe(['brief', '--type', type]);
+    assert.strictEqual(res.code, 2);
+    assert.match(res.stderr, new RegExp(`--type must be one of: .* \\(got "${type}"\\)`));
+  }
 });

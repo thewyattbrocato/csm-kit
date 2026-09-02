@@ -139,6 +139,12 @@ class Element {
     this.dispatchEvent({ type: 'click', target: this });
   }
 
+  closest(selector) {
+    if (selector === '[data-source][data-lines]' && this.dataset.source && this.dataset.lines) return this;
+    if (selector === '.brief-raw-jump' && this.classList.contains('brief-raw-jump')) return this;
+    return null;
+  }
+
   querySelectorAll(selector) {
     const results = [];
     const wantedClass = selector.startsWith('.') ? selector.slice(1) : null;
@@ -183,7 +189,7 @@ function createDocument() {
     activeElement: null,
     created,
     getElementById(id) {
-      return elements.get(id) || null;
+      return elements.get(id) || created.find((element) => element.id === id) || null;
     },
     createElement(tagName) {
       const element = new Element(tagName);
@@ -364,4 +370,43 @@ test('interactive demo keeps edits local and exports the exact generated Markdow
   document.getElementById('reset-button').dispatchEvent('click');
   assert.match(document.getElementById('source-list').querySelectorAll('.source-editor')[0].value, /Acme Manufacturing Co\./);
   assert.match(editorState.textContent, /^Editor state: reset/);
+});
+
+test('interactive visual brief keeps escaped Markdown pipes in one table cell', () => {
+  const harness = runInteractiveUiHarness();
+  const { document } = harness;
+  const crmEditor = [...document.getElementById('source-list').querySelectorAll('.source-editor')]
+    .find((editor) => editor.dataset.key === 'crm');
+  const visualOutput = document.getElementById('brief-visual-output');
+
+  assert.ok(crmEditor, 'CRM source editor should be available');
+  crmEditor.value = [
+    'date,type,contact,role,summary',
+    '2026-08-10,call,"Alice | Ops",CFO,Recent contact',
+    '',
+  ].join('\n');
+  crmEditor.dispatchEvent({ type: 'input', target: crmEditor });
+  document.getElementById('generate-button').dispatchEvent('click');
+
+  assert.ok(visualOutput.innerHTML.includes('Alice | Ops'));
+  assert.doesNotMatch(visualOutput.innerHTML, /Alice \\|<\/td><td>Ops/);
+});
+
+test('interactive visual citations focus the matching local editor', () => {
+  const harness = runInteractiveUiHarness();
+  const { document } = harness;
+  const visualOutput = document.getElementById('brief-visual-output');
+  const sourcePanel = document.getElementById('source-evidence');
+  const citation = document.createElement('a');
+  citation.dataset.source = 'account.yaml';
+  citation.dataset.lines = 'L3';
+  visualOutput.append(citation);
+
+  visualOutput.dispatchEvent({ type: 'click', target: citation, preventDefault() {} });
+
+  const editor = document.getElementById('source-account');
+  assert.strictEqual(sourcePanel.open, true);
+  assert.strictEqual(document.activeElement, editor);
+  assert.strictEqual(editor.dataset.citedLines, 'L3');
+  assert.match(editor.getAttribute('aria-label'), /account\.yaml#L3/);
 });

@@ -726,8 +726,10 @@ function renderBriefPresentation(markdown, prefix = 'brief') {
       .replace(/>/g, '&gt;')
       .replace(/"/g, '&quot;')
       .replace(/'/g, '&#39;');
-    const citationMatches = (value) => [...String(value).matchAll(/[\w./-]+#L\d+(?:[-,]L?\d+)*/g)].map((match) => match[0]);
-    const citationToken = /^([\w./-]+)#(L\d+(?:[-,]L?\d+)*)$/;
+    const citationToken = /^(.+?)#(L\d+(?:[-,]L?\d+)*)$/;
+    const citationMatches = (value) => [...String(value).matchAll(/`([^`\r\n]+)`/g)]
+      .map((match) => match[1].trim())
+      .filter((token) => citationToken.test(token));
     const interactive = String(prefix).startsWith('interactive');
     const citationMarkup = (token) => {
       const match = citationToken.exec(token);
@@ -757,7 +759,22 @@ function renderBriefPresentation(markdown, prefix = 'brief') {
       const trimmed = line.trim();
       const inner = trimmed.startsWith('|') ? trimmed.slice(1) : trimmed;
       const withoutTrailing = inner.endsWith('|') ? inner.slice(0, -1) : inner;
-      return withoutTrailing.split('|').map((cell) => cell.trim());
+      const cells = [];
+      let cell = '';
+      for (let index = 0; index < withoutTrailing.length; index++) {
+        const character = withoutTrailing[index];
+        if (character === '\\' && withoutTrailing[index + 1] === '|') {
+          cell += '|';
+          index++;
+        } else if (character === '|') {
+          cells.push(cell.trim());
+          cell = '';
+        } else {
+          cell += character;
+        }
+      }
+      cells.push(cell.trim());
+      return cells;
     };
     const renderTable = (lines) => {
       const rows = lines.map(tableCells);
@@ -1051,7 +1068,7 @@ function loadScenarioManifest() {
       const files = {};
       const inputMeta = {};
       for (const [key, relativePath] of Object.entries(inputs)) {
-        const virtualPath = `/${path.basename(relativePath)}`;
+        const virtualPath = '/' + String(relativePath).split(/[\\/]+/).filter(Boolean).join('/');
         files[virtualPath] = fs.readFileSync(path.join(ROOT, relativePath), 'utf8');
         inputMeta[key] = { path: virtualPath, label: path.basename(relativePath) };
       }
@@ -1322,7 +1339,7 @@ function buildRuntimeScript(scenarios, modules) {
 
   // Public surface used by the page and by the equivalence harness. The
   // engine modules above are the unmodified lib/*.js sources embedded at build time.
-  const api = { AS_OF, PACKAGE, SCENARIOS, makeCsmkit, generate, evidenceState };
+  const api = { AS_OF, PACKAGE, SCENARIOS, makeCsmkit, generate, evidenceState, basenameLabels };
   window.CSMKIT_DEMO = api;
   globalThis.CSMKIT_DEMO = api;
 })();
@@ -1477,6 +1494,7 @@ const UI_SCRIPT = String.raw`(() => {
     sourceList.replaceChildren();
     const definition = currentDefinition();
     const entries = Object.entries(definition.inputs);
+    const labels = api.basenameLabels(definition.inputs);
     sourceSummary.textContent = entries.length + ' evidence file' + (entries.length === 1 ? '' : 's') + ' · advanced evidence editor';
     if (sourcePrivacy) sourcePrivacy.textContent = 'Edits stay in this tab. Nothing is uploaded. Reset clears local edits. Production CLI reads local files.';
     renderEditorState();
@@ -1496,7 +1514,7 @@ const UI_SCRIPT = String.raw`(() => {
       const card = document.createElement('div');
       card.className = 'source-card';
       const label = document.createElement('label');
-      label.textContent = input.label;
+      label.textContent = labels[key] || input.label;
       label.htmlFor = 'source-' + key;
       const editor = document.createElement('textarea');
       editor.id = 'source-' + key;
@@ -1581,6 +1599,9 @@ const UI_SCRIPT = String.raw`(() => {
   }
 
   function citedNextMove(markdown) {
+    const citationTokens = (value) => [...String(value).matchAll(/\`([^\`\r\n]+)\`/g)]
+      .map((match) => match[1].trim())
+      .filter((token) => /^.+?#L\d+(?:[-,]L?\d+)*$/.test(token));
     const sections = markdownSections(markdown);
     const preferred = [
       /next-quarter plan/i,
@@ -1592,11 +1613,16 @@ const UI_SCRIPT = String.raw`(() => {
     for (const headingPattern of preferred) {
       const section = sections.find((candidate) => headingPattern.test(candidate.heading));
       if (!section) continue;
-      const line = section.lines.find((candidate) =>
-        /^\s*-\s+/.test(candidate) && /[\w./-]+#L\d+(?:[-,]L?\d+)*/.test(candidate) &&
-        !/All required evidence present|None triggered by the current deterministic rules|Assign an owner and due date/.test(candidate)
-      );
-      if (line) return { heading: section.heading, line, citations: [...line.matchAll(/[\w./-]+#L\d+(?:[-,]L?\d+)*/g)].map((match) => match[0]) };
+      for (const line of section.lines) {
+        const citations = citationTokens(line);
+        if (
+          /^\s*-\s+/.test(line) &&
+          citations.length > 0 &&
+          !/All required evidence present|None triggered by the current deterministic rules|Assign an owner and due date/.test(line)
+        ) {
+          return { heading: section.heading, line, citations };
+        }
+      }
     }
     return null;
   }
@@ -1629,7 +1655,7 @@ const UI_SCRIPT = String.raw`(() => {
     const copy = document.createElement('span');
     copy.className = 'next-move-candidate';
     copy.textContent = candidate.line;
-    const citation = candidate.citations[0].match(/^([\w./-]+)#(L\d+(?:[-,]L?\d+)*)$/);
+    const citation = candidate.citations[0].match(/^(.+?)#(L\d+(?:[-,]L?\d+)*)$/);
     const sourceLink = document.createElement('a');
     sourceLink.className = 'next-move-link';
     sourceLink.href = '#source-evidence';
@@ -1642,7 +1668,9 @@ const UI_SCRIPT = String.raw`(() => {
   }
 
   function focusSource(source, lines) {
-    const entry = Object.entries(currentDefinition().inputs).find(([, input]) => input.label === source || input.path === '/' + source);
+    const inputs = currentDefinition().inputs;
+    const labels = api.basenameLabels(inputs);
+    const entry = Object.entries(inputs).find(([key, input]) => labels[key] === source || input.label === source || input.path === '/' + source);
     if (!entry) return false;
     const [key, input] = entry;
     const editor = document.getElementById('source-' + key);
@@ -1660,7 +1688,7 @@ const UI_SCRIPT = String.raw`(() => {
     const focusNote = document.getElementById('source-focus-note');
     if (focusNote) focusNote.textContent = 'Focused ' + span + '. File-level focus only; inspect the text area for the cited line or range.';
     editor.dataset.citedLines = lines;
-    editor.setAttribute('aria-label', input.label + ' source editor; cited ' + span + '. File-level focus only.');
+    editor.setAttribute('aria-label', (labels[key] || input.label) + ' source editor; cited ' + span + '. File-level focus only.');
     editor.focus?.({ preventScroll: true });
     editor.scrollIntoView?.({ block: 'center' });
     return true;
