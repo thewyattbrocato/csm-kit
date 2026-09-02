@@ -79,6 +79,32 @@ test('browser bundle fixes the as-of date and remains deterministic', () => {
   assert.deepStrictEqual(first.completeness, second.completeness);
 });
 
+test('browser bundle exposes explicit evidence states and exact missing units', () => {
+  const api = browserApi();
+  assert.strictEqual(api.evidenceState({ present: 5, total: 5 }), 'complete');
+  assert.strictEqual(api.evidenceState({ present: 3, total: 5 }), 'partial');
+  assert.strictEqual(api.evidenceState({ present: 2, total: 5 }), 'insufficient');
+
+  const sparseRenewal = api.generate('sparse', 'renewal');
+  assert.strictEqual(sparseRenewal.evidenceState, 'insufficient');
+  assert.deepStrictEqual(
+    [...sparseRenewal.completeness.units.filter((unit) => !unit.ok).map((unit) => unit.label)],
+    ['CRM activity export', 'Ticket export', 'Usage summary'],
+  );
+
+  const sparseHandoff = api.generate('sparse', 'handoff');
+  assert.deepStrictEqual(
+    [...sparseHandoff.completeness.units.filter((unit) => !unit.ok).map((unit) => unit.label)],
+    [
+      'Goals / success criteria',
+      'Stakeholder map',
+      'Promises register (promised-vs-sold)',
+      'Risks / dependencies',
+      'Links (recordings / proposal)',
+    ],
+  );
+});
+
 test('browser bundle preserves fail-closed behavior for edited input', () => {
   const api = browserApi();
   const result = api.generate('full', 'renewal', {

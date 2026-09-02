@@ -54,6 +54,8 @@ test('static demo presents cited brief anatomy while preserving raw markdown', (
   assert.match(page, /data-presentation="visual"/);
   assert.match(page, /Account readout/);
   assert.match(page, /Source spans:/);
+  assert.match(page, /Handoff record: promised-vs-sold/);
+  assert.match(page, /Handoff record: recordings and proposal/);
   assert.match(page, /Visual brief/);
   assert.match(page, /Raw Markdown/);
 
@@ -76,7 +78,7 @@ test('generated demos explain the CSM journey before optional evidence details',
     assert.match(page, /--csm-indigo: #533afd/);
   }
 
-  const interactiveSetup = interactive.indexOf('<section class="setup"');
+   const interactiveSetup = interactive.indexOf('<section id="demo-setup" class="setup');
   assert.ok(interactiveSetup > 0, 'interactive controls are missing');
   assert.doesNotMatch(interactive.slice(0, interactiveSetup), /account\.yaml#L|usage\.csv#L|tickets\.csv#L/);
 });
@@ -107,6 +109,9 @@ test('interactive demo carries a no-JS link to the generated static page', () =>
   assert.match(page, /Account readout/);
   assert.match(page, /Fill the gaps/);
   assert.match(page, /What to do next/);
-  assert.match(page, /<details class="panel source-panel">/);
-  assert.ok(page.indexOf('<article class="panel result-panel">') < page.indexOf('<details class="panel source-panel">'));
+  assert.match(page, /Skip to demo controls/);
+  assert.match(page, /id="copy-markdown-button"/);
+  assert.match(page, /id="download-markdown-button"/);
+  assert.match(page, /<details id="source-evidence" class="panel source-panel">/);
+   assert.ok(page.indexOf('<article class="panel result-panel">') < page.indexOf('<details id="source-evidence" class="panel source-panel">'));
 });

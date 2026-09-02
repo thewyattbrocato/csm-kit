@@ -89,6 +89,7 @@ const TOKENS = `
     transform: translateY(-150%);
   }
   .skip-link:focus { transform: translateY(0); }
+  .focus-target:focus { outline: 2px solid var(--csm-focus); outline-offset: 6px; }
   .shell { width: min(var(--csm-page-max), calc(100% - 48px)); min-width: 0; margin: 0 auto; }
   .topbar {
     display: flex;
@@ -133,6 +134,23 @@ const TOKENS = `
     font: var(--csm-weight-body) var(--csm-text-xs)/1.45 var(--csm-code);
   }
   .chip.success { color: var(--csm-citation); border-color: var(--csm-citation); }
+  .hero-route {
+    display: inline-flex;
+    align-items: center;
+    gap: 9px;
+    min-height: 44px;
+    margin-top: 24px;
+    padding: 11px 16px;
+    color: var(--csm-action-text);
+    background: var(--csm-indigo);
+    border: 1px solid var(--csm-indigo);
+    border-radius: var(--csm-control-radius);
+    font-size: var(--csm-text-sm);
+    font-weight: var(--csm-weight-heading);
+    text-decoration: none;
+  }
+  .hero-route:hover { color: var(--csm-action-text); background: var(--csm-indigo-hover); border-color: var(--csm-indigo-hover); }
+  .hero-route small { color: rgba(255, 255, 255, .82); font: var(--csm-weight-body) var(--csm-text-xs)/1.3 var(--csm-code); }
   .hero-proof {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
@@ -314,8 +332,17 @@ const TOKENS = `
   .brief-stat strong { min-width: 0; color: var(--csm-ink); font: var(--csm-weight-heading) 30px/1 var(--csm-code); letter-spacing: -.04em; overflow-wrap: anywhere; }
   .brief-stat span { min-width: 0; color: var(--csm-muted); font-size: var(--csm-text-sm); overflow-wrap: anywhere; }
   .brief-stat-citations { flex-basis: 100%; min-width: 0; color: var(--csm-muted); font-size: var(--csm-text-xs); overflow-wrap: anywhere; }
+  .brief-stat-state { color: var(--csm-indigo) !important; font: var(--csm-weight-heading) var(--csm-text-xs)/1.3 var(--csm-code); text-transform: uppercase; letter-spacing: .05em; }
+  .brief-stat-note { flex-basis: 100%; min-width: 0; color: var(--csm-muted); font-size: var(--csm-text-xs); overflow-wrap: anywhere; }
+  .brief-missing-units { margin: -4px 0 16px; padding: 10px 12px; color: var(--csm-warning); background: var(--csm-warning-surface); border-left: 2px solid var(--csm-warning); font-size: var(--csm-text-xs); }
+  .brief-missing-units strong { color: var(--csm-ink); font-weight: var(--csm-weight-heading); }
+  .brief-missing-units ul { margin: 5px 0 0; padding-left: 18px; }
+  .brief-missing-units li { padding: 2px 0; overflow-wrap: anywhere; }
   .brief-safe-note { margin: 12px 0 0; padding: 9px 11px; color: var(--csm-muted); background: var(--csm-band); border-left: 2px solid var(--csm-line); font-size: var(--csm-text-xs); overflow-wrap: anywhere; }
+  .brief-safe-note a, .brief-raw-jump { color: var(--csm-indigo); font-weight: var(--csm-weight-heading); }
   .brief-presentation-fallback { margin: 0; padding: 14px; color: var(--csm-muted); background: var(--csm-band); font-size: var(--csm-text-sm); overflow-wrap: anywhere; }
+  .brief-citation-link { color: var(--csm-citation); font-family: var(--csm-code); font-size: .9em; text-decoration: underline; text-decoration-style: dotted; text-underline-offset: 3px; }
+  .brief-citation-link:hover { color: var(--csm-indigo-hover); text-decoration-style: solid; }
   .footer { padding: 30px 0 58px; border-top: 1px solid var(--csm-line); color: var(--csm-muted); }
   .footer p { margin: 0 0 8px; }
   .footer .mono { color: var(--csm-muted); }
@@ -386,10 +413,34 @@ const TOKENS = `
     overflow-wrap: anywhere;
   }
   .source-card textarea:focus { border-color: var(--csm-indigo); outline: 2px solid var(--csm-focus); outline-offset: 0; }
+  .source-card.cited { padding-left: 10px; border-left: 3px solid var(--csm-citation); }
+  .source-card.cited textarea { border-color: var(--csm-citation); }
+  .source-citation-note { margin: 6px 0 0; color: var(--csm-muted); font-size: var(--csm-text-xs); overflow-wrap: anywhere; }
+  .source-citation-note.cited { color: var(--csm-citation); }
+  .source-focus-note { margin: 0 0 15px; color: var(--csm-muted); font-size: var(--csm-text-xs); overflow-wrap: anywhere; }
+  .source-privacy { margin: 0 0 15px; padding: 10px 12px; color: var(--csm-ink-soft); background: var(--csm-indigo-soft); border-left: 2px solid var(--csm-indigo); font-size: var(--csm-text-xs); overflow-wrap: anywhere; }
+  .editor-state { margin: 0 0 14px; padding: 9px 11px; color: var(--csm-muted); background: var(--csm-band); border: 1px solid var(--csm-line); font: var(--csm-weight-body) var(--csm-text-xs)/1.4 var(--csm-code); overflow-wrap: anywhere; }
+  .editor-state[data-state="changed"], .editor-state[data-state="updated"], .editor-state[data-state="reset"] { color: var(--csm-citation); border-color: var(--csm-citation); }
+  .editor-state[data-state="invalid"] { color: var(--csm-danger); background: var(--csm-danger-surface); border-color: var(--csm-danger); }
   .empty-source { margin: 0; padding: 16px; color: var(--csm-muted); font-size: var(--csm-text-sm); }
   .result-status { min-width: 0; max-width: 340px; color: var(--csm-muted); font: var(--csm-weight-body) var(--csm-text-xs)/1.45 var(--csm-code); text-align: right; overflow-wrap: anywhere; }
   .result-status.ok { color: var(--csm-citation); }
   .result-status.error { color: var(--csm-danger); }
+  .state-rail { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0; margin: 18px 22px 0; border-top: 1px solid var(--csm-line); border-bottom: 1px solid var(--csm-line); }
+  .state-card { min-width: 0; padding: 15px 14px 16px; border-top: 3px solid var(--csm-indigo); }
+  .state-card + .state-card { border-left: 1px solid var(--csm-line); }
+  .state-card[data-state="complete"] { border-top-color: var(--csm-citation); }
+  .state-card[data-state="partial"], .state-card[data-state="insufficient"] { border-top-color: var(--csm-warning); }
+  .state-card[data-state="risk"] { border-top-color: var(--csm-blue); }
+  .state-card-label { display: block; margin-bottom: 7px; color: var(--csm-muted); font: var(--csm-weight-body) var(--csm-text-xs)/1.3 var(--csm-code); letter-spacing: .05em; text-transform: uppercase; }
+  .state-card strong { display: block; margin-bottom: 5px; color: var(--csm-ink); font-size: var(--csm-text-sm); font-weight: var(--csm-weight-heading); overflow-wrap: anywhere; }
+  .state-card small { display: block; color: var(--csm-muted); font-size: var(--csm-text-xs); line-height: 1.45; overflow-wrap: anywhere; }
+  .state-card ul { margin: 8px 0 0; padding-left: 17px; color: var(--csm-warning); font-size: var(--csm-text-xs); }
+  .state-card li { padding: 2px 0; overflow-wrap: anywhere; }
+  .export-feedback { min-width: 0; color: var(--csm-citation); font: var(--csm-weight-body) var(--csm-text-xs)/1.4 var(--csm-code); overflow-wrap: anywhere; }
+  .export-feedback.error { color: var(--csm-danger); }
+  .raw-section-target { margin: 0 0 9px; padding: 8px 10px; color: var(--csm-muted); background: var(--csm-indigo-soft); border-left: 2px solid var(--csm-indigo); font: var(--csm-weight-body) var(--csm-text-xs)/1.4 var(--csm-code); overflow-wrap: anywhere; }
+  .raw-section-target:focus { outline: 2px solid var(--csm-focus); outline-offset: 2px; }
   .result-output { min-height: 520px; max-height: 820px; margin-top: 18px; }
   .result-panel .brief-visual-panel { margin: 18px 22px 22px; }
   .result-panel .brief-raw-panel { margin: 18px 22px 22px; }
@@ -414,11 +465,15 @@ const TOKENS = `
   .button.secondary { color: var(--csm-indigo); background: transparent; border-color: var(--csm-indigo-line); }
   .button.secondary:hover { color: var(--csm-indigo-hover); background: var(--csm-indigo-soft); border-color: var(--csm-indigo); }
   .warning-box { margin: 14px 16px 0; padding: 11px 13px; color: var(--csm-warning); background: var(--csm-warning-surface); border: 1px solid var(--csm-warning); border-radius: var(--csm-control-radius); font: var(--csm-weight-body) var(--csm-text-xs)/1.5 var(--csm-code); overflow-wrap: anywhere; }
+  .warning-box.error { color: var(--csm-danger); background: var(--csm-danger-surface); border-color: var(--csm-danger); }
   .warning-box[hidden] { display: none; }
   .demo-note { margin-top: 16px; padding: 17px 21px; color: var(--csm-ink-soft); background: var(--csm-band); border-left: 3px solid var(--csm-citation); font-size: var(--csm-text-sm); overflow-wrap: anywhere; }
   .demo-note strong { color: var(--csm-ink); font-weight: var(--csm-weight-heading); }
   .demo-note h2 { margin: 6px 0 7px; font-size: 21px; }
   .demo-note p { margin: 0; }
+  .next-move-label { display: block; margin-bottom: 7px; color: var(--csm-muted); font: var(--csm-weight-body) var(--csm-text-xs)/1.3 var(--csm-code); letter-spacing: .05em; text-transform: uppercase; }
+  .next-move-candidate { display: block; color: var(--csm-ink-soft); font-size: var(--csm-text-sm); line-height: 1.5; overflow-wrap: anywhere; }
+  .next-move-link { display: inline-block; margin-top: 10px; color: var(--csm-indigo); font: var(--csm-weight-heading) var(--csm-text-xs)/1.4 var(--csm-code); }
   .next-move-list { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 14px; }
   .next-move-list span { padding: 5px 8px; color: var(--csm-ink-soft); background: var(--csm-surface); border: 1px solid var(--csm-line); border-radius: var(--csm-control-radius); font: var(--csm-weight-body) var(--csm-text-xs)/1.3 var(--csm-code); }
   .noscript { max-width: 720px; margin: 64px auto; padding: var(--csm-panel-pad); }
@@ -462,8 +517,9 @@ const TOKENS = `
     .shell { width: min(100% - 24px, var(--csm-page-max)); }
     .topbar { align-items: start; padding: 14px 0; }
     .top-meta { max-width: 170px; font-size: 10px; }
-    .hero { padding: 52px 0 36px; }
-    .demo-intro { padding: 42px 0 28px; }
+    .hero { padding: 40px 0 28px; }
+    .demo-intro { padding: 34px 0 22px; }
+    .demo-intro .chip-row { margin-top: 20px; }
     h1, .demo-intro h1 { letter-spacing: -1px; }
     .hero-proof { grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 48px; }
     .product-visual { grid-template-columns: 1fr; gap: 18px; }
@@ -480,6 +536,9 @@ const TOKENS = `
     .result-status { text-align: left; }
     .button-row { width: 100%; }
     .button { flex: 1 1 auto; }
+    .state-rail { grid-template-columns: 1fr; }
+    .state-card + .state-card { border-top: 1px solid var(--csm-line); border-left: 0; }
+    .hero-route { width: 100%; justify-content: space-between; margin-top: 20px; }
     .brief-presentation-head { display: block; }
     .brief-presentation-head p { max-width: none; margin-top: 10px; }
     .brief-anatomy { grid-template-columns: 1fr; gap: 18px; }
@@ -668,12 +727,32 @@ function renderBriefPresentation(markdown, prefix = 'brief') {
       .replace(/"/g, '&quot;')
       .replace(/'/g, '&#39;');
     const citationMatches = (value) => [...String(value).matchAll(/[\w./-]+#L\d+(?:[-,]L?\d+)*/g)].map((match) => match[0]);
+    const citationToken = /^([\w./-]+)#(L\d+(?:[-,]L?\d+)*)$/;
+    const interactive = String(prefix).startsWith('interactive');
+    const citationMarkup = (token) => {
+      const match = citationToken.exec(token);
+      if (!match) return `<code class="brief-citation">${escape(token)}</code>`;
+      if (!interactive) return `<code class="brief-citation">${escape(token)}</code>`;
+      return `<a class="brief-citation-link" href="#source-evidence" data-source="${escape(match[1])}" data-lines="${escape(match[2])}" aria-label="Open ${escape(token)} in the evidence editor">${escape(token)}</a>`;
+    };
     const uniqueCitations = (lines) => [...new Set(lines.flatMap((line) => citationMatches(line)))];
     const inline = (value) => escape(value)
-      .replace(/`([^`]+)`/g, '<code class="brief-citation">$1</code>')
+      .replace(/`([^`]+)`/g, (match, inner) => citationMarkup(inner.trim()))
       .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
       .replace(/_([^_]+)_/g, '<em>$1</em>');
-    const citationHtml = (values) => values.map((value) => `<code class="brief-citation">${escape(value)}</code>`).join(', ');
+    const citationHtml = (values) => values.map((value) => citationMarkup(value)).join(', ');
+    const friendlyEvidenceLabel = (value) => {
+      const label = String(value);
+      if (/^Account name|^Renewal date/.test(label)) return `Account context: ${label.replace(/ \([^)]*\)$/, '').replace(/^Account name/, 'account name').replace(/^Renewal date/, 'renewal date')}`;
+      if (/CRM activity/i.test(label)) return 'CRM notes';
+      if (/Ticket export/i.test(label)) return 'Support history';
+      if (/Usage summary/i.test(label)) return 'Product usage';
+      if (/^Sending AE|^Goals \/ success criteria|^Stakeholder map|^Promises register|^Risks \/ dependencies|^Links /i.test(label)) {
+        return `Handoff record: ${label.replace(/^Sending AE/, 'sending AE').replace(/^Goals \/ success criteria/, 'success criteria').replace(/^Stakeholder map/, 'stakeholders').replace(/^Promises register(?: \(promised-vs-sold\))?/, 'promised-vs-sold').replace(/^Risks \/ dependencies/, 'risks and dependencies').replace(/^Links(?: \(recordings \/ proposal\))?/, 'recordings and proposal').replace(/ \([^)]*\)$/, '')}`;
+      }
+      if (/question/i.test(label)) return 'Open questions';
+      return label;
+    };
     const tableCells = (line) => {
       const trimmed = line.trim();
       const inner = trimmed.startsWith('|') ? trimmed.slice(1) : trimmed;
@@ -687,7 +766,7 @@ function renderBriefPresentation(markdown, prefix = 'brief') {
       const citedRows = bodyRows.filter((row) => row.some((cell) => citationMatches(cell).length > 0));
       const omitted = bodyRows.length - citedRows.length;
       const headerHtml = headers.map((cell) => `<th scope="col">${inline(cell)}</th>`).join('');
-      const bodyHtml = citedRows.map((row) => `<tr>${headers.map((_, index) => `<td>${inline(row[index] || '')}</td>`).join('')}</tr>`).join('');
+      const bodyHtml = citedRows.map((row) => `<tr>${headers.map((_, index) => `<td>${inline(headers[0] === 'Required evidence' && index === 0 ? friendlyEvidenceLabel(row[index] || '') : (row[index] || ''))}</td>`).join('')}</tr>`).join('');
       return {
         html: `<div class="brief-table-wrap"><table class="brief-table"><thead><tr>${headerHtml}</tr></thead><tbody>${bodyHtml}</tbody></table></div>`,
         omitted,
@@ -744,11 +823,11 @@ function renderBriefPresentation(markdown, prefix = 'brief') {
     const friendlySection = (heading) => {
       const value = String(heading);
       if (/^Evidence completeness:/i.test(value)) return 'Evidence check';
-      if (value === 'Renewal countdown') return 'Renewal timing';
-      if (value === 'Signal table') return 'Account signals';
-      if (value === 'Risk flags' || value === 'Slide: Open risks') return 'Risks to discuss';
-      if (value === 'Stakeholder map') return 'People to know';
-      if (value === 'Missing-evidence checklist') return 'Next actions';
+       if (value === 'Renewal countdown') return 'Renewal timing';
+       if (value === 'Signal table') return 'Account signals';
+       if (value === 'Risk flags' || value === 'Slide: Open risks' || value === 'Handoff risk flags') return 'Risks to discuss';
+       if (value === 'Stakeholder map') return 'People to know';
+       if (value === 'Missing-evidence checklist') return 'Next actions';
       if (value.startsWith('Promises register')) return 'What was promised';
       if (value === 'Goals / success criteria') return 'Success goals';
       if (value === 'Risks / dependencies') return 'Risks and dependencies';
@@ -772,7 +851,22 @@ function renderBriefPresentation(markdown, prefix = 'brief') {
       'Account readout': 'Account health',
       'Coverage and risk': 'People and risk',
       'Follow-through': 'Next actions',
-    }[name] || name);
+     }[name] || name);
+    const navigationLabel = (group) => {
+      const headings = group.sections.map((section) => section.heading.toLowerCase());
+      if (headings.some((heading) => heading.startsWith('evidence completeness'))) return 'Evidence check';
+      if (headings.some((heading) => heading.startsWith('promises register'))) return 'Commitments';
+      const hasStakeholders = headings.some((heading) => heading.includes('stakeholder'));
+      const hasRisks = headings.some((heading) => heading.includes('risk'));
+      if (hasStakeholders && hasRisks) return 'People and risk';
+      if (hasStakeholders) return 'Stakeholders';
+      if (hasRisks) return 'Risks and dependencies';
+      if (headings.some((heading) => heading.includes('gap report') || heading.includes('missing-evidence'))) return 'Open asks';
+      if (headings.some((heading) => heading.includes('next-quarter'))) return 'Next actions';
+      if (headings.some((heading) => heading.includes('links') || heading.includes('week-one'))) return 'Follow-through';
+      if (group.name === 'Account readout') return 'Account health';
+      return friendlyGroup(group.name);
+    };
     const lines = source.replace(/\r\n/g, '\n').split('\n');
     const titleLine = lines.find((line) => /^#\s+/.test(line));
     const title = titleLine ? titleLine.replace(/^#\s+/, '') : 'Generated brief';
@@ -804,18 +898,45 @@ function renderBriefPresentation(markdown, prefix = 'brief') {
       const score = section.heading.match(/^Evidence completeness:\s*(.+)$/i);
       const spans = uniqueCitations(section.lines);
       const sectionTitle = score ? 'Evidence check' : friendlySection(section.heading);
-      const stat = score
-        ? `<div class="brief-stat"><strong>${inline(score[1])}</strong><span>evidence covered</span>${spans.length ? `<div class="brief-stat-citations">Source spans: ${citationHtml(spans)}</div>` : ''}</div>`
+      const scoreParts = score && /^(\d+)\/(\d+) \((\d+)%\)$/.exec(score[1]);
+      const present = scoreParts ? Number(scoreParts[1]) : 0;
+      const total = scoreParts ? Number(scoreParts[2]) : 0;
+      const evidenceState = scoreParts
+        ? present === total ? 'complete' : present / total < 0.5 ? 'insufficient' : 'partial'
+        : null;
+      const evidenceStateLabel = evidenceState ? evidenceState[0].toUpperCase() + evidenceState.slice(1) : '';
+      const missingUnits = score
+        ? section.lines
+          .filter((line) => /^\s*\|/.test(line))
+          .map(tableCells)
+          .slice(2)
+          .filter((row) => String(row[1]).toLowerCase() === 'missing')
+          .map((row) => friendlyEvidenceLabel(row[0]))
+        : [];
+      const missingHtml = missingUnits.length
+        ? `<div class="brief-missing-units"><strong>Missing now</strong><ul>${missingUnits.map((unit) => `<li>${escape(unit)}</li>`).join('')}</ul></div>`
         : '';
+      const stat = score
+        ? `<div class="brief-stat" data-evidence-state="${evidenceState}"><strong>${inline(score[1])}</strong><span class="brief-stat-state">${evidenceStateLabel}</span><span>required input units present</span>${spans.length ? `<div class="brief-stat-citations">Source spans: ${citationHtml(spans)}</div>` : ''}<div class="brief-stat-note">Evidence completeness is not account health.</div></div>${missingHtml}`
+        : '';
+      const rawJump = interactive ? ' <a class="brief-raw-jump" href="#raw-markdown-next-actions">Open the exact next-actions or missing-evidence section in Raw Markdown.</a>' : '';
       const safeNote = content.omitted
-        ? `<p class="brief-safe-note">${content.omitted} line${content.omitted === 1 ? '' : 's'} stay in Raw Markdown so this readout does not guess without source evidence.</p>`
+        ? `<p class="brief-safe-note">${content.omitted} line${content.omitted === 1 ? ' stays' : 's stay'} in Raw Markdown so this readout does not guess without source evidence.${rawJump}</p>`
         : '';
       return `<article class="brief-section" id="${idPrefix}-section-${sectionIndex}"><div class="brief-section-heading"><div class="eyebrow">What this tells you</div><h4>${inline(sectionTitle)}</h4></div>${stat}<div class="brief-content">${content.html}${safeNote}</div></article>`;
     };
-    const groupsHtml = grouped.map((group, groupIndex) => `<section class="brief-group" id="${idPrefix}-group-${groupIndex}"><div class="brief-group-label"><span>${String(groupIndex + 1).padStart(2, '0')}</span><strong>${escape(friendlyGroup(group.name))}</strong></div>${group.sections.map((section, sectionIndex) => sectionHtml(section, sections.indexOf(section))).join('')}</section>`).join('');
-    const mapHtml = grouped.map((group, groupIndex) => `<li><a href="#${idPrefix}-group-${groupIndex}"><span class="brief-map-index">${String(groupIndex + 1).padStart(2, '0')}</span>${escape(friendlyGroup(group.name))}</a></li>`).join('');
+    const rawNavigationLabels = grouped.map(navigationLabel);
+    const navigationCounts = new Map();
+    for (const label of rawNavigationLabels) navigationCounts.set(label, (navigationCounts.get(label) || 0) + 1);
+    const navigationLabels = rawNavigationLabels.map((label, index) => {
+      if (navigationCounts.get(label) === 1) return label;
+      const detail = friendlySection(grouped[index].sections[0].heading);
+      return `${label} - ${detail}`;
+    });
+    const groupsHtml = grouped.map((group, groupIndex) => `<section class="brief-group" id="${idPrefix}-group-${groupIndex}"><div class="brief-group-label"><span>${String(groupIndex + 1).padStart(2, '0')}</span><strong>${escape(navigationLabels[groupIndex])}</strong></div>${group.sections.map((section, sectionIndex) => sectionHtml(section, sections.indexOf(section))).join('')}</section>`).join('');
+    const mapHtml = grouped.map((group, groupIndex) => `<li><a href="#${idPrefix}-group-${groupIndex}"><span class="brief-map-index">${String(groupIndex + 1).padStart(2, '0')}</span>${escape(navigationLabels[groupIndex])}</a></li>`).join('');
     const identityHtml = introLines.map((line) => `<p>${inline(line)}</p>`).join('');
-    return `<div class="brief-presentation" data-presentation="visual"><div class="brief-presentation-head"><div><div class="eyebrow">Account readout</div><h3>${inline(title)}</h3><div class="brief-identity">${identityHtml}</div></div><p>Start with the readout. Each signal keeps its source span; open Raw Markdown when you need the exact artifact.</p></div><div class="brief-anatomy"><nav class="brief-map" aria-label="Readout sections"><ol>${mapHtml}</ol></nav><div class="brief-groups">${groupsHtml}</div></div></div>`;
+    return `<div class="brief-presentation" data-presentation="visual"><div class="brief-presentation-head"><div><div class="eyebrow">Account readout</div><h3>${inline(title)}</h3><div class="brief-identity">${identityHtml}</div></div><p>Evidence status is separate from account health. Each cited signal can open its local source editor.</p></div><div class="brief-anatomy"><nav class="brief-map" aria-label="Readout sections"><ol>${mapHtml}</ol></nav><div class="brief-groups">${groupsHtml}</div></div></div>`;
   } catch {
     return '<p class="brief-presentation-fallback">Visual presentation unavailable. Raw Markdown remains available unchanged.</p>';
   }
@@ -988,12 +1109,12 @@ function buildStaticPage() {
 </head>
 <body>
   <div class="shell">
-    <a class="skip-link" href="#static-main">Skip to generated samples</a>
+    <a id="static-skip-link" class="skip-link" href="#static-main">Skip to generated samples</a>
     <header class="topbar">
       <a class="wordmark" href="../">csm-kit</a>
       <span class="top-meta">STATIC WALKTHROUGH / EXAMPLE ACCOUNT</span>
     </header>
-    <main id="static-main">
+    <main id="static-main" class="focus-target" tabindex="-1">
       <section class="hero">
         <div class="eyebrow">Static CSM walkthrough</div>
         <h1>Walk into the next customer conversation ready.</h1>
@@ -1003,6 +1124,7 @@ function buildStaticPage() {
           <span class="chip">source-backed signals</span>
           <span class="chip success">works offline</span>
         </div>
+        <a class="hero-route" href="../demo/">Try the interactive proof <small>choose a situation</small></a>
       </section>
       ${buildTrustRail()}
       ${buildAccountPulseVisual()}
@@ -1022,6 +1144,7 @@ function buildStaticPage() {
         </div>
       </section>
     </main>
+    <script id="static-focus-support">(() => { const link = document.getElementById('static-skip-link'); const target = document.getElementById('static-main'); link?.addEventListener('click', () => target?.focus?.()); })();</script>
     <footer class="footer">
        <p><a href="../demo/">Open the interactive demo</a> to choose a situation, test a local change, and see the next follow-up appear.</p>
       <p class="mono">Generated by web/build-demo.mjs · csm-kit v${htmlEscape(PACKAGE.version)} · source examples are the contract.</p>
@@ -1043,6 +1166,12 @@ function buildRuntimeScript(scenarios, modules) {
   const SCENARIOS = __SCENARIOS__;
   const PACKAGE = __PACKAGE__;
   const AS_OF = ${JSON.stringify(AS_OF)};
+
+  function evidenceState(completeness) {
+    if (!completeness || completeness.total <= 0) return 'insufficient';
+    if (completeness.present === completeness.total) return 'complete';
+    return completeness.present / completeness.total < 0.5 ? 'insufficient' : 'partial';
+  }
 
   function makeCsmkit(vfs) {
     const fsShim = {
@@ -1183,6 +1312,7 @@ function buildRuntimeScript(scenarios, modules) {
     const brief = briefApi.buildBrief({ type, ...loaded, asOfDt: parsedAsOf });
     return {
       ...brief,
+      evidenceState: evidenceState(brief.completeness),
       warnings: loaded.warnings,
       asOf: AS_OF,
       scenario: scenarioName,
@@ -1192,7 +1322,7 @@ function buildRuntimeScript(scenarios, modules) {
 
   // Public surface used by the page and by the equivalence harness. The
   // engine modules above are the unmodified lib/*.js sources embedded at build time.
-  const api = { AS_OF, PACKAGE, SCENARIOS, makeCsmkit, generate };
+  const api = { AS_OF, PACKAGE, SCENARIOS, makeCsmkit, generate, evidenceState };
   window.CSMKIT_DEMO = api;
   globalThis.CSMKIT_DEMO = api;
 })();
@@ -1205,43 +1335,37 @@ const UI_SCRIPT = String.raw`(() => {
   const api = window.CSMKIT_DEMO;
   const state = { scenario: 'full', type: 'renewal' };
   const edits = new Map();
+  const editorStates = new Map();
   const app = document.getElementById('demo-app');
+  const skipLink = document.getElementById('demo-skip-link');
   const scenarioControls = document.getElementById('scenario-controls');
   const typeControls = document.getElementById('type-controls');
   const sourceList = document.getElementById('source-list');
+  const sourcePanel = document.getElementById('source-evidence');
   const visualOutput = document.getElementById('brief-visual-output');
   const output = document.getElementById('brief-output');
+  const rawSectionTarget = document.getElementById('raw-markdown-next-actions');
   const status = document.getElementById('result-status');
   const warnings = document.getElementById('warning-box');
+  const evidenceSummary = document.getElementById('evidence-summary');
   const sourceSummary = document.getElementById('source-summary');
+  const sourcePrivacy = document.getElementById('source-privacy');
+  const editorStateOutput = document.getElementById('editor-state');
   const scenarioSummary = document.getElementById('scenario-summary');
   const nextMoveCopy = document.getElementById('next-move-copy');
   const generateButton = document.getElementById('generate-button');
   const resetButton = document.getElementById('reset-button');
+  const copyButton = document.getElementById('copy-markdown-button');
+  const downloadButton = document.getElementById('download-markdown-button');
+  const exportFeedback = document.getElementById('export-feedback');
   const visualViewButton = document.getElementById('visual-view-button');
   const rawViewButton = document.getElementById('raw-view-button');
+  let currentMarkdown = '';
   let briefView = 'visual';
   const typeDetails = {
-    renewal: { label: 'Renewal prep', description: 'Timing, account health, risks, and who to call.' },
-    handoff: { label: 'Sales handoff', description: 'Promises, stakeholders, and gaps to close.' },
-    qbr: { label: 'QBR prep', description: 'Value delivered, risks, and the next-quarter plan.' },
-  };
-  const nextMoves = {
-    full: {
-      renewal: 'Lead with renewal timing, check the usage trend, and name the next owner for a customer conversation.',
-      handoff: 'Confirm the promised scope and stakeholder owners before the first customer touch.',
-      qbr: 'Open on value delivered, connect risks to the next quarter, and leave with an agreed follow-up.',
-    },
-    risky: {
-      renewal: 'Lead with the signal under pressure, then agree on a customer conversation and owner before renewal.',
-      handoff: 'Surface the unproven promise or quiet stakeholder and make the handoff follow-up explicit.',
-      qbr: 'Use the open risk as the first conversation, then tie the next-quarter plan to an owner.',
-    },
-    sparse: {
-      renewal: 'Use the gaps as your agenda: ask for the missing context before making a health or renewal claim.',
-      handoff: 'Turn each missing input into a question for the account executive before kickoff.',
-      qbr: 'Separate what is supported from what to ask for before presenting a QBR story.',
-    },
+    renewal: { label: 'Renewal prep', description: 'Timing, account health, risks, and who to call.', evidence: '5 required evidence units' },
+    handoff: { label: 'Sales handoff', description: 'Promises, stakeholders, and gaps to close.', evidence: '7 required evidence units' },
+    qbr: { label: 'QBR prep', description: 'Value delivered, risks, and the next-quarter plan.', evidence: '5 required evidence units' },
   };
 
   const renderBriefPresentation = ${renderBriefPresentation.toString()};
@@ -1259,13 +1383,62 @@ const UI_SCRIPT = String.raw`(() => {
     return api.SCENARIOS[state.scenario].types[state.type];
   }
 
+  function scopeKey() {
+    return state.scenario + '/' + state.type;
+  }
+
   function editKey(key) {
-    return state.scenario + '/' + state.type + '/' + key;
+    return scopeKey() + '/' + key;
+  }
+
+  function setEditorState(value) {
+    editorStates.set(scopeKey(), value);
+    renderEditorState();
+  }
+
+  function currentEditorState() {
+    return editorStates.get(scopeKey()) || 'unchanged';
+  }
+
+  function renderEditorState() {
+    if (!editorStateOutput) return;
+    const value = currentEditorState();
+    const copy = {
+      unchanged: 'unchanged - no local edits',
+      changed: 'changed - update the readout to apply local edits',
+      updated: 'updated - local edits are applied to this readout',
+      reset: 'reset - local edits were cleared',
+      invalid: 'invalid - edits are kept; fix the source and update again',
+    }[value] || value;
+    editorStateOutput.dataset.state = value;
+    editorStateOutput.textContent = 'Editor state: ' + copy;
+  }
+
+  function frontlineEvidenceLabel(value) {
+    const label = String(value);
+    if (/^Account name|^Renewal date/.test(label)) return 'Account context: ' + label.replace(/ \([^)]*\)$/, '').replace(/^Account name/, 'account name').replace(/^Renewal date/, 'renewal date');
+    if (/CRM activity/i.test(label)) return 'CRM notes';
+    if (/Ticket export/i.test(label)) return 'Support history';
+    if (/Usage summary/i.test(label)) return 'Product usage';
+    if (/^Sending AE|^Goals \/ success criteria|^Stakeholder map|^Promises register|^Risks \/ dependencies|^Links /i.test(label)) {
+      return 'Handoff record: ' + label.replace(/^Sending AE/, 'sending AE').replace(/^Goals \/ success criteria/, 'success criteria').replace(/^Stakeholder map/, 'stakeholders').replace(/^Promises register(?: \(promised-vs-sold\))?/, 'promised-vs-sold').replace(/^Risks \/ dependencies/, 'risks and dependencies').replace(/^Links(?: \(recordings \/ proposal\))?/, 'recordings and proposal').replace(/ \([^)]*\)$/, '');
+    }
+    if (/question/i.test(label)) return 'Open questions';
+    return label;
+  }
+
+  function escapeHtml(value) {
+    return String(value)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
   }
 
   function renderScenarioControls() {
     scenarioControls.replaceChildren();
-    for (const [name, scenario] of Object.entries(api.SCENARIOS)) {
+    for (const [index, [name, scenario]] of Object.entries(api.SCENARIOS).entries()) {
       const item = button('', 'choice', { 'aria-pressed': String(name === state.scenario) });
       const strong = document.createElement('strong');
       strong.textContent = scenario.label;
@@ -1275,6 +1448,7 @@ const UI_SCRIPT = String.raw`(() => {
       item.addEventListener('click', () => {
         state.scenario = name;
         render();
+        scenarioControls.children[index]?.focus?.();
       });
       scenarioControls.append(item);
     }
@@ -1282,17 +1456,18 @@ const UI_SCRIPT = String.raw`(() => {
 
   function renderTypeControls() {
     typeControls.replaceChildren();
-    for (const type of ['renewal', 'handoff', 'qbr']) {
+    for (const [index, type] of ['renewal', 'handoff', 'qbr'].entries()) {
       const detail = typeDetails[type];
       const item = button('', 'type-choice', { 'aria-pressed': String(type === state.type) });
       const strong = document.createElement('strong');
       strong.textContent = detail.label;
       const small = document.createElement('small');
-      small.textContent = detail.description;
+      small.textContent = detail.description + ' ' + detail.evidence + '.';
       item.append(strong, small);
       item.addEventListener('click', () => {
         state.type = type;
         render();
+        typeControls.children[index]?.focus?.();
       });
       typeControls.append(item);
     }
@@ -1302,7 +1477,14 @@ const UI_SCRIPT = String.raw`(() => {
     sourceList.replaceChildren();
     const definition = currentDefinition();
     const entries = Object.entries(definition.inputs);
-    sourceSummary.textContent = entries.length + ' evidence file' + (entries.length === 1 ? '' : 's') + ' · edits stay in this tab';
+    sourceSummary.textContent = entries.length + ' evidence file' + (entries.length === 1 ? '' : 's') + ' · advanced evidence editor';
+    if (sourcePrivacy) sourcePrivacy.textContent = 'Edits stay in this tab. Nothing is uploaded. Reset clears local edits. Production CLI reads local files.';
+    renderEditorState();
+    const focusNote = document.createElement('p');
+    focusNote.id = 'source-focus-note';
+    focusNote.className = 'source-focus-note';
+    focusNote.textContent = 'Citations focus the matching file editor; line-level navigation remains in the text area.';
+    sourceList.append(focusNote);
     if (entries.length === 0) {
       const empty = document.createElement('p');
       empty.className = 'empty-source';
@@ -1322,8 +1504,16 @@ const UI_SCRIPT = String.raw`(() => {
       editor.dataset.key = key;
       editor.spellcheck = false;
       editor.value = edits.has(editKey(key)) ? edits.get(editKey(key)) : definition.files[input.path];
-      editor.addEventListener('input', () => edits.set(editKey(key), editor.value));
-      card.append(label, editor);
+      const citationNote = document.createElement('p');
+      citationNote.id = 'source-note-' + key;
+      citationNote.className = 'source-citation-note';
+      citationNote.textContent = 'Cited spans identify lines in this file; line-level navigation stays in the text area.';
+      editor.setAttribute('aria-describedby', citationNote.id);
+      editor.addEventListener('input', () => {
+        edits.set(editKey(key), editor.value);
+        setEditorState('changed');
+      });
+      card.append(label, editor, citationNote);
       sourceList.append(card);
     }
   }
@@ -1339,60 +1529,285 @@ const UI_SCRIPT = String.raw`(() => {
     const visual = briefView === 'visual';
     visualOutput.hidden = !visual;
     output.hidden = visual;
+    if (rawSectionTarget) rawSectionTarget.hidden = visual;
+    visualOutput.setAttribute('aria-hidden', String(!visual));
+    output.setAttribute('aria-hidden', String(visual));
     visualViewButton.setAttribute('aria-pressed', String(visual));
     rawViewButton.setAttribute('aria-pressed', String(!visual));
   }
 
-  function renderBrief() {
+  function riskSummary(markdown) {
+    const match = String(markdown).match(/^## (Risk flags|Handoff risk flags|Slide: Open risks)\n([\s\S]*?)(?=\n## |$)/m);
+    if (!match) return { title: 'Not evaluated', detail: 'No cited risk section was rendered from the supplied evidence.' };
+    if (/_None triggered by the current deterministic rules\._/.test(match[2])) {
+      return { title: 'No cited flags', detail: 'The deterministic rules found no flags in the supplied evidence. This is not a health score.' };
+    }
+    return { title: 'Cited signals below', detail: 'Review the separate cited risk section. Evidence coverage does not assess account health.' };
+  }
+
+  function renderEvidenceSummary(result) {
+    if (!evidenceSummary) return;
+    const score = result.completeness;
+    const evidenceState = result.evidenceState || api.evidenceState(score);
+    const stateLabel = evidenceState[0].toUpperCase() + evidenceState.slice(1);
+    const missing = score.units.filter((unit) => !unit.ok).map((unit) => frontlineEvidenceLabel(unit.label));
+    const missingHtml = missing.length
+      ? '<strong>Missing now</strong><ul>' + missing.map((unit) => '<li>' + escapeHtml(unit) + '</li>').join('') + '</ul>'
+      : '<small>All required units are present. Complete evidence still does not indicate a healthy account.</small>';
+    const risk = riskSummary(result.markdown);
+    evidenceSummary.innerHTML = '<div class="state-rail" role="group" aria-label="Readout state"><div class="state-card"><span class="state-card-label">Generation</span><strong>Readout generated</strong><small>The exact Markdown artifact is available in both views.</small></div><div class="state-card" data-state="' + evidenceState + '"><span class="state-card-label">Input evidence</span><strong>Evidence ' + stateLabel + '</strong><small>' + score.present + ' of ' + score.total + ' ' + typeDetails[state.type].evidence.replace(/^\d+ /, '') + ' present. Evidence completeness is not account health.</small>' + (missing.length ? '<div class="evidence-missing-list">' + missingHtml + '</div>' : missingHtml) + '</div><div class="state-card" data-state="risk"><span class="state-card-label">Account / business risk</span><strong>' + risk.title + '</strong><small>' + risk.detail + '</small></div></div>';
+  }
+
+  function rawSectionText(markdown) {
+    const heading = String(markdown).split('\n').find((line) => /^## (Slide: Next-quarter plan|Missing-evidence checklist|Gap report)/.test(line));
+    return heading
+      ? 'Raw Markdown target: ' + heading.replace(/^## /, '') + '. The exact generated bytes remain unchanged.'
+      : 'Raw Markdown output. The exact generated bytes remain unchanged.';
+  }
+
+  function markdownSections(markdown) {
+    const sections = [];
+    let current = null;
+    for (const line of String(markdown).split('\n')) {
+      const heading = /^##\s+(.+)$/.exec(line);
+      if (heading) {
+        current = { heading: heading[1], lines: [] };
+        sections.push(current);
+      } else if (current) {
+        current.lines.push(line);
+      }
+    }
+    return sections;
+  }
+
+  function citedNextMove(markdown) {
+    const sections = markdownSections(markdown);
+    const preferred = [
+      /next-quarter plan/i,
+      /missing-evidence checklist/i,
+      /^gap report/i,
+      /risk flags|open risks/i,
+      /week-one questions/i,
+    ];
+    for (const headingPattern of preferred) {
+      const section = sections.find((candidate) => headingPattern.test(candidate.heading));
+      if (!section) continue;
+      const line = section.lines.find((candidate) =>
+        /^\s*-\s+/.test(candidate) && /[\w./-]+#L\d+(?:[-,]L?\d+)*/.test(candidate) &&
+        !/All required evidence present|None triggered by the current deterministic rules|Assign an owner and due date/.test(candidate)
+      );
+      if (line) return { heading: section.heading, line, citations: [...line.matchAll(/[\w./-]+#L\d+(?:[-,]L?\d+)*/g)].map((match) => match[0]) };
+    }
+    return null;
+  }
+
+  function rawJumpLink() {
+    const link = document.createElement('a');
+    link.className = 'brief-raw-jump';
+    link.href = '#raw-markdown-next-actions';
+    link.textContent = 'Open the exact next-actions or missing-evidence section in Raw Markdown.';
+    return link;
+  }
+
+  function renderNextMove(result) {
+    if (!nextMoveCopy) return;
+    nextMoveCopy.replaceChildren();
+    const candidate = citedNextMove(result.markdown);
+    if (!candidate) {
+      const label = document.createElement('span');
+      label.className = 'next-move-label';
+      label.textContent = 'No cited next move to lift';
+      const copy = document.createElement('span');
+      copy.className = 'next-move-candidate';
+      copy.textContent = 'No cited next move is safe to lift into Visual brief.';
+      nextMoveCopy.append(label, copy, rawJumpLink());
+      return;
+    }
+    const label = document.createElement('span');
+    label.className = 'next-move-label';
+    label.textContent = 'Source-safe item from ' + candidate.heading;
+    const copy = document.createElement('span');
+    copy.className = 'next-move-candidate';
+    copy.textContent = candidate.line;
+    const citation = candidate.citations[0].match(/^([\w./-]+)#(L\d+(?:[-,]L?\d+)*)$/);
+    const sourceLink = document.createElement('a');
+    sourceLink.className = 'next-move-link';
+    sourceLink.href = '#source-evidence';
+    sourceLink.textContent = 'Open cited source ' + candidate.citations[0];
+    if (citation) {
+      sourceLink.dataset.source = citation[1];
+      sourceLink.dataset.lines = citation[2];
+    }
+    nextMoveCopy.append(label, copy, sourceLink);
+  }
+
+  function focusSource(source, lines) {
+    const entry = Object.entries(currentDefinition().inputs).find(([, input]) => input.label === source || input.path === '/' + source);
+    if (!entry) return false;
+    const [key, input] = entry;
+    const editor = document.getElementById('source-' + key);
+    if (!editor) return false;
+    if (sourcePanel) sourcePanel.open = true;
+    for (const card of sourceList.querySelectorAll('.source-card')) card.classList.remove('cited');
+    const card = [...sourceList.querySelectorAll('.source-card')].find((candidate) => [...candidate.children].includes(editor));
+    card?.classList.add('cited');
+    const note = document.getElementById('source-note-' + key);
+    const span = source + '#' + lines;
+    if (note) {
+      note.classList.add('cited');
+      note.textContent = 'Cited span: ' + span + '. File-level focus only; line-level navigation stays in the text area.';
+    }
+    const focusNote = document.getElementById('source-focus-note');
+    if (focusNote) focusNote.textContent = 'Focused ' + span + '. File-level focus only; inspect the text area for the cited line or range.';
+    editor.dataset.citedLines = lines;
+    editor.setAttribute('aria-label', input.label + ' source editor; cited ' + span + '. File-level focus only.');
+    editor.focus?.({ preventScroll: true });
+    editor.scrollIntoView?.({ block: 'center' });
+    return true;
+  }
+
+  function focusRawSection(event) {
+    event?.preventDefault?.();
+    setBriefView('raw');
+    const sectionStart = currentMarkdown.search(/^## (Slide: Next-quarter plan|Missing-evidence checklist|Gap report)/m);
+    if (output && sectionStart >= 0 && output.scrollHeight > output.clientHeight) {
+      output.scrollTop = Math.round(output.scrollHeight * (sectionStart / Math.max(currentMarkdown.length, 1)));
+    }
+    rawSectionTarget?.focus?.();
+  }
+
+  function handleLocalJump(event) {
+    const target = event?.target;
+    const sourceLink = target?.closest?.('[data-source][data-lines]');
+    if (sourceLink) {
+      event.preventDefault();
+      focusSource(sourceLink.dataset.source, sourceLink.dataset.lines);
+      return;
+    }
+    const rawLink = target?.closest?.('.brief-raw-jump');
+    if (rawLink) focusRawSection(event);
+  }
+
+  function markEditorsInvalid(invalid) {
+    for (const editor of sourceList.querySelectorAll('.source-editor')) editor.setAttribute('aria-invalid', String(invalid));
+  }
+
+  function renderBrief(action = 'select', focusTarget = null) {
     output.classList.remove('error');
+    warnings.className = 'warning-box';
     try {
       const result = api.generate(state.scenario, state.type, collectOverrides());
-      output.textContent = result.markdown;
-      visualOutput.innerHTML = renderBriefPresentation(result.markdown, 'interactive-brief');
+      currentMarkdown = result.markdown;
+      output.textContent = currentMarkdown;
+      visualOutput.innerHTML = renderBriefPresentation(currentMarkdown, 'interactive-brief');
+      if (rawSectionTarget) rawSectionTarget.textContent = rawSectionText(currentMarkdown);
+      renderEvidenceSummary(result);
+      renderNextMove(result);
       const score = result.completeness;
       status.className = 'result-status ok';
-      status.textContent = 'ready · evidence ' + score.present + '/' + score.total + ' (' + score.pct + '%)';
+      status.textContent = 'readout generated';
       warnings.hidden = result.warnings.length === 0;
       warnings.textContent = result.warnings.length === 0
         ? ''
         : result.warnings.length + ' input warning' + (result.warnings.length === 1 ? '' : 's') + ' · invalid rows stay out of the brief.';
+      markEditorsInvalid(result.warnings.length > 0);
+      if (action === 'update') setEditorState(result.warnings.length > 0 ? 'invalid' : 'updated');
+      else if (result.warnings.length > 0) setEditorState('invalid');
+      setBriefView(briefView);
+      focusTarget?.focus?.();
     } catch (error) {
+      currentMarkdown = '';
       visualOutput.innerHTML = '';
       output.classList.add('error');
       output.textContent = 'The engine stopped safely:\n\n' + error.message;
       status.className = 'result-status error';
       status.textContent = 'input error · no brief rendered';
-      warnings.hidden = true;
+      warnings.hidden = false;
+      warnings.className = 'warning-box error';
+      warnings.textContent = 'Input error: ' + error.message + ' Edits were kept. Fix the source and update again.';
+      markEditorsInvalid(true);
+      setEditorState('invalid');
+      if (evidenceSummary) evidenceSummary.innerHTML = '<div class="state-rail" role="group" aria-label="Readout state"><div class="state-card"><span class="state-card-label">Generation</span><strong>No readout generated</strong><small>The engine stopped safely before producing an artifact.</small></div><div class="state-card" data-state="insufficient"><span class="state-card-label">Input evidence</span><strong>Unavailable</strong><small>Fix the invalid source before evidence completeness can be evaluated.</small></div><div class="state-card" data-state="risk"><span class="state-card-label">Account / business risk</span><strong>Not evaluated</strong><small>No account-health conclusion is drawn from invalid input.</small></div></div>';
+      if (rawSectionTarget) rawSectionTarget.textContent = 'Raw Markdown is unavailable until the input is valid.';
       setBriefView('raw');
+      focusTarget?.focus?.();
     }
   }
 
-  function renderNextMove() {
-    if (nextMoveCopy) nextMoveCopy.textContent = nextMoves[state.scenario][state.type];
+  function exportFeedbackMessage(message, error = false, focusTarget = null) {
+    if (!exportFeedback) return;
+    exportFeedback.className = 'export-feedback' + (error ? ' error' : '');
+    exportFeedback.textContent = message;
+    focusTarget?.focus?.();
+  }
+
+  function copyMarkdown() {
+    if (!currentMarkdown) {
+      exportFeedbackMessage('Copy failed: no valid generated Markdown is available.', true, copyButton);
+      return;
+    }
+    if (typeof navigator === 'undefined' || !navigator.clipboard || typeof navigator.clipboard.writeText !== 'function') {
+      exportFeedbackMessage('Copy failed: Clipboard API is unavailable in this browser.', true, copyButton);
+      return;
+    }
+    try {
+      Promise.resolve(navigator.clipboard.writeText(currentMarkdown))
+        .then(() => exportFeedbackMessage('Markdown copied.', false, copyButton))
+        .catch(() => exportFeedbackMessage('Copy failed: the browser did not grant clipboard access.', true, copyButton));
+    } catch {
+      exportFeedbackMessage('Copy failed: the browser did not grant clipboard access.', true, copyButton);
+    }
+  }
+
+  function downloadMarkdown() {
+    if (!currentMarkdown) {
+      exportFeedbackMessage('Download failed: no valid generated Markdown is available.', true, downloadButton);
+      return;
+    }
+    const URLApi = typeof URL === 'undefined' ? null : URL;
+    if (typeof Blob === 'undefined' || !URLApi || typeof URLApi.createObjectURL !== 'function') {
+      exportFeedbackMessage('Download failed: Blob downloads are unavailable in this browser.', true, downloadButton);
+      return;
+    }
+    const blob = new Blob([currentMarkdown], { type: 'text/markdown;charset=utf-8' });
+    const objectUrl = URLApi.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = objectUrl;
+    link.download = 'csm-kit-' + state.type + '-' + state.scenario + '.md';
+    link.click?.();
+    const revoke = () => URLApi.revokeObjectURL?.(objectUrl);
+    if (typeof setTimeout === 'function') setTimeout(revoke, 0);
+    else revoke();
+    exportFeedbackMessage('Markdown download started.', false, downloadButton);
   }
 
   function render() {
     const scenario = api.SCENARIOS[state.scenario];
     state.type = api.SCENARIOS[state.scenario].types[state.type] ? state.type : 'renewal';
-    scenarioSummary.textContent = scenario.label + ' · snapshot ' + api.AS_OF;
-    renderNextMove();
+    scenarioSummary.textContent = scenario.label + ' · example account/source set · snapshot ' + api.AS_OF;
     renderScenarioControls();
     renderTypeControls();
     renderSources();
-    renderBrief();
+    renderBrief('select');
   }
 
-  generateButton.addEventListener('click', renderBrief);
+  skipLink?.addEventListener('click', () => document.getElementById('demo-setup')?.focus?.());
+  visualOutput.addEventListener('click', handleLocalJump);
+  nextMoveCopy?.addEventListener('click', handleLocalJump);
+  generateButton.addEventListener('click', () => renderBrief('update', generateButton));
   resetButton.addEventListener('click', () => {
     for (const key of [...edits.keys()]) if (key.startsWith(state.scenario + '/' + state.type + '/')) edits.delete(key);
+    setEditorState('reset');
     renderSources();
-    renderBrief();
+    renderBrief('reset', resetButton);
   });
   visualViewButton.addEventListener('click', () => setBriefView('visual'));
   rawViewButton.addEventListener('click', () => setBriefView('raw'));
+  copyButton.addEventListener('click', copyMarkdown);
+  downloadButton.addEventListener('click', downloadMarkdown);
   setBriefView(briefView);
   render();
-  app.dataset.ready = 'true';
+  app.dataset.rendered = 'true';
 })();
 `;
 
@@ -1418,7 +1833,7 @@ function buildInteractivePage({ directoryLayout = true } = {}) {
 </head>
 <body>
   <div class="shell">
-    <a class="skip-link" href="#demo-app">Skip to demo controls</a>
+    <a id="demo-skip-link" class="skip-link" href="#demo-setup">Skip to demo controls</a>
     <header class="topbar">
       <a class="wordmark" href="${rootHref}">csm-kit</a>
       <span class="top-meta">INTERACTIVE / LOCAL ONLY</span>
@@ -1435,23 +1850,24 @@ function buildInteractivePage({ directoryLayout = true } = {}) {
          <div class="eyebrow">Frontline CSM workspace</div>
          <h1>Turn customer context into your next move.</h1>
          <p>Bring the account context and exports you already have. csm-kit organizes renewal timing, usage, support, stakeholders, and risks into a cited readout you can use to decide what to ask next. That means less manual reconstruction before the meeting and fewer unsupported claims in the room.</p>
-         <div class="chip-row">
-           <span class="chip success">works offline</span>
-           <span class="chip">renewal + QBR + handoff</span>
-           <span class="chip">cited readout</span>
-         </div>
-       </section>
+          <div class="chip-row">
+            <span class="chip success">works offline</span>
+            <span class="chip">renewal + QBR + handoff</span>
+            <span class="chip">cited readout</span>
+          </div>
+          <a class="hero-route" href="#demo-setup">Try the live readout <small>choose a situation</small></a>
+        </section>
        ${buildTrustRail()}
        ${buildAccountPulseVisual()}
        ${buildWalkthrough()}
        ${buildScopePanel()}
-       <section class="setup" aria-labelledby="setup-heading">
+        <section id="demo-setup" class="setup focus-target" aria-labelledby="setup-heading" tabindex="-1">
         <div class="setup-heading">
           <div>
             <div class="eyebrow">Start with a situation</div>
              <h2 id="setup-heading">See how the readout changes.</h2>
            </div>
-           <p>Pick the situation coming in, then choose the customer conversation you need to prepare for. The readout updates locally.</p>
+            <p>Pick the situation coming in, then choose the customer conversation you need to prepare for. Each situation loads a different example account and source set. The readout updates locally.</p>
         </div>
         <div class="setup-grid">
           <section class="panel control-panel" aria-labelledby="scenario-heading">
@@ -1475,22 +1891,28 @@ function buildInteractivePage({ directoryLayout = true } = {}) {
               <h2>Account readout</h2>
               <p id="scenario-summary">Preparing your snapshot</p>
             </div>
-            <div id="result-status" class="result-status" aria-live="polite">preparing your readout</div>
-          </div>
-          <div id="warning-box" class="warning-box" role="status" hidden></div>
-          <div class="brief-view-switch" role="group" aria-label="Generated brief view">
+             <div id="result-status" class="result-status" aria-live="polite">preparing your readout</div>
+           </div>
+           <div id="warning-box" class="warning-box" role="alert" hidden></div>
+           <div id="evidence-summary" aria-live="polite"></div>
+           <div class="brief-view-switch" role="group" aria-label="Generated brief view">
             <button id="visual-view-button" class="view-button" type="button" aria-pressed="true" aria-controls="brief-visual-output">Visual brief</button>
             <button id="raw-view-button" class="view-button" type="button" aria-pressed="false" aria-controls="brief-output">Raw Markdown</button>
           </div>
           <div id="brief-visual-output" class="brief-visual-panel brief-visual" aria-live="polite" hidden></div>
-          <div class="brief-raw-panel"><pre id="brief-output" class="brief-output result-output" aria-label="Raw generated markdown brief" aria-live="polite"></pre></div>
-          <div class="result-footer">
-            <div class="button-row">
-              <button id="generate-button" class="button" type="button">Update readout</button>
-              <button id="reset-button" class="button secondary" type="button">Reset edits</button>
-            </div>
-            <span class="mono">same inputs + same snapshot = same readout</span>
-          </div>
+           <div class="brief-raw-panel"><p id="raw-markdown-next-actions" class="raw-section-target" tabindex="-1" hidden>Raw Markdown target</p><pre id="brief-output" class="brief-output result-output" aria-label="Raw generated markdown brief" aria-live="polite"></pre></div>
+           <div class="result-footer">
+             <div class="button-row">
+               <button id="generate-button" class="button" type="button">Update readout</button>
+               <button id="reset-button" class="button secondary" type="button">Reset edits</button>
+             </div>
+             <div class="button-row" aria-label="Markdown portability">
+               <button id="copy-markdown-button" class="button secondary" type="button">Copy Markdown</button>
+               <button id="download-markdown-button" class="button secondary" type="button">Download .md</button>
+             </div>
+             <span id="export-feedback" class="export-feedback" aria-live="polite"></span>
+             <span class="mono">same inputs + same snapshot = same readout</span>
+           </div>
          </article>
          <aside class="panel demo-note" aria-labelledby="next-move-heading">
            <div class="eyebrow">03 / Take it into the conversation</div>
@@ -1502,15 +1924,17 @@ function buildInteractivePage({ directoryLayout = true } = {}) {
              <span>follow-up</span>
            </div>
          </aside>
-         <details class="panel source-panel">
+          <details id="source-evidence" class="panel source-panel">
           <summary class="panel-heading">
             <div>
               <h2>Inspect the evidence</h2>
-              <p id="source-summary">Edit local files only when you want to test a gap.</p>
-            </div>
-            <span class="mono">optional</span>
-          </summary>
-          <div id="source-list" class="source-list"></div>
+               <p id="source-summary">Advanced evidence editor</p>
+             </div>
+             <span class="mono">optional</span>
+           </summary>
+           <p id="source-privacy" class="source-privacy">Edits stay in this tab. Nothing is uploaded. Reset clears local edits. Production CLI reads local files.</p>
+           <p id="editor-state" class="editor-state" role="status" aria-live="polite">Editor state: unchanged - no local edits</p>
+           <div id="source-list" class="source-list"></div>
          </details>
        </section>
     </main>

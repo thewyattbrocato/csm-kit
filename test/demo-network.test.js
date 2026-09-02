@@ -68,6 +68,7 @@ class Element {
   constructor(tagName, id = null) {
     this.tagName = tagName.toUpperCase();
     this.id = id;
+    this.ownerDocument = null;
     this.children = [];
     this.listeners = new Map();
     this.attributes = {};
@@ -76,6 +77,10 @@ class Element {
     this.textContent = '';
     this.value = '';
     this.hidden = false;
+    this.open = false;
+    this.clicked = false;
+    this.scrollIntoViewCalled = false;
+    this.focusCalled = false;
     this.classList = {
       add: (...names) => {
         const current = new Set(this.className.split(/\s+/).filter(Boolean));
@@ -89,6 +94,7 @@ class Element {
           .filter((name) => name && !removed.has(name))
           .join(' ');
       },
+      contains: (name) => this.className.split(/\s+/).includes(name),
     };
   }
 
@@ -104,6 +110,10 @@ class Element {
     this.attributes[name] = String(value);
   }
 
+  getAttribute(name) {
+    return this.attributes[name] ?? null;
+  }
+
   addEventListener(name, listener) {
     if (!this.listeners.has(name)) this.listeners.set(name, []);
     this.listeners.get(name).push(listener);
@@ -111,7 +121,22 @@ class Element {
 
   dispatchEvent(event) {
     const name = typeof event === 'string' ? event : event.type;
-    for (const listener of this.listeners.get(name) || []) listener.call(this, event);
+    const dispatched = typeof event === 'string' ? { type: event, target: this } : event;
+    for (const listener of this.listeners.get(name) || []) listener.call(this, dispatched);
+  }
+
+  focus() {
+    this.focusCalled = true;
+    if (this.ownerDocument) this.ownerDocument.activeElement = this;
+  }
+
+  scrollIntoView() {
+    this.scrollIntoViewCalled = true;
+  }
+
+  click() {
+    this.clicked = true;
+    this.dispatchEvent({ type: 'click', target: this });
   }
 
   querySelectorAll(selector) {
@@ -130,29 +155,49 @@ class Element {
 function createDocument() {
   const ids = [
     'demo-app',
+    'demo-skip-link',
     'scenario-controls',
     'type-controls',
     'source-list',
+    'source-evidence',
     'brief-visual-output',
     'brief-output',
     'result-status',
     'warning-box',
+    'evidence-summary',
     'source-summary',
+    'source-privacy',
+    'editor-state',
     'scenario-summary',
+    'next-move-copy',
     'generate-button',
     'reset-button',
+    'copy-markdown-button',
+    'download-markdown-button',
+    'export-feedback',
     'visual-view-button',
     'raw-view-button',
   ];
-  const elements = new Map(ids.map((id) => [id, new Element(id.includes('button') ? 'button' : 'div', id)]));
-  return {
+  const created = [];
+  const document = {
+    activeElement: null,
+    created,
     getElementById(id) {
       return elements.get(id) || null;
     },
     createElement(tagName) {
-      return new Element(tagName);
+      const element = new Element(tagName);
+      element.ownerDocument = document;
+      created.push(element);
+      return element;
     },
   };
+  const elements = new Map(ids.map((id) => {
+    const element = new Element(id.includes('button') ? 'button' : 'div', id);
+    element.ownerDocument = document;
+    return [id, element];
+  }));
+  return document;
 }
 
 function networkContext() {
@@ -202,6 +247,61 @@ function runScriptsInBrowserHarness(html) {
   return network.calls;
 }
 
+function runInteractiveUiHarness() {
+  const html = fs.readFileSync(path.join(ROOT, 'docs', 'demo', 'index.html'), 'utf8');
+  const document = createDocument();
+  const clipboardWrites = [];
+  const objectUrls = [];
+  const revokedUrls = [];
+  const anchors = [];
+  let blobText = '';
+  let nextObjectUrl = 0;
+  class TestBlob {
+    constructor(parts, options) {
+      blobText = parts.map((part) => String(part)).join('');
+      this.type = options?.type;
+    }
+  }
+  const URLApi = {
+    createObjectURL(blob) {
+      objectUrls.push(blob);
+      const url = 'blob:test-' + nextObjectUrl++;
+      return url;
+    },
+    revokeObjectURL(url) {
+      revokedUrls.push(url);
+    },
+  };
+  const navigator = {
+    clipboard: {
+      writeText(value) {
+        clipboardWrites.push(String(value));
+        return Promise.resolve();
+      },
+    },
+  };
+  const originalCreateElement = document.createElement;
+  document.createElement = (tagName) => {
+    const element = originalCreateElement.call(document, tagName);
+    if (String(tagName).toLowerCase() === 'a') anchors.push(element);
+    return element;
+  };
+  const window = { navigator };
+  const context = {
+    window,
+    document,
+    navigator,
+    Blob: TestBlob,
+    URL: URLApi,
+    performance: { now: () => 1 },
+  };
+  vm.createContext(context);
+  for (const match of html.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script>/gi)) {
+    vm.runInContext(match[1], context, { filename: 'interactive-demo-inline-script.js' });
+  }
+  return { context, document, clipboardWrites, objectUrls, revokedUrls, anchors, get blobText() { return blobText; } };
+}
+
 test('demo pages declare no browser-loaded resources', () => {
   for (const file of PAGES) {
     const html = fs.readFileSync(file, 'utf8');
@@ -216,4 +316,52 @@ test('interactive demo scripts run without using network APIs', () => {
     const label = path.relative(ROOT, file);
     assert.deepStrictEqual(runScriptsInBrowserHarness(html), [], `${label} used a network API`);
   }
+});
+
+test('interactive demo keeps edits local and exports the exact generated Markdown', async () => {
+  const harness = runInteractiveUiHarness();
+  const { document } = harness;
+  const api = harness.context.window.CSMKIT_DEMO;
+  const output = document.getElementById('brief-output');
+  const evidenceSummary = document.getElementById('evidence-summary');
+  const editorState = document.getElementById('editor-state');
+  const sourceEditor = document.getElementById('source-list').querySelectorAll('.source-editor')[0];
+  const copyButton = document.getElementById('copy-markdown-button');
+  const downloadButton = document.getElementById('download-markdown-button');
+
+  assert.strictEqual(output.textContent, api.generate('full', 'renewal').markdown);
+  assert.match(evidenceSummary.innerHTML, /5 of 5 required evidence units present/);
+  assert.doesNotMatch(evidenceSummary.innerHTML, /5 of 5 5 required/);
+
+  sourceEditor.value = sourceEditor.value.replace('Acme Manufacturing Co.', 'Edited Manufacturing Co.');
+  sourceEditor.dispatchEvent({ type: 'input', target: sourceEditor });
+  assert.match(editorState.textContent, /^Editor state: changed/);
+
+  document.getElementById('generate-button').dispatchEvent('click');
+  assert.match(output.textContent, /Edited Manufacturing Co\./);
+  assert.match(editorState.textContent, /^Editor state: updated/);
+
+  copyButton.dispatchEvent('click');
+  await new Promise((resolve) => setImmediate(resolve));
+  assert.strictEqual(harness.clipboardWrites.at(-1), output.textContent);
+  assert.strictEqual(document.getElementById('export-feedback').textContent, 'Markdown copied.');
+  assert.strictEqual(document.activeElement, copyButton);
+
+  downloadButton.dispatchEvent('click');
+  const download = harness.anchors.at(-1);
+  assert.ok(download, 'download should create an anchor');
+  assert.strictEqual(download.download, 'csm-kit-renewal-full.md');
+  assert.strictEqual(harness.blobText, output.textContent);
+  assert.strictEqual(harness.objectUrls.length, 1);
+  assert.deepStrictEqual(harness.revokedUrls, ['blob:test-0']);
+
+  document.getElementById('raw-view-button').dispatchEvent('click');
+  assert.strictEqual(output.hidden, false);
+  assert.strictEqual(document.getElementById('brief-visual-output').hidden, true);
+  document.getElementById('visual-view-button').dispatchEvent('click');
+  assert.strictEqual(output.hidden, true);
+
+  document.getElementById('reset-button').dispatchEvent('click');
+  assert.match(document.getElementById('source-list').querySelectorAll('.source-editor')[0].value, /Acme Manufacturing Co\./);
+  assert.match(editorState.textContent, /^Editor state: reset/);
 });
