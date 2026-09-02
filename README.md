@@ -179,7 +179,7 @@ Inputs: one `handoff.yaml` (the whole sales→CS handoff in one typed file), an 
 - **Goals / success criteria** and **risks / dependencies**, each entry cited
 - **Stakeholder map** with handoff roles, cross-referenced against CRM activity; stakeholders with no recorded activity are flagged with the searched range
 - **Handoff risk flags** — unproven promises, maps missing an executive sponsor/economic buyer, silent stakeholders
-- **Week-one questions log** (leading indicator) when provided
+- **Week-one questions log** (leading indicator) for valid rows on or before `--as-of`
 - **Gap report addressed back to the AE** — every missing/unproven item phrased as a specific ask for the one person who can cure it
 
 ```console
