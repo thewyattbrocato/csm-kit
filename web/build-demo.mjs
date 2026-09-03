@@ -136,12 +136,12 @@ const TOKENS = `
     font: var(--csm-weight-body) var(--csm-text-xs)/1.45 var(--csm-code);
   }
   .chip.success { color: var(--csm-citation); border-color: var(--csm-citation); }
+  .hero-actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: stretch; margin-top: 24px; }
   .hero-route {
     display: inline-flex;
     align-items: center;
     gap: 9px;
     min-height: 44px;
-    margin-top: 24px;
     padding: 11px 16px;
     color: var(--csm-action-text);
     background: var(--csm-indigo);
@@ -153,6 +153,13 @@ const TOKENS = `
   }
   .hero-route:hover { color: var(--csm-action-text); background: var(--csm-indigo-hover); border-color: var(--csm-indigo-hover); }
   .hero-route small { color: rgba(255, 255, 255, .82); font: var(--csm-weight-body) var(--csm-text-xs)/1.3 var(--csm-code); }
+  .hero-route.secondary {
+    color: var(--csm-indigo);
+    background: transparent;
+    border-color: var(--csm-line-strong);
+  }
+  .hero-route.secondary:hover { color: var(--csm-indigo); background: var(--csm-indigo-soft); border-color: var(--csm-indigo); }
+  .hero-route.secondary small { color: var(--csm-muted); }
   .hero-proof {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
@@ -541,7 +548,8 @@ const TOKENS = `
     .button { flex: 1 1 auto; }
     .state-rail { grid-template-columns: 1fr; }
     .state-card + .state-card { border-top: 1px solid var(--csm-line); border-left: 0; }
-    .hero-route { width: 100%; justify-content: space-between; margin-top: 20px; }
+    .hero-actions { margin-top: 20px; }
+    .hero-route { width: 100%; justify-content: space-between; }
     .brief-presentation-head { display: block; }
     .brief-presentation-head p { max-width: none; margin-top: 10px; }
     .brief-anatomy { grid-template-columns: 1fr; gap: 18px; }
@@ -1144,7 +1152,10 @@ function buildStaticPage() {
           <span class="chip">source-backed signals</span>
           <span class="chip success">works offline</span>
         </div>
-        <a class="hero-route" href="../demo/">Try the interactive proof <small>choose a situation</small></a>
+        <div class="hero-actions" aria-label="Static demo actions">
+          <a class="hero-route" href="../demo/">Try the interactive proof <small>choose a situation</small></a>
+          <a class="hero-route secondary" href="#samples-heading">Review generated samples <small>inspect proof</small></a>
+        </div>
       </section>
       ${buildTrustRail()}
       ${buildAccountPulseVisual()}
@@ -1886,7 +1897,10 @@ function buildInteractivePage({ directoryLayout = true } = {}) {
             <span class="chip">renewal + QBR + handoff</span>
             <span class="chip">cited readout</span>
           </div>
-          <a class="hero-route" href="#demo-setup">Try the live readout <small>choose a situation</small></a>
+          <div class="hero-actions" aria-label="Interactive demo actions">
+            <a class="hero-route" href="#demo-setup">Try the live readout <small>choose a situation</small></a>
+            <a class="hero-route secondary" href="${staticHref}">Review static samples <small>inspect proof</small></a>
+          </div>
         </section>
        ${buildTrustRail()}
        ${buildAccountPulseVisual()}
