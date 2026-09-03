@@ -32,3 +32,10 @@ This file is the project's committed home for project-intrinsic agent knowledge:
 - **The demo is light-first by design.** Keep the generated marketing surface on restrained light neutrals with readable dark text and blue/indigo/purple accents, including when a system dark preference is active; do not turn the primary CSM journey into a dark-heavy dashboard.
 - **The README Quickstart is a runnable contract** (DECISIONS.md D17): its commands must stay byte-consistent with the per-type console blocks and pass the stranger test — clone clean, install (`npm_config_prefix=<tmp> npm install -g .` to avoid touching the real global prefix), run every printed command verbatim including the expected `wrote brief.md (5/5 evidence, 100%)` line. Re-run it whenever fixtures/examples change brief output.
 - **Badge claims link to verifiable sources**, not third-party badge services: CI/tests → live GitLab pipelines, license/node → `package.json`. A "passing" badge must never become a stale uncheckable claim.
+
+## Maintaining this file
+
+Keep this file for knowledge useful to almost every future agent session in this project.
+Do not repeat what the codebase already shows; point to the authoritative file or command instead.
+Prefer rewriting or pruning existing entries over appending new ones.
+When updating this file, preserve this bar for all agents and keep entries concise.
