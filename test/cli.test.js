@@ -76,6 +76,19 @@ test('full fixture renders complete brief with correct citations', () => {
   );
 });
 
+test('subcommand help succeeds even when combined with other flags', () => {
+  for (const args of [
+    ['brief', '--help', '--stats'],
+    ['brief', '--account', 'example.yaml', '-h'],
+    ['stats', '--stats-file', 'impact.jsonl', '--help'],
+  ]) {
+    const res = runSafe(args);
+    assert.strictEqual(res.code, 0, `${args.join(' ')} should exit successfully`);
+    assert.strictEqual(res.stderr, '');
+    assert.match(res.stdout, /Usage:/);
+  }
+});
+
 test('every factual table row carries a source span', () => {
   const out = run(fullArgs());
   const headerRows = [

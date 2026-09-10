@@ -120,8 +120,12 @@ function rejectFlag(value, flagName, typeName) {
   if (value !== undefined) fail(`--${flagName} is not a valid input for --type ${typeName}`);
 }
 
+function wantsHelp(argv) {
+  return argv.includes('--help') || argv.includes('-h');
+}
+
 function cmdBrief(argv) {
-  if (argv.length === 1 && (argv[0] === '--help' || argv[0] === '-h')) {
+  if (wantsHelp(argv)) {
     process.stdout.write(USAGE);
     return;
   }
@@ -260,7 +264,7 @@ function cmdBrief(argv) {
 }
 
 function cmdStats(argv) {
-  if (argv.length === 1 && (argv[0] === '--help' || argv[0] === '-h')) {
+  if (wantsHelp(argv)) {
     process.stdout.write(USAGE);
     return;
   }
