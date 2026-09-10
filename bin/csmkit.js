@@ -120,6 +120,16 @@ function rejectFlag(value, flagName, typeName) {
   if (value !== undefined) fail(`--${flagName} is not a valid input for --type ${typeName}`);
 }
 
+function rejectOutputInputCollision(outputPath, inputPaths) {
+  if (!outputPath) return;
+  const resolvedOutput = path.resolve(outputPath);
+  for (const inputPath of inputPaths) {
+    if (inputPath && path.resolve(inputPath) === resolvedOutput) {
+      fail(`--out must not overwrite input file "${outputPath}"`);
+    }
+  }
+}
+
 function wantsHelp(argv) {
   return argv.includes('--help') || argv.includes('-h');
 }
@@ -177,6 +187,14 @@ function cmdBrief(argv) {
     rejectFlag(args.values.handoff, 'handoff', type);
     rejectFlag(args.values.questions, 'questions', type);
   }
+  rejectOutputInputCollision(args.values.out, [
+    args.values.account,
+    args.values.handoff,
+    args.values.crm,
+    args.values.tickets,
+    args.values.usage,
+    args.values.questions,
+  ]);
 
   const startedAtNs = process.hrtime.bigint();
 

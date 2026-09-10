@@ -1213,6 +1213,19 @@ test('--out writes the brief to a file', () => {
   assert.match(written, /`account\.yaml#L6`/);
 });
 
+test('--out refuses to overwrite an evidence input file', () => {
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'csmkit-output-input-collision-'));
+  const accountFile = path.join(tmp, 'account.yaml');
+  const accountContents = ['name: Protected Evidence', 'renewal_date: 2026-12-01', 'owner: Rae', 'arr_usd: 1000', ''].join('\n');
+  fs.writeFileSync(accountFile, accountContents);
+
+  const res = runSafe(['brief', '--account', accountFile, '--out', accountFile, ...AS_OF]);
+
+  assert.strictEqual(res.code, 2);
+  assert.match(res.stderr, /--out must not overwrite input file/);
+  assert.strictEqual(fs.readFileSync(accountFile, 'utf8'), accountContents);
+});
+
 test('output filesystem failures use the CLI error protocol', () => {
   const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'csmkit-output-error-'));
   const blocked = path.join(tmp, 'blocked');
