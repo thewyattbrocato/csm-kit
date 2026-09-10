@@ -35,6 +35,7 @@ Usage:
   csmkit brief --type handoff --handoff <handoff.yaml> [--crm <csv>] [--questions <csv>] [...]
   csmkit brief --type qbr --account <account.yaml> [--crm <csv>] [--tickets <csv>] [--usage <csv>] [...]
   csmkit stats [--stats-file <file>]
+  csmkit --help | --version
 
 Commands:
   brief   Render one of three evidence-cited briefs (default --type renewal):
@@ -62,6 +63,10 @@ Options (brief):
   --stats-file        Stats log path (default: ${DEFAULT_STATS_FILE})
   --baseline-minutes  Manual-prep baseline for the minutes-saved estimate
                       (default: ${DEFAULT_BASELINE_MINUTES}; env CSMKIT_BASELINE_MINUTES)
+
+Options (all commands):
+  -h, --help          Show this help and exit
+  -v, --version       Print the package version and exit
 
 Environment:
   CSMKIT_BASELINE_MINUTES   Same as --baseline-minutes (flag wins)
