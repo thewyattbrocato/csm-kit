@@ -57,7 +57,7 @@ Options (brief):
   --crm               CRM activity export CSV (all types)
   --tickets           Ticket export CSV (renewal and qbr)
   --usage             Usage summary CSV (renewal and qbr)
-  --out               Write the brief to a file instead of stdout
+  --out               Write the brief to a non-input file instead of stdout
   --as-of             Reference date for countdowns/windows, YYYY-MM-DD (default: today UTC)
   --stats             Append a minutes-saved record to the stats log
   --stats-file        Stats log path (default: ${DEFAULT_STATS_FILE})
