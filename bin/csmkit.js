@@ -120,11 +120,31 @@ function rejectFlag(value, flagName, typeName) {
   if (value !== undefined) fail(`--${flagName} is not a valid input for --type ${typeName}`);
 }
 
+function fileIdentity(filePath) {
+  try {
+    const stat = fs.statSync(filePath, { bigint: true });
+    return { dev: stat.dev, ino: stat.ino };
+  } catch (err) {
+    if (err && (err.code === 'ENOENT' || err.code === 'ENOTDIR')) return null;
+    fail(`cannot inspect path "${filePath}": ${err.message}`);
+  }
+}
+
+function sameExistingFile(a, b) {
+  const aIdentity = fileIdentity(a);
+  if (!aIdentity) return false;
+  const bIdentity = fileIdentity(b);
+  return Boolean(bIdentity && aIdentity.dev === bIdentity.dev && aIdentity.ino === bIdentity.ino);
+}
+
 function rejectOutputInputCollision(outputPath, inputPaths) {
   if (!outputPath) return;
   const resolvedOutput = path.resolve(outputPath);
   for (const inputPath of inputPaths) {
-    if (inputPath && path.resolve(inputPath) === resolvedOutput) {
+    if (
+      inputPath &&
+      (path.resolve(inputPath) === resolvedOutput || sameExistingFile(outputPath, inputPath))
+    ) {
       fail(`--out must not overwrite input file "${outputPath}"`);
     }
   }

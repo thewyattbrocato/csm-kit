@@ -1226,6 +1226,72 @@ test('--out refuses to overwrite an evidence input file', () => {
   assert.strictEqual(fs.readFileSync(accountFile, 'utf8'), accountContents);
 });
 
+function assertOutputAliasRejected(accountFile, accountContents, outFile) {
+  const res = runSafe(['brief', '--account', accountFile, '--out', outFile, ...AS_OF]);
+
+  assert.strictEqual(res.code, 2);
+  assert.match(res.stderr, /--out must not overwrite input file/);
+  assert.strictEqual(fs.readFileSync(accountFile, 'utf8'), accountContents);
+}
+
+test('--out refuses to overwrite an evidence input symlink', (t) => {
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'csmkit-output-input-symlink-'));
+  const accountFile = path.join(tmp, 'account.yaml');
+  const accountAlias = path.join(tmp, 'account-link.yaml');
+  const accountContents = ['name: Protected Evidence', 'renewal_date: 2026-12-01', 'owner: Rae', 'arr_usd: 1000', ''].join('\n');
+  fs.writeFileSync(accountFile, accountContents);
+  try {
+    fs.symlinkSync(accountFile, accountAlias);
+  } catch (err) {
+    t.skip(`symlinks unavailable: ${err.message}`);
+    return;
+  }
+
+  assertOutputAliasRejected(accountFile, accountContents, accountAlias);
+});
+
+test('--out refuses to overwrite an evidence input hardlink', (t) => {
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'csmkit-output-input-hardlink-'));
+  const accountFile = path.join(tmp, 'account.yaml');
+  const accountAlias = path.join(tmp, 'account-hardlink.yaml');
+  const accountContents = ['name: Protected Evidence', 'renewal_date: 2026-12-01', 'owner: Rae', 'arr_usd: 1000', ''].join('\n');
+  fs.writeFileSync(accountFile, accountContents);
+  try {
+    fs.linkSync(accountFile, accountAlias);
+  } catch (err) {
+    t.skip(`hardlinks unavailable: ${err.message}`);
+    return;
+  }
+
+  assertOutputAliasRejected(accountFile, accountContents, accountAlias);
+});
+
+test('--out refuses case-only aliases on case-insensitive filesystems', (t) => {
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'csmkit-output-input-case-alias-'));
+  const accountFile = path.join(tmp, 'account.yaml');
+  const accountAlias = path.join(tmp, 'ACCOUNT.YAML');
+  const accountContents = ['name: Protected Evidence', 'renewal_date: 2026-12-01', 'owner: Rae', 'arr_usd: 1000', ''].join('\n');
+  fs.writeFileSync(accountFile, accountContents);
+  let inputStat;
+  let aliasStat;
+  try {
+    inputStat = fs.statSync(accountFile, { bigint: true });
+    aliasStat = fs.statSync(accountAlias, { bigint: true });
+  } catch (err) {
+    if (err.code === 'ENOENT') {
+      t.skip('filesystem is case-sensitive');
+      return;
+    }
+    throw err;
+  }
+  if (inputStat.dev !== aliasStat.dev || inputStat.ino !== aliasStat.ino) {
+    t.skip('case-only path is not an alias of the input file');
+    return;
+  }
+
+  assertOutputAliasRejected(accountFile, accountContents, accountAlias);
+});
+
 test('output filesystem failures use the CLI error protocol', () => {
   const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'csmkit-output-error-'));
   const blocked = path.join(tmp, 'blocked');
