@@ -327,6 +327,10 @@ function main() {
     case undefined:
       process.stdout.write(USAGE);
       break;
+    case '--version':
+    case '-v':
+      process.stdout.write(`${pkg.version}\n`);
+      break;
     default:
       fail(`unknown command "${command}"`);
   }
