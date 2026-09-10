@@ -90,9 +90,15 @@ test('subcommand help succeeds even when combined with other flags', () => {
 });
 
 test('version flags report the package version', () => {
-  for (const flag of ['--version', '-v']) {
-    const res = runSafe([flag]);
-    assert.strictEqual(res.code, 0, `${flag} should exit successfully`);
+  for (const args of [
+    ['--version'],
+    ['-v'],
+    ['brief', '--version', '--account', 'example.yaml'],
+    ['stats', '-v', '--stats-file', 'impact.jsonl'],
+  ]) {
+    const res = runSafe(args);
+    const label = args.join(' ');
+    assert.strictEqual(res.code, 0, `${label} should exit successfully`);
     assert.strictEqual(res.stderr, '');
     assert.strictEqual(res.stdout, '0.3.0\n');
   }

@@ -124,9 +124,17 @@ function wantsHelp(argv) {
   return argv.includes('--help') || argv.includes('-h');
 }
 
+function wantsVersion(argv) {
+  return argv.includes('--version') || argv.includes('-v');
+}
+
 function cmdBrief(argv) {
   if (wantsHelp(argv)) {
     process.stdout.write(USAGE);
+    return;
+  }
+  if (wantsVersion(argv)) {
+    process.stdout.write(`${pkg.version}\n`);
     return;
   }
   let args;
@@ -266,6 +274,10 @@ function cmdBrief(argv) {
 function cmdStats(argv) {
   if (wantsHelp(argv)) {
     process.stdout.write(USAGE);
+    return;
+  }
+  if (wantsVersion(argv)) {
+    process.stdout.write(`${pkg.version}\n`);
     return;
   }
   let args;
