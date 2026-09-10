@@ -249,7 +249,7 @@ Handoff roles use exact-token vocabulary (`executive_sponsor`, `economic_buyer`,
 
 Week-one questions log (`--questions`, optional CSV): columns `date`, `question`, optional `asked_by`.
 
-Input flags are strict by brief type: `--handoff` and `--questions` are handoff-only, while `--tickets` and `--usage` are accepted only for renewal and qbr.
+Input flags are strict by brief type: `--handoff` and `--questions` are handoff-only, while `--tickets` and `--usage` are accepted only for renewal and qbr. `--out` refuses paths that resolve to or alias an input evidence file, so a typo cannot overwrite the source export the brief cites.
 
 ## Success metrics
 

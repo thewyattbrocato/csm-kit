@@ -76,6 +76,34 @@ test('full fixture renders complete brief with correct citations', () => {
   );
 });
 
+test('subcommand help succeeds even when combined with other flags', () => {
+  for (const args of [
+    ['brief', '--help', '--stats'],
+    ['brief', '--account', 'example.yaml', '-h'],
+    ['stats', '--stats-file', 'impact.jsonl', '--help'],
+  ]) {
+    const res = runSafe(args);
+    assert.strictEqual(res.code, 0, `${args.join(' ')} should exit successfully`);
+    assert.strictEqual(res.stderr, '');
+    assert.match(res.stdout, /Usage:/);
+  }
+});
+
+test('version flags report the package version', () => {
+  for (const args of [
+    ['--version'],
+    ['-v'],
+    ['brief', '--version', '--account', 'example.yaml'],
+    ['stats', '-v', '--stats-file', 'impact.jsonl'],
+  ]) {
+    const res = runSafe(args);
+    const label = args.join(' ');
+    assert.strictEqual(res.code, 0, `${label} should exit successfully`);
+    assert.strictEqual(res.stderr, '');
+    assert.strictEqual(res.stdout, '0.3.0\n');
+  }
+});
+
 test('every factual table row carries a source span', () => {
   const out = run(fullArgs());
   const headerRows = [
@@ -1165,6 +1193,15 @@ test('usage errors exit non-zero with guidance', () => {
   assert.match(unknownCmd.stderr, /unknown command "frobnicate"/);
 });
 
+test('subcommand help is available without triggering required-input errors', () => {
+  for (const command of ['brief', 'stats']) {
+    const res = runSafe([command, '--help']);
+    assert.strictEqual(res.code, 0);
+    assert.match(res.stdout, /Usage:/);
+    assert.strictEqual(res.stderr, '');
+  }
+});
+
 test('--out writes the brief to a file', () => {
   const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'csmkit-out-'));
   const outFile = path.join(tmp, 'nested', 'brief.md');
@@ -1174,6 +1211,85 @@ test('--out writes the brief to a file', () => {
   assert.match(written, /# Renewal Readiness Brief/);
   assert.match(written, /\*\*Northwind Logistics Inc\.\*\* — `account\.yaml#L2`/);
   assert.match(written, /`account\.yaml#L6`/);
+});
+
+test('--out refuses to overwrite an evidence input file', () => {
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'csmkit-output-input-collision-'));
+  const accountFile = path.join(tmp, 'account.yaml');
+  const accountContents = ['name: Protected Evidence', 'renewal_date: 2026-12-01', 'owner: Rae', 'arr_usd: 1000', ''].join('\n');
+  fs.writeFileSync(accountFile, accountContents);
+
+  const res = runSafe(['brief', '--account', accountFile, '--out', accountFile, ...AS_OF]);
+
+  assert.strictEqual(res.code, 2);
+  assert.match(res.stderr, /--out must not overwrite input file/);
+  assert.strictEqual(fs.readFileSync(accountFile, 'utf8'), accountContents);
+});
+
+function assertOutputAliasRejected(accountFile, accountContents, outFile) {
+  const res = runSafe(['brief', '--account', accountFile, '--out', outFile, ...AS_OF]);
+
+  assert.strictEqual(res.code, 2);
+  assert.match(res.stderr, /--out must not overwrite input file/);
+  assert.strictEqual(fs.readFileSync(accountFile, 'utf8'), accountContents);
+}
+
+test('--out refuses to overwrite an evidence input symlink', (t) => {
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'csmkit-output-input-symlink-'));
+  const accountFile = path.join(tmp, 'account.yaml');
+  const accountAlias = path.join(tmp, 'account-link.yaml');
+  const accountContents = ['name: Protected Evidence', 'renewal_date: 2026-12-01', 'owner: Rae', 'arr_usd: 1000', ''].join('\n');
+  fs.writeFileSync(accountFile, accountContents);
+  try {
+    fs.symlinkSync(accountFile, accountAlias);
+  } catch (err) {
+    t.skip(`symlinks unavailable: ${err.message}`);
+    return;
+  }
+
+  assertOutputAliasRejected(accountFile, accountContents, accountAlias);
+});
+
+test('--out refuses to overwrite an evidence input hardlink', (t) => {
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'csmkit-output-input-hardlink-'));
+  const accountFile = path.join(tmp, 'account.yaml');
+  const accountAlias = path.join(tmp, 'account-hardlink.yaml');
+  const accountContents = ['name: Protected Evidence', 'renewal_date: 2026-12-01', 'owner: Rae', 'arr_usd: 1000', ''].join('\n');
+  fs.writeFileSync(accountFile, accountContents);
+  try {
+    fs.linkSync(accountFile, accountAlias);
+  } catch (err) {
+    t.skip(`hardlinks unavailable: ${err.message}`);
+    return;
+  }
+
+  assertOutputAliasRejected(accountFile, accountContents, accountAlias);
+});
+
+test('--out refuses case-only aliases on case-insensitive filesystems', (t) => {
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'csmkit-output-input-case-alias-'));
+  const accountFile = path.join(tmp, 'account.yaml');
+  const accountAlias = path.join(tmp, 'ACCOUNT.YAML');
+  const accountContents = ['name: Protected Evidence', 'renewal_date: 2026-12-01', 'owner: Rae', 'arr_usd: 1000', ''].join('\n');
+  fs.writeFileSync(accountFile, accountContents);
+  let inputStat;
+  let aliasStat;
+  try {
+    inputStat = fs.statSync(accountFile, { bigint: true });
+    aliasStat = fs.statSync(accountAlias, { bigint: true });
+  } catch (err) {
+    if (err.code === 'ENOENT') {
+      t.skip('filesystem is case-sensitive');
+      return;
+    }
+    throw err;
+  }
+  if (inputStat.dev !== aliasStat.dev || inputStat.ino !== aliasStat.ino) {
+    t.skip('case-only path is not an alias of the input file');
+    return;
+  }
+
+  assertOutputAliasRejected(accountFile, accountContents, accountAlias);
 });
 
 test('output filesystem failures use the CLI error protocol', () => {

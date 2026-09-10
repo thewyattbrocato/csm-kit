@@ -35,6 +35,7 @@ Usage:
   csmkit brief --type handoff --handoff <handoff.yaml> [--crm <csv>] [--questions <csv>] [...]
   csmkit brief --type qbr --account <account.yaml> [--crm <csv>] [--tickets <csv>] [--usage <csv>] [...]
   csmkit stats [--stats-file <file>]
+  csmkit --help | --version
 
 Commands:
   brief   Render one of three evidence-cited briefs (default --type renewal):
@@ -56,12 +57,16 @@ Options (brief):
   --crm               CRM activity export CSV (all types)
   --tickets           Ticket export CSV (renewal and qbr)
   --usage             Usage summary CSV (renewal and qbr)
-  --out               Write the brief to a file instead of stdout
+  --out               Write the brief to a non-input file instead of stdout
   --as-of             Reference date for countdowns/windows, YYYY-MM-DD (default: today UTC)
   --stats             Append a minutes-saved record to the stats log
   --stats-file        Stats log path (default: ${DEFAULT_STATS_FILE})
   --baseline-minutes  Manual-prep baseline for the minutes-saved estimate
                       (default: ${DEFAULT_BASELINE_MINUTES}; env CSMKIT_BASELINE_MINUTES)
+
+Options (all commands):
+  -h, --help          Show this help and exit
+  -v, --version       Print the package version and exit
 
 Environment:
   CSMKIT_BASELINE_MINUTES   Same as --baseline-minutes (flag wins)
@@ -120,7 +125,53 @@ function rejectFlag(value, flagName, typeName) {
   if (value !== undefined) fail(`--${flagName} is not a valid input for --type ${typeName}`);
 }
 
+function fileIdentity(filePath) {
+  try {
+    const stat = fs.statSync(filePath, { bigint: true });
+    return { dev: stat.dev, ino: stat.ino };
+  } catch (err) {
+    if (err && (err.code === 'ENOENT' || err.code === 'ENOTDIR')) return null;
+    fail(`cannot inspect path "${filePath}": ${err.message}`);
+  }
+}
+
+function sameExistingFile(a, b) {
+  const aIdentity = fileIdentity(a);
+  if (!aIdentity) return false;
+  const bIdentity = fileIdentity(b);
+  return Boolean(bIdentity && aIdentity.dev === bIdentity.dev && aIdentity.ino === bIdentity.ino);
+}
+
+function rejectOutputInputCollision(outputPath, inputPaths) {
+  if (!outputPath) return;
+  const resolvedOutput = path.resolve(outputPath);
+  for (const inputPath of inputPaths) {
+    if (
+      inputPath &&
+      (path.resolve(inputPath) === resolvedOutput || sameExistingFile(outputPath, inputPath))
+    ) {
+      fail(`--out must not overwrite input file "${outputPath}"`);
+    }
+  }
+}
+
+function wantsHelp(argv) {
+  return argv.includes('--help') || argv.includes('-h');
+}
+
+function wantsVersion(argv) {
+  return argv.includes('--version') || argv.includes('-v');
+}
+
 function cmdBrief(argv) {
+  if (wantsHelp(argv)) {
+    process.stdout.write(USAGE);
+    return;
+  }
+  if (wantsVersion(argv)) {
+    process.stdout.write(`${pkg.version}\n`);
+    return;
+  }
   let args;
   try {
     args = parseArgs({
@@ -161,6 +212,14 @@ function cmdBrief(argv) {
     rejectFlag(args.values.handoff, 'handoff', type);
     rejectFlag(args.values.questions, 'questions', type);
   }
+  rejectOutputInputCollision(args.values.out, [
+    args.values.account,
+    args.values.handoff,
+    args.values.crm,
+    args.values.tickets,
+    args.values.usage,
+    args.values.questions,
+  ]);
 
   const startedAtNs = process.hrtime.bigint();
 
@@ -256,6 +315,14 @@ function cmdBrief(argv) {
 }
 
 function cmdStats(argv) {
+  if (wantsHelp(argv)) {
+    process.stdout.write(USAGE);
+    return;
+  }
+  if (wantsVersion(argv)) {
+    process.stdout.write(`${pkg.version}\n`);
+    return;
+  }
   let args;
   try {
     args = parseArgs({
@@ -314,6 +381,10 @@ function main() {
     case 'help':
     case undefined:
       process.stdout.write(USAGE);
+      break;
+    case '--version':
+    case '-v':
+      process.stdout.write(`${pkg.version}\n`);
       break;
     default:
       fail(`unknown command "${command}"`);
