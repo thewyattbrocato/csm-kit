@@ -121,6 +121,10 @@ function rejectFlag(value, flagName, typeName) {
 }
 
 function cmdBrief(argv) {
+  if (argv.length === 1 && (argv[0] === '--help' || argv[0] === '-h')) {
+    process.stdout.write(USAGE);
+    return;
+  }
   let args;
   try {
     args = parseArgs({
@@ -256,6 +260,10 @@ function cmdBrief(argv) {
 }
 
 function cmdStats(argv) {
+  if (argv.length === 1 && (argv[0] === '--help' || argv[0] === '-h')) {
+    process.stdout.write(USAGE);
+    return;
+  }
   let args;
   try {
     args = parseArgs({

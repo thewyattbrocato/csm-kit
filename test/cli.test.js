@@ -1165,6 +1165,15 @@ test('usage errors exit non-zero with guidance', () => {
   assert.match(unknownCmd.stderr, /unknown command "frobnicate"/);
 });
 
+test('subcommand help is available without triggering required-input errors', () => {
+  for (const command of ['brief', 'stats']) {
+    const res = runSafe([command, '--help']);
+    assert.strictEqual(res.code, 0);
+    assert.match(res.stdout, /Usage:/);
+    assert.strictEqual(res.stderr, '');
+  }
+});
+
 test('--out writes the brief to a file', () => {
   const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'csmkit-out-'));
   const outFile = path.join(tmp, 'nested', 'brief.md');
