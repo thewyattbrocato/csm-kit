@@ -8,7 +8,7 @@ This file is the project's committed home for project-intrinsic agent knowledge:
 - **Stdlib only, no network.** Node core modules exclusively; no dependencies in package.json (`dependencies: {}` is a feature). Tests spawn the real CLI — keep it that way.
 - **Brief determinism:** identical inputs + same `--as-of` must produce a byte-identical brief. Brief rendering should not read wall-clock time except for the default as-of date; `--stats` may record timestamp and elapsed runtime after rendering.
 - **One engine, many briefs:** `lib/brief.js` is a dispatcher over `BUILDERS` (`renewal` | `handoff` | `qbr`). New brief types register there; shared citation/markdown helpers live in `lib/render.js` — never fork them per brief.
-- **Forge authority:** GitLab remains authoritative and owns CI/Pages; GitHub is a non-force delivery mirror. Follow `SCM_MIGRATION.md` before changing refs or cutover ownership.
+- **Forge authority:** `SCM_MIGRATION.md` owns the current forge authority, delivery mirror, and cutover rules; follow it before changing refs or ownership.
 
 ## Build / test / verify
 
